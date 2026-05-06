@@ -304,6 +304,7 @@ textarea{resize:vertical}
 }
 @media(max-width:480px){.pneu-grid{grid-template-columns:1fr}.metrics-grid{grid-template-columns:1fr 1fr}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 
@@ -1315,10 +1316,13 @@ function loadFromSheets() {
       if(lD.length>1){LANCAMENTOS=lD.slice(1).filter(function(r){return r[0];}).map(function(r){return{n:+r[0],data_br:r[1],fornecedor:r[2],desc:r[3],placa:r[4]||'',motorista:r[5]||'',modelo:r[6]||'',valor:+r[7]||0,pagto:r[8]||'',mes:r[9]||'',mes_num:+r[10]||0};});n++;}
       if(n===0){saveToSheets();}else{showSync('Sincronizado!','ok');}
       renderAll();
-    }).catch(function(){showSync('Offline','warn');renderAll();});
+      setTimeout(renderFinanceiro,300);
+    }).catch(function(){showSync('Offline','warn');renderAll();setTimeout(renderFinanceiro,300);});
 }
 function renderAll() {
   renderPneus('todos'); renderFrota(); renderTrocas(); renderOcorrencias(); renderPainelRanking();
+  var finSection = document.getElementById('financeiro');
+  if(finSection && finSection.classList.contains('active')) { setTimeout(renderFinanceiro, 200); }
 }
 
 /* ── PAINEL RANKING ── */
@@ -1568,10 +1572,7 @@ showTab=function(id){
   var titles={painel:'Painel',pneus:'Pneus',frota:'Frota',ocorrencias:'Ocorrencias',relatorios:'Relatorios',registrar:'Registrar',financeiro:'Financeiro',permissoes:'Permissoes',ia:'Assistente IA'};
   var pt=document.getElementById('pageTitle');
   if(pt&&titles[id])pt.textContent=titles[id];
-  if(id==='financeiro'){
-    if(typeof Chart!=='undefined'){setTimeout(renderFinanceiro,80);}
-    else{var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';s.onload=function(){setTimeout(renderFinanceiro,100);};document.head.appendChild(s);}
-  }
+  if(id==='financeiro'){setTimeout(renderFinanceiro,120);}
   if(id==='relatorios'){
     var today=new Date().toISOString().split('T')[0];
     var rdEl=document.getElementById('relData');
