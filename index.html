@@ -631,6 +631,60 @@ textarea{resize:vertical}
 
 
 <script>
+/* ── DADOS EXPRESSO PB ── */
+var USERS = {
+  'daphinin@frotaexpressopb.com': { pass:'121909', role:'Administrador', initials:'DI', perms:{ registrar:true, financeiro:true, permissoes:true, trocaVeiculo:true } },
+  'gestor@frota.com':   { pass:'gest123',  role:'Gestor',   initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'mecanico@frota.com': { pass:'mec123',   role:'Mecanico', initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } }
+};
+
+var PNEUS = [
+  { id:1, veiculo:'RLR-1H73', eixo:'Tracao 4 pneus necessarios', marca:'Meridional Torino', medida:'295/80R22.5', tipo:'novo',     desgaste:95, km:421117, data:'28/04/2026', custo:1927,  dot:'GS853' },
+  { id:2, veiculo:'QYA-3I45', eixo:'Tracao',                     marca:'Casumina GS851',   medida:'295/80R22.5', tipo:'novo',     desgaste:15, km:0,      data:'03/04/2026', custo:1740,  dot:'GS851' },
+  { id:3, veiculo:'QSH-9C56', eixo:'Dianteiro esquerdo',         marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo',     desgaste:10, km:0,      data:'29/04/2026', custo:1930,  dot:'GHA20' },
+  { id:4, veiculo:'QSH-9C56', eixo:'Dianteiro direito',          marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo',     desgaste:10, km:0,      data:'29/04/2026', custo:1930,  dot:'GHA20' },
+  { id:5, veiculo:'OYM-4G46', eixo:'Traseiro rodizio realizado', marca:'',                 medida:'295/80R22.5', tipo:'recapado', desgaste:65, km:0,      data:'22/04/2026', custo:30,    dot:'' },
+  { id:6, veiculo:'QYB-2A80', eixo:'Pneu consertado',            marca:'',                 medida:'295/80R22.5', tipo:'novo',     desgaste:50, km:0,      data:'04/05/2026', custo:200,   dot:'' },
+  { id:7, veiculo:'QSK-2H66', eixo:'Dianteiro',                  marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo',     desgaste:20, km:0,      data:'17/04/2026', custo:1930,  dot:'GHA20' }
+];
+
+var FROTA = [
+  { id:1, placa:'RLR-1H73', modelo:'DAF',                  motorista:'Sergio Soares',    carreta:'QFC-6A51', ano:2019, km:421117, status:'danger', statusLabel:'Critico',     tipo:'ativo' },
+  { id:2, placa:'QYA-3I45', modelo:'Mercedes-Benz Actros', motorista:'Marcos Antonio',   carreta:'QFC-6A71', ano:2019, km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:3, placa:'QYA-6G28', modelo:'Mercedes-Benz',        motorista:'Cicero E.',        carreta:'RLQ-4F74', ano:0,    km:0,      status:'danger', statusLabel:'Imobilizado', tipo:'ativo' },
+  { id:4, placa:'QSK-2H66', modelo:'Volkswagen VW 25360',  motorista:'Allan R.',         carreta:'RZE-7B94', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:5, placa:'QSH-9C56', modelo:'Volkswagen VW',        motorista:'Carlos A.',        carreta:'PGS-9402', ano:0,    km:0,      status:'ok',     statusLabel:'Em dia',      tipo:'ativo' },
+  { id:6, placa:'RLU-7G93', modelo:'Volkswagen VW',        motorista:'Joel',             carreta:'',         ano:0,    km:0,      status:'warn',   statusLabel:'Em reparo',   tipo:'ativo' },
+  { id:7, placa:'OYM-4G46', modelo:'Volvo',                motorista:'Josenildo Vieira', carreta:'RLT-2I85', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:8, placa:'QYB-2A80', modelo:'Volkswagen VW',        motorista:'Petronio Jose',    carreta:'SNN-5J37', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' }
+];
+
+var TROCAS = [
+  { id:1, tipo:'+', cor:'blue',  titulo:'QSK-2H66 Freios e filtros OS 73465', sub:'Turbo Freio R$ 5.287,40', data:'29/04/2026' },
+  { id:2, tipo:'+', cor:'green', titulo:'QYA-3I45 Turbo freio OS 73378',      sub:'Turbo Freio R$ 1.550,00', data:'17/04/2026' },
+  { id:3, tipo:'+', cor:'blue',  titulo:'QYA-3I45 Mangueiras reparadas',      sub:'Turbo Freio',             data:'20/04/2026' },
+  { id:4, tipo:'+', cor:'green', titulo:'QYB-2A80 Tacografo e pneu',          sub:'Posto Espacial R$ 200,00',data:'04/05/2026' }
+];
+
+var OCORRENCIAS = [
+  { id:1,  veiculo:'RLR-1H73', tipo:'Manutencao', servico:'Situacao critica forca eletrica pneus eixo', data:'05/05/2026', status:'Urgente',   mec:'Aguardando oficina',     custo:'',            desc:'Forca eletrica 4 pneus tracao danificados eixo truck nao suspende risco ao modulo novo' },
+  { id:2,  veiculo:'QYA-3I45', tipo:'Manutencao', servico:'Balao de ar grande furado',                  data:'05/05/2026', status:'Urgente',   mec:'Aguardando reparo',      custo:'',            desc:'Balao de ar grande furado pendente desde 29/04' },
+  { id:3,  veiculo:'QYA-6G28', tipo:'Manutencao', servico:'Imobilizado aguardando oficina',             data:'05/05/2026', status:'Urgente',   mec:'Reboque Sao Jose',       custo:'',            desc:'Imobilizado desde 30/04. Previsao de entrega 06/05/2026' },
+  { id:4,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'Vazamento no retentor',                      data:'05/05/2026', status:'Em breve',  mec:'Joel',                   custo:'',            desc:'Liberado apos OS 73465. Retentor ainda com vazamento' },
+  { id:5,  veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Farois com problema',                        data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Farois nao clareiam o suficiente' },
+  { id:6,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Step para-lama roda tracao pneu',            data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Step ausente para-lama roda tracao com vazamento pneu necessario' },
+  { id:7,  veiculo:'RLU-7G93', tipo:'Manutencao', servico:'Na oficina molas eixos tanque suspensao',    data:'04/05/2026', status:'Em breve',  mec:'Oficina',                custo:'',            desc:'Em reparo molas eixos tanque furado e suspensao' },
+  { id:8,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'OS 73465 Freios filtros suspensao',          data:'29/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 5.287,40', desc:'Lona mola freio filtros oleo motor 15W40 amortecedor terminal direcao OS 73465' },
+  { id:9,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Tacografo vulcanizacao pito pneu',           data:'04/05/2026', status:'Concluido', mec:'Posto Espacial II Tete', custo:'R$ 200,00',   desc:'Conserto pneu R$150 mais pito R$50 aferio tacografo sem custo' },
+  { id:10, veiculo:'QSH-9C56', tipo:'Pneu novo',  servico:'Troca 2 pneus dianteiros balanceamento',     data:'29/04/2026', status:'Concluido', mec:'',                       custo:'R$ 60,00',    desc:'Troca 2 pneus dianteiros e balanceamento' },
+  { id:11, veiculo:'QYA-3I45', tipo:'Manutencao', servico:'OS 73378 Filtros mangueiras diagnostico',    data:'17/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 1.550,00', desc:'Filtro APU Wabco mangueira carreta filtro ar Mann diagnostico Jaltest' },
+  { id:12, veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Rodizio de pneus',                           data:'22/04/2026', status:'Concluido', mec:'',                       custo:'R$ 30,00',    desc:'Rodizio realizado' },
+  { id:13, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'8 pneus tracao Meridional Kropneus',         data:'28/04/2026', status:'Concluido', mec:'Kropneus',               custo:'R$ 15.416,00',desc:'8 un 295/80R22.5 GS853 Meridional Torino Cartao 10x' },
+  { id:14, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'6 pneus direcionais Goodtrip Patrimonial',   data:'17/04/2026', status:'Concluido', mec:'Patrimonial Pneus',      custo:'R$ 11.580,00',desc:'6 un Goodtrip GHA20 295/80R22.5 NF 243' }
+];
+</script>
+
+<script>
 var LANCAMENTOS = [
   {n:1,data_br:'01/03/2026',fornecedor:"Edson Lona",desc:"Vulcanização E Mao De Obra",placa:"",motorista:"—",modelo:"—",valor:500,pagto:"PIX",mes:"March/2026",mes_num:3},
   {n:2,data_br:'02/03/2026',fornecedor:"Joao Wictor Mec.",desc:"Socorro Daf Aruera Pe",placa:"RLR-1H73",motorista:"Sérgio Soares",modelo:"DAF",valor:5700,pagto:"PIX",mes:"March/2026",mes_num:3},
