@@ -1894,7 +1894,13 @@ doLogin = function() {
     var email = emailEl ? emailEl.value.trim() : '';
     var seName = document.getElementById('sidebarEmail');
     if (seName) seName.textContent = email === 'daphinin@frotaexpressopb.com' ? 'DAPHININ' : email.split('@')[0];
+    // Render local data immediately
+    renderPneus('todos');
+    renderFrota();
+    renderTrocas();
+    renderOcorrencias();
     renderPainelRanking();
+    // Then sync with sheets in background
     loadFromSheets();
   }
 };
@@ -1910,7 +1916,16 @@ showTab = function(id) {
   var titles = {painel:'Painel',pneus:'Pneus',frota:'Frota',ocorrencias:'Ocorrencias',relatorios:'Relatorios',registrar:'Registrar',financeiro:'Financeiro',permissoes:'Permissoes',ia:'Assistente IA'};
   var pt = document.getElementById('pageTitle');
   if (pt && titles[id]) pt.textContent = titles[id];
-  if (id === 'financeiro') setTimeout(renderFinanceiro, 80);
+  if (id === 'financeiro') {
+    if (typeof Chart !== 'undefined') {
+      setTimeout(renderFinanceiro, 80);
+    } else {
+      var chartScript = document.createElement('script');
+      chartScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+      chartScript.onload = function() { setTimeout(renderFinanceiro, 100); };
+      document.head.appendChild(chartScript);
+    }
+  }
   if (id === 'relatorios') {
     var today = new Date().toISOString().split('T')[0];
     var rdEl = document.getElementById('relData');
