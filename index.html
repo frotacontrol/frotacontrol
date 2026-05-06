@@ -11,6 +11,7 @@
 <title>FrotaControl Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
 <style>
 :root {
@@ -681,6 +682,28 @@ body {
   .metrics-grid { grid-template-columns: 1fr 1fr; }
 }
 
+
+.fin-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.75rem; margin-bottom:1rem; }
+.rank-item { display:flex; align-items:center; gap:.6rem; padding:.55rem 0; border-bottom:1px solid var(--border); }
+.rank-item:last-child { border-bottom:none; }
+.rank-num { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:700; flex-shrink:0; }
+.rank-num.r1 { background:#FFD700; color:#7A5C00; }
+.rank-num.r2 { background:#C0C0C0; color:#444; }
+.rank-num.r3 { background:#CD7F32; color:#fff; }
+.rank-num.rn { background:var(--surface2); color:var(--text2); }
+.rank-bar-wrap { flex:1; }
+.rank-name { font-size:.82rem; font-weight:500; color:var(--text); }
+.rank-bar-bg { height:5px; background:var(--surface2); border-radius:3px; margin-top:3px; overflow:hidden; }
+.rank-bar-fill { height:100%; border-radius:3px; background:var(--blue); }
+.rank-val { font-size:.8rem; font-weight:600; color:var(--text); white-space:nowrap; }
+.lanc-row { display:flex; align-items:flex-start; gap:.6rem; padding:.55rem 0; border-bottom:1px solid var(--border); font-size:.82rem; }
+.lanc-row:last-child { border-bottom:none; }
+.lanc-date { color:var(--text3); white-space:nowrap; min-width:82px; font-family:'IBM Plex Mono',monospace; font-size:.75rem; margin-top:1px; }
+.lanc-desc { flex:1; color:var(--text); }
+.lanc-desc .lanc-sub { font-size:.75rem; color:var(--text3); margin-top:1px; }
+.lanc-val { font-weight:600; color:var(--text); white-space:nowrap; }
+.lanc-plate { font-size:.72rem; padding:1px 6px; border-radius:4px; background:var(--blue-bg); color:var(--blue-text); font-weight:500; white-space:nowrap; }
+
 </style>
 </head>
 <body>
@@ -699,7 +722,7 @@ body {
 
       <div class="login-profiles">
         <p class="profiles-label">Entrar como:</p>
-        <button class="profile-btn" onclick="fillLogin('admin@frota.com','admin123')">
+        <button class="profile-btn" onclick="fillLogin('daphinin@frotaexpressopb.com','121909')">
           <span class="profile-icon admin"><i class="ti ti-shield-check"></i></span>
           <span class="profile-info">
             <span class="profile-name">Administrador</span>
@@ -779,6 +802,7 @@ body {
           <i class="ti ti-plus" aria-hidden="true"></i><span>Registrar</span>
         </a>
         <div class="nav-sep"></div>
+        <a class="nav-item" data-tab="financeiro" onclick="showTab('financeiro')"><i class="ti ti-cash" aria-hidden="true"></i><span>Financeiro</span></a>
         <a class="nav-item" data-tab="permissoes" onclick="showTab('permissoes')" id="navPermissoes">
           <i class="ti ti-shield" aria-hidden="true"></i><span>Permissões</span>
         </a>
@@ -791,7 +815,7 @@ body {
         <div class="user-avatar" id="sidebarAvatar">AD</div>
         <div class="user-meta">
           <span class="user-name" id="sidebarName">Administrador</span>
-          <span class="user-email" id="sidebarEmail">admin@frota.com</span>
+          <span class="user-email" id="sidebarEmail">daphinin@frotaexpressopb.com</span>
         </div>
         <button class="btn-logout" onclick="doLogout()" aria-label="Sair">
           <i class="ti ti-logout" aria-hidden="true"></i>
@@ -1015,6 +1039,56 @@ body {
           </div>
         </section>
 
+        
+<!-- ABA FINANCEIRO -->
+<section id="financeiro" class="tab-section">
+  <div class="fin-metrics" id="finMetrics"></div>
+  <div class="two-col" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Gasto por motorista</div>
+      <div style="position:relative;height:220px"><canvas id="chartMotorista" role="img" aria-label="Gasto por motorista"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-trending-up" aria-hidden="true"></i> Gasto mensal</div>
+      <div style="position:relative;height:220px"><canvas id="chartMes" role="img" aria-label="Gasto mensal"></canvas></div>
+    </div>
+  </div>
+  <div class="two-col" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-alert-triangle" style="color:var(--red)" aria-hidden="true"></i> Ranking de gastos — motoristas</div>
+      <div id="rankMotorista"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Ranking de gastos — veículos</div>
+      <div id="rankVeiculo"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-list" aria-hidden="true"></i> Todos os lançamentos
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <select id="filtroFinMes" onchange="renderLancamentos()" class="filter-select">
+          <option value="">Todos os meses</option>
+          <option value="3">Março/2026</option>
+          <option value="4">Abril/2026</option>
+          <option value="5">Maio/2026</option>
+        </select>
+        <select id="filtroFinMot" onchange="renderLancamentos()" class="filter-select">
+          <option value="">Todos os motoristas</option>
+          <option>Sérgio Soares</option>
+          <option>Marcos Antônio</option>
+          <option>Cícero E.</option>
+          <option>Allan R.</option>
+          <option>Carlos A.</option>
+          <option>Joel</option>
+          <option>Josenildo Vieira</option>
+          <option>Petrônio José</option>
+        </select>
+      </div>
+    </div>
+    <div id="lancamentosList"></div>
+  </div>
+</section>
+
         <!-- PERMISSÕES -->
         <section id="permissoes" class="tab-section">
           <div id="permContent">
@@ -1098,119 +1172,72 @@ body {
 
 <script>
 const USERS = {
-  'admin@frota.com':   { pass:'admin123', role:'Administrador', initials:'AD', perms:{ registrar:true, financeiro:true, permissoes:true, trocaVeiculo:true } },
-  'gestor@frota.com':  { pass:'gest123',  role:'Gestor',         initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
-  'mecanico@frota.com':{ pass:'mec123',   role:'Mecânico',       initials:'MC', perms:{ registrar:true, financeiro:false, permissoes:false, trocaVeiculo:false } },
+  'daphinin@frotaexpressopb.com': { pass:'121909', role:'Administrador', initials:'DA', perms:{ registrar:true, financeiro:true, permissoes:true, trocaVeiculo:true } },
+  'gestor@frota.com':  { pass:'gest123',  role:'Gestor',   initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'mecanico@frota.com':{ pass:'mec123',   role:'Mecânico', initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } },
 };
 
 let PNEUS = [
-  { id:1, veiculo:'PQR-2345', eixo:'Traseiro duplo direito', marca:'Pirelli',      medida:'295/80 R22.5', tipo:'recapado', desgaste:92, km:203900, data:'10/01/2026', custo:480,  dot:'DOT 0122' },
-  { id:2, veiculo:'ABC-1234', eixo:'Dianteiro esquerdo',     marca:'Bridgestone',  medida:'295/80 R22.5', tipo:'novo',     desgaste:71, km:148230, data:'15/08/2025', custo:1850, dot:'DOT 3225' },
-  { id:3, veiculo:'JKL-3456', eixo:'Todos os eixos',         marca:'Recapadora Sul',medida:'295/80 R22.5', tipo:'recapado', desgaste:18, km:34800,  data:'28/04/2026', custo:1920, dot:'—' },
-  { id:4, veiculo:'MNO-7890', eixo:'Dianteiro direito',      marca:'Continental',  medida:'315/80 R22.5', tipo:'novo',     desgaste:35, km:110600, data:'20/04/2026', custo:2100, dot:'DOT 1025' },
-  { id:5, veiculo:'DEF-5678', eixo:'Traseiro duplo esquerdo',marca:'Recapadora Norte',medida:'295/80 R22.5',tipo:'recapado',desgaste:54, km:92100,  data:'12/03/2026', custo:460,  dot:'—' },
-  { id:6, veiculo:'GHI-9012', eixo:'Todos os eixos',         marca:'Michelin',     medida:'295/80 R22.5', tipo:'novo',     desgaste:22, km:67450,  data:'05/06/2022', custo:8400, dot:'DOT 2122' },
+  // Compra Kropneus 28/04/2026 — 8 pneus tração 295/80R22.5 Meridional Torino
+  { id:1,  veiculo:'RLR-1H73', eixo:'Tração — necessita 4 pneus', marca:'Meridional Torino', medida:'295/80R22.5', tipo:'novo', desgaste:95, km:421117, data:'28/04/2026', custo:1927, dot:'GS853' },
+  { id:2,  veiculo:'QSH-9C56', eixo:'Dianteiro esquerdo',         marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo', desgaste:10, km:0,      data:'29/04/2026', custo:1930, dot:'GHA20' },
+  { id:3,  veiculo:'QSH-9C56', eixo:'Dianteiro direito',          marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo', desgaste:10, km:0,      data:'29/04/2026', custo:1930, dot:'GHA20' },
+  { id:4,  veiculo:'OYM-4G46', eixo:'Traseiro — rodízio realizado', marca:'—',              medida:'295/80R22.5', tipo:'recapado', desgaste:65, km:0,   data:'22/04/2026', custo:30,   dot:'—' },
+  { id:5,  veiculo:'QYB-2A80', eixo:'Pneu consertado',            marca:'—',                medida:'295/80R22.5', tipo:'novo',     desgaste:50, km:0,   data:'04/05/2026', custo:200,  dot:'—' },
+  { id:6,  veiculo:'QSH-9C56', eixo:'Para carreta — recapagem',   marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'recapado', desgaste:80, km:0,   data:'24/04/2026', custo:0,    dot:'—' },
+  // Compra Patrimonial 17/04/2026 — 6 pneus direcionais Goodtrip GHA20
+  { id:7,  veiculo:'QSK-2H66', eixo:'Dianteiro',                  marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo', desgaste:20, km:0,      data:'17/04/2026', custo:1930, dot:'GHA20' },
+  // Compra Casumina 03/04/2026 — 4 pneus tração
+  { id:8,  veiculo:'QYA-3I45', eixo:'Tração',                     marca:'Casumina GS851',   medida:'295/80R22.5', tipo:'novo', desgaste:15, km:0,      data:'03/04/2026', custo:1740, dot:'GS851' },
 ];
 
 let FROTA = [
-  { id:1, placa:'ABC-1234', modelo:'Scania R450',      ano:2021, km:148230, status:'danger', statusLabel:'Atrasado', tipo:'ativo' },
-  { id:2, placa:'DEF-5678', modelo:'Volvo FH',         ano:2020, km:92100,  status:'warn',   statusLabel:'Próximo',  tipo:'ativo' },
-  { id:3, placa:'GHI-9012', modelo:'Mercedes Actros',  ano:2022, km:67450,  status:'warn',   statusLabel:'Próximo',  tipo:'ativo' },
-  { id:4, placa:'JKL-3456', modelo:'Iveco Stralis',    ano:2023, km:34800,  status:'ok',     statusLabel:'Em dia',   tipo:'ativo' },
-  { id:5, placa:'MNO-7890', modelo:'DAF XF',           ano:2019, km:110600, status:'ok',     statusLabel:'Em dia',   tipo:'ativo' },
-  { id:6, placa:'PQR-2345', modelo:'Man TGX',          ano:2018, km:203900, status:'ok',     statusLabel:'Em dia',   tipo:'ativo' },
+  { id:1, placa:'RLR-1H73', modelo:'DAF',                    motorista:'Sérgio Soares',   carreta:'QFC-6A51', ano:2019, km:421117, status:'danger', statusLabel:'Crítico',     tipo:'ativo' },
+  { id:2, placa:'QYA-3I45', modelo:'Mercedes-Benz Actros 2546LS', motorista:'Marcos Antônio', carreta:'QFC-6A71', ano:2019, km:0, status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:3, placa:'QYA-6G28', modelo:'Mercedes-Benz',          motorista:'Cícero E.',       carreta:'RLQ-4F74', ano:0,    km:0,      status:'danger', statusLabel:'Imobilizado', tipo:'ativo' },
+  { id:4, placa:'QSK-2H66', modelo:'Volkswagen VW 25360',    motorista:'Allan R.',        carreta:'RZE-7B94', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:5, placa:'QSH-9C56', modelo:'Volkswagen VW',          motorista:'Carlos A.',       carreta:'PGS-9402', ano:0,    km:0,      status:'ok',     statusLabel:'Em dia',      tipo:'ativo' },
+  { id:6, placa:'RLU-7G93', modelo:'Volkswagen VW',          motorista:'Joel',            carreta:'—',        ano:0,    km:0,      status:'warn',   statusLabel:'Em reparo',   tipo:'ativo' },
+  { id:7, placa:'OYM-4G46', modelo:'Volvo',                  motorista:'Josenildo Vieira',carreta:'RLT-2I85', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:8, placa:'QYB-2A80', modelo:'—',                      motorista:'Petrônio José',   carreta:'SNN-5J37', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
 ];
 
 let TROCAS = [
-  { id:1, tipo:'+', cor:'blue',   titulo:'MNO-7891 incorporado — Volvo FH 460 2024', sub:'Substituiu MNO-7890', data:'15/03/2026' },
-  { id:2, tipo:'−', cor:'purple', titulo:'XYZ-0001 baixado — Scania G410 2017',      sub:'Vendido',             data:'10/01/2026' },
-  { id:3, tipo:'+', cor:'green',  titulo:'GHI-9012 incorporado — Mercedes Actros 2022', sub:'Frota nova',       data:'02/06/2022' },
+  { id:1, tipo:'+', cor:'blue',   titulo:'QSK-2H66 — Lona, freios, filtros concluídos (OS 73465)', sub:'Turbo Freio Santa Rita/PB — R$ 5.287,40', data:'29/04/2026' },
+  { id:2, tipo:'+', cor:'green',  titulo:'QYA-3I45 — Turbo freio, filtros e diagnóstico (OS 73378)', sub:'Turbo Freio Santa Rita/PB — R$ 1.550,00', data:'17/04/2026' },
+  { id:3, tipo:'+', cor:'blue',   titulo:'QYA-3I45 — Mangueiras e conexões reparadas', sub:'Turbo Freio Santa Rita/PB', data:'20/04/2026' },
+  { id:4, tipo:'+', cor:'green',  titulo:'QYB-2A80 — Aferição tacógrafo + pneu consertado', sub:'Posto Espacial II Teté Pneus — R$ 200,00', data:'04/05/2026' },
+  { id:5, tipo:'+', cor:'blue',   titulo:'RZE-7B94 — Reaperto no pino (carreta Allan)', sub:'R$ 40,00', data:'20/04/2026' },
+  { id:6, tipo:'+', cor:'green',  titulo:'OYM-4G46 — Rodízio de pneus (Josenildo)', sub:'R$ 30,00', data:'22/04/2026' },
+  { id:7, tipo:'+', cor:'blue',   titulo:'OYM-4G46 — Conserto de pneu (Josenildo)', sub:'R$ 40,00', data:'28/04/2026' },
 ];
 
 let OCORRENCIAS = [
-  { id:1, veiculo:'ABC-1234', tipo:'Manutenção',      servico:'Troca de óleo',   data:'02/05/2026', status:'Urgente',   mec:'João Silva',     custo:'—',          desc:'Vazamento no cárter identificado. Motor com 148k km.' },
-  { id:2, veiculo:'JKL-3456', tipo:'Recapagem',       servico:'Todos os eixos',  data:'28/04/2026', status:'Concluído', mec:'Recapadora Sul', custo:'R$ 1.920',   desc:'3ª vida — banda 295 aplicada.' },
-  { id:3, veiculo:'MNO-7891', tipo:'Troca de veículo',servico:'Incorporação',    data:'15/03/2026', status:'Concluído', mec:'Setor admin',    custo:'R$ 380.000', desc:'Volvo FH 460 2024 incorporado. Substituiu MNO-7890.' },
-  { id:4, veiculo:'MNO-7890', tipo:'Troca de veículo',servico:'Baixa',           data:'15/03/2026', status:'Concluído', mec:'Setor admin',    custo:'R$ 95.000',  desc:'Vendido para terceiros.' },
-  { id:5, veiculo:'PQR-2345', tipo:'Pneu novo',       servico:'Dianteiro esq.',  data:'10/01/2026', status:'Concluído', mec:'Oficina Central',custo:'R$ 1.850',   desc:'Bridgestone 295/80 R22.5 instalado.' },
+  // Situação atual — 05/05/2026
+  { id:1,  veiculo:'RLR-1H73', tipo:'Manutenção', servico:'Situação crítica — força, elétrica, pneus, eixo truck',    data:'05/05/2026', status:'Urgente',    mec:'Aguardando oficina', custo:'—',         desc:'Problema de força, elétrica, 4 pneus de tração danificados, eixo truck não suspende. Risco de dano ao módulo novo instalado. Parada imediata recomendada.' },
+  { id:2,  veiculo:'QYA-3I45', tipo:'Manutenção', servico:'Balão de ar grande furado',                                data:'05/05/2026', status:'Urgente',    mec:'Aguardando reparo',  custo:'—',         desc:'Balão de ar grande furado — continua pendente desde 29/04/2026.' },
+  { id:3,  veiculo:'QYA-6G28', tipo:'Manutenção', servico:'Imobilizado — reboque aguardando entrega na oficina',      data:'05/05/2026', status:'Urgente',    mec:'Reboque São José',   custo:'—',         desc:'Imobilizado desde 30/04/2026. Reboque com alta demanda não entregou nos dias 04 e 05/05. Previsão de entrega na oficina: 06/05/2026. Causa ainda desconhecida.' },
+  { id:4,  veiculo:'QSK-2H66', tipo:'Manutenção', servico:'Vazamento no retentor — em verificação',                  data:'05/05/2026', status:'Em breve',   mec:'Joel',               custo:'—',         desc:'Liberado da oficina após OS 73465. Apresenta vazamento no retentor. Necessário agendar reparo antes da próxima viagem.' },
+  { id:5,  veiculo:'OYM-4G46', tipo:'Manutenção', servico:'Faróis com problema — não clareiam',                      data:'05/05/2026', status:'Em breve',   mec:'Aguardando reparo',  custo:'—',         desc:'Faróis com problema identificado em 04/05. Não clareiam o suficiente.' },
+  { id:6,  veiculo:'QYB-2A80', tipo:'Manutenção', servico:'Step + para-lama + lanterna + roda tração + pneu',        data:'05/05/2026', status:'Em breve',   mec:'Aguardando reparo',  custo:'—',         desc:'Step ausente, para-lama com lanterna traseira, roda de tração com vazamento, necessidade de pneu novo.' },
+  { id:7,  veiculo:'RLU-7G93', tipo:'Manutenção', servico:'Na oficina — molas, eixos, tanque, suspensão',            data:'04/05/2026', status:'Em breve',   mec:'Oficina',            custo:'—',         desc:'Em reparo: molas, eixos, tanque furado (aguardando solda) e suspensão. Entrada na oficina em 04/05/2026.' },
+  // Histórico
+  { id:8,  veiculo:'QSK-2H66', tipo:'Manutenção', servico:'OS 73465 — Freios, filtros, suspensão, direção',          data:'29/04/2026', status:'Concluído',  mec:'Turbo Freio Santa Rita/PB', custo:'R$ 5.287,40', desc:'Lona/mola/catraca freio, retentor cubo traseiro, filtros ar/óleo/combustível, óleo motor 15W40 34L, amortecedor cabine, terminal direção LD/LE, coxim trava cabine, mangueira lonada. OS nº 73465.' },
+  { id:9,  veiculo:'QYB-2A80', tipo:'Manutenção', servico:'Aferição tacógrafo + vulcanização + pito pneu',           data:'04/05/2026', status:'Concluído',  mec:'Posto Espacial II Teté Pneus', custo:'R$ 200,00', desc:'Conserto de pneu (vulcanização) R$150 + pito de pneu R$50. Aferição tacógrafo sem custo no recibo.' },
+  { id:10, veiculo:'QSH-9C56', tipo:'Pneu novo',  servico:'Troca 2 pneus dianteiros + balanceamento',                data:'29/04/2026', status:'Concluído',  mec:'—',                  custo:'R$ 60,00',  desc:'Troca dos 2 pneus dianteiros, balanceamento e folga do eixo dianteiro do passageiro.' },
+  { id:11, veiculo:'QYA-3I45', tipo:'Manutenção', servico:'OS 73378 — Filtros, mangueiras, diagnóstico',             data:'17/04/2026', status:'Concluído',  mec:'Turbo Freio Santa Rita/PB', custo:'R$ 1.550,00', desc:'Filtro APU Wabco, mangueira carreta (2un), filtro ar Mann Filter, troca filtros/óleo MO, retirada vazamento, diagnóstico Jaltest. Garantia 3 meses.' },
+  { id:12, veiculo:'QYA-3I45', tipo:'Manutenção', servico:'Mangueiras e conexões reparadas',                         data:'20/04/2026', status:'Concluído',  mec:'Turbo Freio Santa Rita/PB', custo:'Ag. link', desc:'Mangueira Arla, mangueira hidráulica, mangueira do ar e conexões reparadas. Aferição tacógrafo agendada (R$480).' },
+  { id:13, veiculo:'OYM-4G46', tipo:'Manutenção', servico:'Rodízio de pneus',                                        data:'22/04/2026', status:'Concluído',  mec:'—',                  custo:'R$ 30,00',  desc:'Rodízio de pneus realizado.' },
+  { id:14, veiculo:'OYM-4G46', tipo:'Manutenção', servico:'Conserto de pneu',                                        data:'28/04/2026', status:'Concluído',  mec:'—',                  custo:'R$ 40,00',  desc:'Conserto de pneu realizado. Necessita pneu novo.' },
+  { id:15, veiculo:'QYA-6G28', tipo:'Manutenção', servico:'Ocorrência — superaquecimento motor (mangueira água)',     data:'28/04/2026', status:'Urgente',    mec:'Socorro no posto',   custo:'—',         desc:'Folga na mangueira de distribuição de água causou superaquecimento. Socorro acionado no posto. Allan R. conduzia o veículo.' },
+  { id:16, veiculo:'QSK-2H66', tipo:'Manutenção', servico:'Reparo parcial — mangueira água + pneu (BR)',             data:'22/04/2026', status:'Concluído',  mec:'—',                  custo:'—',         desc:'Pane na BR em 20/04. Pernoite no posto. Reparo superficial em 22/04: mangueira distribuição água e pneu.' },
+  { id:17, veiculo:'RZE-7B94', tipo:'Manutenção', servico:'Reaperto no pino — carreta',                              data:'20/04/2026', status:'Concluído',  mec:'Allan',              custo:'R$ 40,00',  desc:'Reaperto no pino da carreta RZE-7B94.' },
+  // Compras de pneus
+  { id:18, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'Compra 8 pneus tração Meridional Torino — Kropneus',      data:'28/04/2026', status:'Concluído',  mec:'Edson Santos / Kropneus', custo:'R$ 15.416,00', desc:'8 un. Pneu Tração 295/80R22.5 18PR 154/149M GS853 Meridional Torino. R$1.927 un. Cartão 10x. Para uso em RLR-1H73 (4 pneus) e estoque.' },
+  { id:19, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'Compra 6 pneus direcionais Goodtrip + 4 tração Casumina', data:'03/04/2026', status:'Concluído',  mec:'Edson Santos / Kropneus', custo:'R$ 18.540,00', desc:'6 pneus Goodtrip GHA20 295/80R22.5 direcionais (R$1.930un) + 4 pneus Casumina GS851 295/80R22.5 tração (R$1.740un). À vista.' },
+  { id:20, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'Compra 6 pneus direcionais Goodtrip — Patrimonial',       data:'17/04/2026', status:'Concluído',  mec:'Patrimonial Pneus Santa Rita', custo:'R$ 11.580,00', desc:'6 un. Pneu Direcional 295/80R22.5 Goodtrip GHA20. NF nº 243 Série 1. R$1.158 un. 10x R$1.158,00.' },
 ];
 
-</script>
-<script>
-/* ── STATE ── */
-let CU = null;
-let sidebarOpen = false;
-let modalCb = null;
-let regTypeSel = -1;
-
-/* ── AUTH ── */
-function fillLogin(email, pass) {
-  document.getElementById('loginEmail').value = email;
-  document.getElementById('loginPass').value = pass;
-  document.getElementById('loginError').style.display = 'none';
-}
-
-function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
-  const user  = USERS[email];
-  const err   = document.getElementById('loginError');
-  if (!user || user.pass !== pass) { err.style.display = 'block'; return; }
-  err.style.display = 'none';
-  CU = user;
-
-  /* topbar */
-  document.getElementById('roleChip').textContent = user.role;
-  document.getElementById('topbarAvatar').textContent = user.initials;
-
-  /* sidebar */
-  document.getElementById('sidebarAvatar').textContent = user.initials;
-  document.getElementById('sidebarName').textContent = user.role;
-  document.getElementById('sidebarEmail').textContent = email;
-
-  /* screens */
-  document.getElementById('loginScreen').classList.remove('active');
-  document.getElementById('appScreen').classList.add('active');
-
-  applyPermissions();
-  renderPneus('todos');
-  renderFrota();
-  renderTrocas();
-  renderOcorrencias();
-}
-
-function doLogout() {
-  CU = null;
-  document.getElementById('appScreen').classList.remove('active');
-  document.getElementById('loginScreen').classList.add('active');
-  document.getElementById('loginEmail').value = '';
-  document.getElementById('loginPass').value = '';
-  showTab('painel');
-}
-
-/* ── PERMISSIONS ── */
-function applyPermissions() {
-  if (!CU) return;
-  const p = CU.perms;
-
-  /* financial fields */
-  document.querySelectorAll('.financial-only').forEach(el => {
-    el.style.display = p.financeiro ? '' : 'none';
-  });
-
-  /* registrar tab */
-  document.getElementById('regContent').style.display  = p.registrar ? '' : 'none';
-  document.getElementById('regDenied').style.display   = p.registrar ? 'none' : 'block';
-  const navReg = document.getElementById('navRegistrar');
-  if (!p.registrar) navReg.classList.add('locked');
-
-  /* permissões tab */
-  document.getElementById('permContent').style.display = p.permissoes ? '' : 'none';
-  document.getElementById('permDenied').style.display  = p.permissoes ? 'none' : 'block';
-  const navPerm = document.getElementById('navPermissoes');
-  if (!p.permissoes) {
-    navPerm.classList.add('locked');
-    navPerm.onclick = (e) => { e.preventDefault(); showToast('Acesso restrito — apenas administradores', '#C0392B'); };
   }
 }
 
@@ -1228,7 +1255,7 @@ function showTab(id) {
   const nav = document.querySelector(`.nav-item[data-tab="${id}"]`);
   if (nav) nav.classList.add('active');
 
-  const titles = { painel:'Painel', pneus:'Pneus', frota:'Frota', ocorrencias:'Ocorrências', registrar:'Registrar', permissoes:'Permissões', ia:'Assistente IA' };
+  const titles = { painel:'Painel', financeiro:'Dashboard Financeiro', pneus:'Pneus', frota:'Frota', ocorrencias:'Ocorrências', registrar:'Registrar', permissoes:'Permissões', ia:'Assistente IA' };
   document.getElementById('pageTitle').textContent = titles[id] || id;
 
   if (window.innerWidth < 769 && sidebarOpen) toggleSidebar();
@@ -1865,6 +1892,314 @@ doLogin = async function() {
   _origLogin();
   if (document.getElementById('appScreen').classList.contains('active')) {
     await loadFromSheets();
+  }
+};
+</script>
+
+
+
+  <div style="color:#fff;font-size:1.3rem;font-weight:600">Ferramentas de desenvolvedor detectadas</div>
+  <div style="color:#888780;font-size:.9rem;text-align:center;max-width:360px;line-height:1.6">
+    Por segurança, o app foi bloqueado.<br>Feche as ferramentas de desenvolvedor para continuar.
+  </div>
+  <button onclick="location.reload()" style="margin-top:.5rem;padding:.65rem 1.5rem;background:#185FA5;color:#fff;border:none;border-radius:6px;font-size:.9rem;cursor:pointer;font-family:inherit">
+    🔄 Recarregar app
+  </button>
+  <div style="color:#444;font-size:.75rem;margin-top:1rem">
+    Administrador? Pressione Ctrl+Shift+F10 após fechar este aviso.
+  </div>
+</div>
+
+
+<!-- PROTEÇÃO DO APP -->
+<div id="devBlock" style="display:none;position:fixed;inset:0;background:#0C0B09;z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:'IBM Plex Sans',sans-serif">
+  <div style="font-size:3.5rem">🔐</div>
+  <div style="color:#fff;font-size:1.3rem;font-weight:600">Acesso restrito</div>
+  <div style="color:#888780;font-size:.9rem;text-align:center;max-width:360px;line-height:1.6">
+    Por segurança, o app foi bloqueado.<br>
+    Feche as ferramentas de desenvolvedor para continuar.
+  </div>
+  <button onclick="location.reload()" style="margin-top:.5rem;padding:.65rem 1.5rem;background:#185FA5;color:#fff;border:none;border-radius:6px;font-size:.9rem;cursor:pointer;font-family:inherit">
+    🔄 Recarregar app
+  </button>
+</div>
+
+<script>
+// ── SISTEMA DE PROTEÇÃO INTELIGENTE ──
+// Reconhece automaticamente a administradora pelo e-mail de login
+const ADMIN_EMAIL = 'daphinin@frotaexpressopb.com';
+
+window.__isAdmin = false;
+
+// Chamada após login — verifica se é a administradora
+function checkAdminProtection(email) {
+  if (email === ADMIN_EMAIL) {
+    window.__isAdmin = true;
+    sessionStorage.setItem('__adminSession', '1');
+    // Administradora: libera tudo
+    enableDevAccess();
+  } else {
+    window.__isAdmin = false;
+    sessionStorage.removeItem('__adminSession');
+    // Outros usuários: proteção ativa
+    enableProtection();
+  }
+}
+
+// Restaura sessão se já logada
+if (sessionStorage.getItem('__adminSession') === '1') {
+  window.__isAdmin = true;
+  enableDevAccess();
+}
+
+function enableDevAccess() {
+  // Remove todas as restrições para a administradora
+  window.__devAccess = true;
+  document.removeEventListener('contextmenu', blockContext);
+  document.removeEventListener('keydown', blockKeys);
+  document.removeEventListener('selectstart', blockSelect);
+  const db = document.getElementById('devBlock');
+  if (db) db.style.display = 'none';
+}
+
+function enableProtection() {
+  window.__devAccess = false;
+  document.addEventListener('contextmenu', blockContext);
+  document.addEventListener('keydown', blockKeys);
+  document.addEventListener('selectstart', blockSelect);
+}
+
+function blockContext(e) {
+  e.preventDefault();
+  showToast && showToast('Clique direito desativado', '#854F0B');
+}
+
+function blockKeys(e) {
+  if (e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I','J','C','K'].includes(e.key.toUpperCase())) ||
+      (e.ctrlKey && e.key.toUpperCase() === 'U')) {
+    e.preventDefault();
+    showToast && showToast('Acesso restrito', '#C0392B');
+  }
+}
+
+function blockSelect(e) {
+  if (!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) {
+    e.preventDefault();
+  }
+}
+
+// Detecta abertura de DevTools — bloqueia apenas para não-admin
+let devBlocked = false;
+setInterval(() => {
+  if (window.__isAdmin) return; // Administradora nunca bloqueia
+  const w = window.outerWidth - window.innerWidth > 200;
+  const h = window.outerHeight - window.innerHeight > 200;
+  const db = document.getElementById('devBlock');
+  if ((w || h) && !devBlocked) {
+    devBlocked = true;
+    if (db) db.style.display = 'flex';
+  } else if (!w && !h && devBlocked) {
+    devBlocked = false;
+    if (db) db.style.display = 'none';
+  }
+}, 800);
+
+// Ao fazer logout, remove sessão admin
+const _origLogout = window.doLogout;
+function doLogout() {
+  sessionStorage.removeItem('__adminSession');
+  window.__isAdmin = false;
+  enableProtection();
+  if (_origLogout) _origLogout();
+  else {
+    document.getElementById('appScreen').classList.remove('active');
+    document.getElementById('loginScreen').classList.add('active');
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPass').value = '';
+    showTab && showTab('painel');
+  }
+}
+
+// Hook no doLogin para verificar e-mail automaticamente
+const _origDoLogin = window.doLogin;
+window.doLogin = async function() {
+  // Chama login original
+  if (_origDoLogin) await _origDoLogin();
+  // Verifica qual email foi usado
+  const emailUsado = document.getElementById('loginEmail')?.value?.trim() || '';
+  if (document.getElementById('appScreen')?.classList.contains('active')) {
+    checkAdminProtection(emailUsado);
+  }
+};
+
+// Inicializa proteção para visitantes não logados
+enableProtection();
+</script>
+
+
+<script>
+// ── DADOS FINANCEIROS EXPRESSO PB ──
+const LANCAMENTOS = [{"n": 1, "data": "46082", "fornecedor": "Edson Lona", "desc": "Vulcanização E Mao De Obra", "placa": "", "motorista": "—", "modelo": "—", "valor": 500, "pagto": "PIX", "data_br": "01/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 2, "data": "46083", "fornecedor": "Joao Wictor Mec.", "desc": "Socorro Daf Aruera Pe", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 5700, "pagto": "PIX", "data_br": "02/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 3, "data": "46085", "fornecedor": "Posto Aliança Do Araripe", "desc": "Óleo Hidraulico", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 24, "pagto": "PIX", "data_br": "04/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 4, "data": "46085", "fornecedor": "Fachini", "desc": "Catraca Lona Sider", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 350, "pagto": "PIX", "data_br": "04/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 5, "data": "46085", "fornecedor": "Posto Aliança Do Araripe", "desc": "Aditivo", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 22, "pagto": "PIX", "data_br": "04/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 6, "data": "46086", "fornecedor": "Coisas De Caminhoneiro", "desc": "Cones De Sinalização E Relê", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 92, "pagto": "PIX", "data_br": "05/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 7, "data": "46086", "fornecedor": "Cadiesel", "desc": "Recuperação Do Chicote", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 500, "pagto": "CARTÃO - 2X", "data_br": "05/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 8, "data": "46087", "fornecedor": "Sertão Reboque", "desc": "Serv. Reboque Daf", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 3300, "pagto": "PIX", "data_br": "06/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 9, "data": "46090", "fornecedor": "Gotemburgo Veiculos Pb", "desc": "Corpo Da Valvula", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 3182.04, "pagto": "CARTÃO - 6X", "data_br": "09/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 10, "data": "46091", "fornecedor": "Mototaxi Peça", "desc": "Levar Peça Em Pocinhos", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 50, "pagto": "PIX", "data_br": "10/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 11, "data": "46091", "fornecedor": "Borracharia", "desc": "Vulcanização", "placa": "QYA-6G28", "motorista": "Cícero E.", "modelo": "MERCEDES", "valor": 100, "pagto": "PIX", "data_br": "10/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 12, "data": "46093", "fornecedor": "Borracharia", "desc": "Troca De Pneus", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 80, "pagto": "PIX", "data_br": "12/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 13, "data": "46094", "fornecedor": "Gama", "desc": "Valvula Racor", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 276, "pagto": "CARTÃO", "data_br": "13/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 14, "data": "46097", "fornecedor": "Oficina Leão", "desc": "Serviço De Solda", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 100, "pagto": "PIX", "data_br": "16/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 15, "data": "46097", "fornecedor": "Borracharia", "desc": "Troca De Pneu E Calibragem", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 100, "pagto": "PIX", "data_br": "16/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 16, "data": "46098", "fornecedor": "Paizao", "desc": "Mangueira E União", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 13, "pagto": "PIX", "data_br": "17/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 17, "data": "46098", "fornecedor": "Voldiesel", "desc": "Serviço Volvo", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 8800, "pagto": "CC6X", "data_br": "17/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 18, "data": "46098", "fornecedor": "Frete Do Modulo", "desc": "Frete Do Modulo Daf", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 192.92, "pagto": "PIX", "data_br": "17/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 19, "data": "46104", "fornecedor": "Borracharia", "desc": "Troca De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 50, "pagto": "PIX", "data_br": "23/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 20, "data": "46104", "fornecedor": "Hidrau Diesel", "desc": "Mão De Obra + Bolsa De Ar Cabine", "placa": "QYA-6G28", "motorista": "Cícero E.", "modelo": "MERCEDES", "valor": 848, "pagto": "BL 2X", "data_br": "23/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 21, "data": "46104", "fornecedor": "Hidrau Diesel", "desc": "Troca De Óleo + Óleo De Motor", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 1230, "pagto": "BL1X", "data_br": "23/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 22, "data": "46106", "fornecedor": "Viação", "desc": "Passagem De Onibus Para Petrolina", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 302.15, "pagto": "PIX", "data_br": "25/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 23, "data": "46107", "fornecedor": "Socorro Mecanico", "desc": "Troca De Tensor Mercedes", "placa": "QYA-6G28", "motorista": "Cícero E.", "modelo": "MERCEDES", "valor": 970, "pagto": "PIX", "data_br": "26/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 24, "data": "46107", "fornecedor": "Daf Nova Petrolina", "desc": "Mão De Obra Do Modulo", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 1400, "pagto": "PIX", "data_br": "26/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 25, "data": "46108", "fornecedor": "Borracharia", "desc": "Rodízio De Pneus", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 80, "pagto": "PIX", "data_br": "27/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 26, "data": "46108", "fornecedor": "Serviço De Segurança", "desc": "Segurança Carreta Daf", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 300, "pagto": "PIX", "data_br": "27/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 27, "data": "46108", "fornecedor": "Borracharia", "desc": "Rodizio E Um Pitu", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 150, "pagto": "PIX", "data_br": "27/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 28, "data": "46114", "fornecedor": "Mec Leandro", "desc": "Troca De Sensor Do Maneco", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 350, "pagto": "PIX", "data_br": "02/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 29, "data": "46118", "fornecedor": "Vitor Chaveiro", "desc": "Confecção De Chave Reserva", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 130, "pagto": "PIX", "data_br": "06/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 30, "data": "46119", "fornecedor": "Acessórios 101", "desc": "Mão De Obra E Maçaneta", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 535.8, "pagto": "PIX", "data_br": "07/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 31, "data": "46125", "fornecedor": "Sta Caminhões", "desc": "Jogo De Filtros Do Motor", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 474.83, "pagto": "CARTÃO 2X", "data_br": "13/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 32, "data": "46126", "fornecedor": "Borracharia Do Zé", "desc": "Serviço De Remendo No Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 110, "pagto": "PIX", "data_br": "14/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 33, "data": "46129", "fornecedor": "Patrimonial", "desc": "Compra De Pneu Direcional 6 Uni", "placa": "", "motorista": "—", "modelo": "—", "valor": 11580, "pagto": "CARTÃO 10X", "data_br": "17/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 34, "data": "46129", "fornecedor": "Turbo Freio", "desc": "Troca De Filtros, Limpa PC E Mangueiras", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 1550, "pagto": "CARTÃO 3X", "data_br": "17/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 35, "data": "46132", "fornecedor": "Lg Borracharia", "desc": "Serviço De Reaperto Do Pito", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 40, "pagto": "PIX", "data_br": "20/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 36, "data": "46134", "fornecedor": "Borracharia", "desc": "Serviço De Rodízio De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 30, "pagto": "PIX", "data_br": "22/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 37, "data": "46134", "fornecedor": "Inmetro", "desc": "Aferição De Pneu E Configuração De Placa", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 480, "pagto": "CARTÃO 1X", "data_br": "22/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 38, "data": "46134", "fornecedor": "Borracharia Jacarauna", "desc": "Remendo De Pneu", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 90, "pagto": "PIX", "data_br": "22/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 39, "data": "46135", "fornecedor": "Cadiesel", "desc": "Serviço Elétrico", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 740, "pagto": "CARTÃO 2X", "data_br": "23/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 40, "data": "46135", "fornecedor": "Turbo Freio", "desc": "Serviço De Socorro Realizado No Dia 22/04", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 90, "pagto": "PIX", "data_br": "23/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 41, "data": "46137", "fornecedor": "Borracharia Pai E Filho", "desc": "Serviço De Troca De Pneu", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 50, "pagto": "PIX", "data_br": "25/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 42, "data": "46139", "fornecedor": "Pg Postos", "desc": "Serviço De Troca De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 40, "pagto": "PIX", "data_br": "27/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 43, "data": "46139", "fornecedor": "Brtruck", "desc": "Troca De Fusível", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 5, "pagto": "PIX", "data_br": "27/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 44, "data": "46140", "fornecedor": "Borracharia Do Zé", "desc": "Serviço Do Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 30, "pagto": "PIX", "data_br": "28/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 45, "data": "46141", "fornecedor": "Borracharia Do Zé", "desc": "Serviço No Pneu - Folga Do Eixo Dianteiro", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 100, "pagto": "PIX", "data_br": "29/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 46, "data": "46141", "fornecedor": "Patrimonial", "desc": "Balanceamento", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 60, "pagto": "PIX", "data_br": "29/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 47, "data": "46141", "fornecedor": "Acessórios 101", "desc": "Serviço Lanterna, Sirenes E Elétrica De Ré", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 538.65, "pagto": "PIX", "data_br": "29/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 48, "data": "46142", "fornecedor": "Turbo Freio", "desc": "Mangueiras Rasgadas - Marcos", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 365, "pagto": "CARTÃO 2X", "data_br": "30/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 49, "data": "46146", "fornecedor": "Posto Espacial II", "desc": "Serviço No Pneu E Pino", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 200, "pagto": "PIX", "data_br": "04/05/2026", "mes": "May/2026", "mes_num": 5}, {"n": 50, "data": "46146", "fornecedor": "Borracharia Do Zé", "desc": "Serviço De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 60, "pagto": "PIX", "data_br": "04/05/2026", "mes": "May/2026", "mes_num": 5}, {"n": 51, "data": "46147", "fornecedor": "Kropneus", "desc": "Compra De Pneu Tração - 8 Unidades", "placa": "", "motorista": "—", "modelo": "—", "valor": 15416, "pagto": "CARTÃO 10X", "data_br": "05/05/2026", "mes": "May/2026", "mes_num": 5}];
+
+function brMoney(v) {
+  return 'R$\xa0' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function renderFinanceiro() {
+  const fMes = document.getElementById('filtroFinMes')?.value || '';
+  const fMot = document.getElementById('filtroFinMot')?.value || '';
+  const filtered = LANCAMENTOS.filter(l =>
+    (!fMes || String(l.mes_num) === fMes) &&
+    (!fMot || l.motorista === fMot)
+  );
+
+  const total = filtered.reduce((a,b) => a + b.valor, 0);
+  const totalGeral = LANCAMENTOS.reduce((a,b) => a + b.valor, 0);
+
+  // Metrics
+  const metricsEl = document.getElementById('finMetrics');
+  if (metricsEl) {
+    metricsEl.innerHTML = `
+      <div class="metric-card"><span class="metric-label">Total gasto</span><span class="metric-value" style="font-size:1.2rem">${brMoney(total)}</span></div>
+      <div class="metric-card financial-only"><span class="metric-label">Total geral 2026</span><span class="metric-value" style="font-size:1.2rem">${brMoney(totalGeral)}</span></div>
+      <div class="metric-card"><span class="metric-label">Lançamentos</span><span class="metric-value">${filtered.length}</span></div>
+      <div class="metric-card"><span class="metric-label">Ticket médio</span><span class="metric-value" style="font-size:1.1rem">${filtered.length ? brMoney(total/filtered.length) : 'R$\xa00'}</span></div>
+      <div class="metric-card"><span class="metric-label">Maior gasto</span><span class="metric-value danger" style="font-size:.95rem">Josenildo<br><small>R$\xa013.556</small></span></div>
+    `;
+  }
+
+  // Ranking motoristas
+  const byMot = {};
+  LANCAMENTOS.forEach(l => {
+    if (l.motorista === '—') return;
+    if (!byMot[l.motorista]) byMot[l.motorista] = 0;
+    byMot[l.motorista] += l.valor;
+  });
+  const motSorted = Object.entries(byMot).sort((a,b) => b[1]-a[1]);
+  const maxMot = motSorted[0][1];
+  const rankMotEl = document.getElementById('rankMotorista');
+  if (rankMotEl) {
+    rankMotEl.innerHTML = motSorted.map(([nome, val], i) => `
+      <div class="rank-item">
+        <div class="rank-num ${i===0?'r1':i===1?'r2':i===2?'r3':'rn'}">${i+1}</div>
+        <div class="rank-bar-wrap">
+          <div class="rank-name">${nome}</div>
+          <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${(val/maxMot*100).toFixed(1)}%;background:${i===0?'var(--red)':i===1?'var(--amber)':'var(--blue)'}"></div></div>
+        </div>
+        <div class="rank-val">${brMoney(val)}</div>
+      </div>`).join('');
+  }
+
+  // Ranking veiculos
+  const byVei = {};
+  LANCAMENTOS.forEach(l => {
+    if (!l.placa) return;
+    if (!byVei[l.placa]) byVei[l.placa] = {total:0, motorista:l.motorista};
+    byVei[l.placa].total += l.valor;
+  });
+  const veiSorted = Object.entries(byVei).sort((a,b) => b[1].total-a[1].total);
+  const maxVei = veiSorted[0][1].total;
+  const rankVeiEl = document.getElementById('rankVeiculo');
+  if (rankVeiEl) {
+    rankVeiEl.innerHTML = veiSorted.map(([placa, d], i) => `
+      <div class="rank-item">
+        <div class="rank-num ${i===0?'r1':i===1?'r2':i===2?'r3':'rn'}">${i+1}</div>
+        <div class="rank-bar-wrap">
+          <div class="rank-name">${placa} <span style="font-size:.75rem;color:var(--text3)">${d.motorista}</span></div>
+          <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${(d.total/maxVei*100).toFixed(1)}%;background:${i===0?'var(--red)':i===1?'var(--amber)':'var(--blue)'}"></div></div>
+        </div>
+        <div class="rank-val">${brMoney(d.total)}</div>
+      </div>`).join('');
+  }
+
+  renderLancamentos(filtered);
+  renderCharts(filtered);
+}
+
+function renderLancamentos(filtered) {
+  const fMes = document.getElementById('filtroFinMes')?.value || '';
+  const fMot = document.getElementById('filtroFinMot')?.value || '';
+  const data = filtered || LANCAMENTOS.filter(l =>
+    (!fMes || String(l.mes_num) === fMes) &&
+    (!fMot || l.motorista === fMot)
+  );
+  const el = document.getElementById('lancamentosList');
+  if (!el) return;
+  if (!data.length) { el.innerHTML = '<p style="color:var(--text3);font-size:.85rem;padding:.5rem">Nenhum lançamento encontrado.</p>'; return; }
+  el.innerHTML = data.map(l => `
+    <div class="lanc-row">
+      <span class="lanc-date">${l.data_br}</span>
+      <div class="lanc-desc">
+        <div>${l.desc}</div>
+        <div class="lanc-sub">${l.fornecedor}</div>
+      </div>
+      ${l.placa ? `<span class="lanc-plate">${l.placa}</span>` : ''}
+      <span class="lanc-val">${brMoney(l.valor)}</span>
+    </div>`).join('');
+}
+
+let chartMotInstance = null, chartMesInstance = null;
+
+function renderCharts(filtered) {
+  // Chart por motorista
+  const byMot = {};
+  LANCAMENTOS.forEach(l => {
+    if (l.motorista === '—') return;
+    if (!byMot[l.motorista]) byMot[l.motorista] = 0;
+    byMot[l.motorista] += l.valor;
+  });
+  const motEntries = Object.entries(byMot).sort((a,b) => b[1]-a[1]);
+
+  const cmEl = document.getElementById('chartMotorista');
+  if (cmEl) {
+    if (chartMotInstance) chartMotInstance.destroy();
+    chartMotInstance = new Chart(cmEl, {
+      type: 'bar',
+      data: {
+        labels: motEntries.map(([k]) => k.split(' ')[0]),
+        datasets: [{ data: motEntries.map(([,v]) => v),
+          backgroundColor: motEntries.map((_,i) => i===0?'#C0392B':i===1?'#E67E22':'#2980B9'),
+          borderRadius: 4 }]
+      },
+      options: { responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false} },
+        scales:{ y:{ ticks:{callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(128,128,128,.1)'} }, x:{grid:{display:false}} } }
+    });
+  }
+
+  // Chart mensal
+  const byMes = {'Março/2026':0,'Abril/2026':0,'Maio/2026':0};
+  LANCAMENTOS.forEach(l => {
+    if (l.mes_num===3) byMes['Março/2026'] += l.valor;
+    else if (l.mes_num===4) byMes['Abril/2026'] += l.valor;
+    else if (l.mes_num===5) byMes['Maio/2026'] += l.valor;
+  });
+
+  const cMesEl = document.getElementById('chartMes');
+  if (cMesEl) {
+    if (chartMesInstance) chartMesInstance.destroy();
+    chartMesInstance = new Chart(cMesEl, {
+      type: 'line',
+      data: {
+        labels: Object.keys(byMes),
+        datasets: [{ data: Object.values(byMes), borderColor:'#185FA5',
+          backgroundColor:'rgba(24,95,165,.12)', tension:.35, fill:true,
+          pointBackgroundColor:'#185FA5', pointRadius:5 }]
+      },
+      options: { responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false} },
+        scales:{ y:{ ticks:{callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(128,128,128,.1)'} }, x:{grid:{display:false}} } }
+    });
+  }
+}
+
+// Hook into showTab
+const _origShowTab = showTab;
+showTab = function(id) {
+  _origShowTab(id);
+  if (id === 'financeiro') {
+    setTimeout(renderFinanceiro, 80);
   }
 };
 </script>
