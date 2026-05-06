@@ -1765,133 +1765,6 @@ function showToast(msg, bg) {
 </div>
 
 
-<!-- PROTEÇÃO DO APP -->
-<div id="devBlock" style="display:none;position:fixed;inset:0;background:#0C0B09;z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:'IBM Plex Sans',sans-serif">
-  <div style="font-size:3.5rem">🔐</div>
-  <div style="color:#fff;font-size:1.3rem;font-weight:600">Acesso restrito</div>
-  <div style="color:#888780;font-size:.9rem;text-align:center;max-width:360px;line-height:1.6">
-    Por segurança, o app foi bloqueado.<br>
-    Feche as ferramentas de desenvolvedor para continuar.
-  </div>
-  <button onclick="location.reload()" style="margin-top:.5rem;padding:.65rem 1.5rem;background:#185FA5;color:#fff;border:none;border-radius:6px;font-size:.9rem;cursor:pointer;font-family:inherit">
-    🔄 Recarregar app
-  </button>
-</div>
-
-<script>
-// ── SISTEMA DE PROTEÇÃO INTELIGENTE ──
-// Reconhece automaticamente a administradora pelo e-mail de login
-const ADMIN_EMAIL = 'daphinin@frotaexpressopb.com';
-
-window.__isAdmin = false;
-
-// Chamada após login — verifica se é a administradora
-function checkAdminProtection(email) {
-  if (email === ADMIN_EMAIL) {
-    window.__isAdmin = true;
-    sessionStorage.setItem('__adminSession', '1');
-    // Administradora: libera tudo
-    enableDevAccess();
-  } else {
-    window.__isAdmin = false;
-    sessionStorage.removeItem('__adminSession');
-    // Outros usuários: proteção ativa
-    enableProtection();
-  }
-}
-
-// Restaura sessão se já logada
-if (sessionStorage.getItem('__adminSession') === '1') {
-  window.__isAdmin = true;
-  enableDevAccess();
-}
-
-function enableDevAccess() {
-  // Remove todas as restrições para a administradora
-  window.__devAccess = true;
-  document.removeEventListener('contextmenu', blockContext);
-  document.removeEventListener('keydown', blockKeys);
-  document.removeEventListener('selectstart', blockSelect);
-  const db = document.getElementById('devBlock');
-  if (db) db.style.display = 'none';
-}
-
-function enableProtection() {
-  window.__devAccess = false;
-  document.addEventListener('contextmenu', blockContext);
-  document.addEventListener('keydown', blockKeys);
-  document.addEventListener('selectstart', blockSelect);
-}
-
-function blockContext(e) {
-  e.preventDefault();
-  showToast && showToast('Clique direito desativado', '#854F0B');
-}
-
-function blockKeys(e) {
-  if (e.key === 'F12' ||
-      (e.ctrlKey && e.shiftKey && ['I','J','C','K'].includes(e.key.toUpperCase())) ||
-      (e.ctrlKey && e.key.toUpperCase() === 'U')) {
-    e.preventDefault();
-    showToast && showToast('Acesso restrito', '#C0392B');
-  }
-}
-
-function blockSelect(e) {
-  if (!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) {
-    e.preventDefault();
-  }
-}
-
-// Detecta abertura de DevTools — bloqueia apenas para não-admin
-let devBlocked = false;
-setInterval(() => {
-  if (window.__isAdmin) return; // Administradora nunca bloqueia
-  const w = window.outerWidth - window.innerWidth > 200;
-  const h = window.outerHeight - window.innerHeight > 200;
-  const db = document.getElementById('devBlock');
-  if ((w || h) && !devBlocked) {
-    devBlocked = true;
-    if (db) db.style.display = 'flex';
-  } else if (!w && !h && devBlocked) {
-    devBlocked = false;
-    if (db) db.style.display = 'none';
-  }
-}, 800);
-
-// Ao fazer logout, remove sessão admin
-const _origLogout = window.doLogout;
-function doLogout() {
-  sessionStorage.removeItem('__adminSession');
-  window.__isAdmin = false;
-  enableProtection();
-  if (_origLogout) _origLogout();
-  else {
-    document.getElementById('appScreen').classList.remove('active');
-    document.getElementById('loginScreen').classList.add('active');
-    document.getElementById('loginEmail').value = '';
-    document.getElementById('loginPass').value = '';
-    showTab && showTab('painel');
-  }
-}
-
-// Hook no doLogin para verificar e-mail automaticamente
-const _origDoLogin = window.doLogin;
-window.doLogin = async function() {
-  // Chama login original
-  if (_origDoLogin) await _origDoLogin();
-  // Verifica qual email foi usado
-  const emailUsado = document.getElementById('loginEmail')?.value?.trim() || '';
-  if (document.getElementById('appScreen')?.classList.contains('active')) {
-    checkAdminProtection(emailUsado);
-  }
-};
-
-// Inicializa proteção para visitantes não logados
-enableProtection();
-</script>
-
-
 <script>
 // ── DADOS FINANCEIROS EXPRESSO PB ──
 const LANCAMENTOS = [{"n": 1, "data": "46082", "fornecedor": "Edson Lona", "desc": "Vulcanização E Mao De Obra", "placa": "", "motorista": "—", "modelo": "—", "valor": 500, "pagto": "PIX", "data_br": "01/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 2, "data": "46083", "fornecedor": "Joao Wictor Mec.", "desc": "Socorro Daf Aruera Pe", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 5700, "pagto": "PIX", "data_br": "02/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 3, "data": "46085", "fornecedor": "Posto Aliança Do Araripe", "desc": "Óleo Hidraulico", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 24, "pagto": "PIX", "data_br": "04/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 4, "data": "46085", "fornecedor": "Fachini", "desc": "Catraca Lona Sider", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 350, "pagto": "PIX", "data_br": "04/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 5, "data": "46085", "fornecedor": "Posto Aliança Do Araripe", "desc": "Aditivo", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 22, "pagto": "PIX", "data_br": "04/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 6, "data": "46086", "fornecedor": "Coisas De Caminhoneiro", "desc": "Cones De Sinalização E Relê", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 92, "pagto": "PIX", "data_br": "05/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 7, "data": "46086", "fornecedor": "Cadiesel", "desc": "Recuperação Do Chicote", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 500, "pagto": "CARTÃO - 2X", "data_br": "05/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 8, "data": "46087", "fornecedor": "Sertão Reboque", "desc": "Serv. Reboque Daf", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 3300, "pagto": "PIX", "data_br": "06/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 9, "data": "46090", "fornecedor": "Gotemburgo Veiculos Pb", "desc": "Corpo Da Valvula", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 3182.04, "pagto": "CARTÃO - 6X", "data_br": "09/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 10, "data": "46091", "fornecedor": "Mototaxi Peça", "desc": "Levar Peça Em Pocinhos", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 50, "pagto": "PIX", "data_br": "10/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 11, "data": "46091", "fornecedor": "Borracharia", "desc": "Vulcanização", "placa": "QYA-6G28", "motorista": "Cícero E.", "modelo": "MERCEDES", "valor": 100, "pagto": "PIX", "data_br": "10/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 12, "data": "46093", "fornecedor": "Borracharia", "desc": "Troca De Pneus", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 80, "pagto": "PIX", "data_br": "12/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 13, "data": "46094", "fornecedor": "Gama", "desc": "Valvula Racor", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 276, "pagto": "CARTÃO", "data_br": "13/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 14, "data": "46097", "fornecedor": "Oficina Leão", "desc": "Serviço De Solda", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 100, "pagto": "PIX", "data_br": "16/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 15, "data": "46097", "fornecedor": "Borracharia", "desc": "Troca De Pneu E Calibragem", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 100, "pagto": "PIX", "data_br": "16/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 16, "data": "46098", "fornecedor": "Paizao", "desc": "Mangueira E União", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 13, "pagto": "PIX", "data_br": "17/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 17, "data": "46098", "fornecedor": "Voldiesel", "desc": "Serviço Volvo", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 8800, "pagto": "CC6X", "data_br": "17/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 18, "data": "46098", "fornecedor": "Frete Do Modulo", "desc": "Frete Do Modulo Daf", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 192.92, "pagto": "PIX", "data_br": "17/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 19, "data": "46104", "fornecedor": "Borracharia", "desc": "Troca De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 50, "pagto": "PIX", "data_br": "23/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 20, "data": "46104", "fornecedor": "Hidrau Diesel", "desc": "Mão De Obra + Bolsa De Ar Cabine", "placa": "QYA-6G28", "motorista": "Cícero E.", "modelo": "MERCEDES", "valor": 848, "pagto": "BL 2X", "data_br": "23/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 21, "data": "46104", "fornecedor": "Hidrau Diesel", "desc": "Troca De Óleo + Óleo De Motor", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 1230, "pagto": "BL1X", "data_br": "23/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 22, "data": "46106", "fornecedor": "Viação", "desc": "Passagem De Onibus Para Petrolina", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 302.15, "pagto": "PIX", "data_br": "25/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 23, "data": "46107", "fornecedor": "Socorro Mecanico", "desc": "Troca De Tensor Mercedes", "placa": "QYA-6G28", "motorista": "Cícero E.", "modelo": "MERCEDES", "valor": 970, "pagto": "PIX", "data_br": "26/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 24, "data": "46107", "fornecedor": "Daf Nova Petrolina", "desc": "Mão De Obra Do Modulo", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 1400, "pagto": "PIX", "data_br": "26/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 25, "data": "46108", "fornecedor": "Borracharia", "desc": "Rodízio De Pneus", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 80, "pagto": "PIX", "data_br": "27/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 26, "data": "46108", "fornecedor": "Serviço De Segurança", "desc": "Segurança Carreta Daf", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 300, "pagto": "PIX", "data_br": "27/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 27, "data": "46108", "fornecedor": "Borracharia", "desc": "Rodizio E Um Pitu", "placa": "RLR-1H73", "motorista": "Sérgio Soares", "modelo": "DAF", "valor": 150, "pagto": "PIX", "data_br": "27/03/2026", "mes": "March/2026", "mes_num": 3}, {"n": 28, "data": "46114", "fornecedor": "Mec Leandro", "desc": "Troca De Sensor Do Maneco", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 350, "pagto": "PIX", "data_br": "02/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 29, "data": "46118", "fornecedor": "Vitor Chaveiro", "desc": "Confecção De Chave Reserva", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 130, "pagto": "PIX", "data_br": "06/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 30, "data": "46119", "fornecedor": "Acessórios 101", "desc": "Mão De Obra E Maçaneta", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 535.8, "pagto": "PIX", "data_br": "07/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 31, "data": "46125", "fornecedor": "Sta Caminhões", "desc": "Jogo De Filtros Do Motor", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 474.83, "pagto": "CARTÃO 2X", "data_br": "13/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 32, "data": "46126", "fornecedor": "Borracharia Do Zé", "desc": "Serviço De Remendo No Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 110, "pagto": "PIX", "data_br": "14/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 33, "data": "46129", "fornecedor": "Patrimonial", "desc": "Compra De Pneu Direcional 6 Uni", "placa": "", "motorista": "—", "modelo": "—", "valor": 11580, "pagto": "CARTÃO 10X", "data_br": "17/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 34, "data": "46129", "fornecedor": "Turbo Freio", "desc": "Troca De Filtros, Limpa PC E Mangueiras", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 1550, "pagto": "CARTÃO 3X", "data_br": "17/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 35, "data": "46132", "fornecedor": "Lg Borracharia", "desc": "Serviço De Reaperto Do Pito", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 40, "pagto": "PIX", "data_br": "20/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 36, "data": "46134", "fornecedor": "Borracharia", "desc": "Serviço De Rodízio De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 30, "pagto": "PIX", "data_br": "22/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 37, "data": "46134", "fornecedor": "Inmetro", "desc": "Aferição De Pneu E Configuração De Placa", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 480, "pagto": "CARTÃO 1X", "data_br": "22/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 38, "data": "46134", "fornecedor": "Borracharia Jacarauna", "desc": "Remendo De Pneu", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 90, "pagto": "PIX", "data_br": "22/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 39, "data": "46135", "fornecedor": "Cadiesel", "desc": "Serviço Elétrico", "placa": "RLU-7G93", "motorista": "Joel", "modelo": "VW", "valor": 740, "pagto": "CARTÃO 2X", "data_br": "23/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 40, "data": "46135", "fornecedor": "Turbo Freio", "desc": "Serviço De Socorro Realizado No Dia 22/04", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 90, "pagto": "PIX", "data_br": "23/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 41, "data": "46137", "fornecedor": "Borracharia Pai E Filho", "desc": "Serviço De Troca De Pneu", "placa": "QSK-2H66", "motorista": "Allan R.", "modelo": "VW", "valor": 50, "pagto": "PIX", "data_br": "25/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 42, "data": "46139", "fornecedor": "Pg Postos", "desc": "Serviço De Troca De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 40, "pagto": "PIX", "data_br": "27/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 43, "data": "46139", "fornecedor": "Brtruck", "desc": "Troca De Fusível", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 5, "pagto": "PIX", "data_br": "27/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 44, "data": "46140", "fornecedor": "Borracharia Do Zé", "desc": "Serviço Do Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 30, "pagto": "PIX", "data_br": "28/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 45, "data": "46141", "fornecedor": "Borracharia Do Zé", "desc": "Serviço No Pneu - Folga Do Eixo Dianteiro", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 100, "pagto": "PIX", "data_br": "29/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 46, "data": "46141", "fornecedor": "Patrimonial", "desc": "Balanceamento", "placa": "QSH-9C56", "motorista": "Carlos A.", "modelo": "VW", "valor": 60, "pagto": "PIX", "data_br": "29/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 47, "data": "46141", "fornecedor": "Acessórios 101", "desc": "Serviço Lanterna, Sirenes E Elétrica De Ré", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 538.65, "pagto": "PIX", "data_br": "29/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 48, "data": "46142", "fornecedor": "Turbo Freio", "desc": "Mangueiras Rasgadas - Marcos", "placa": "QYA-3I45", "motorista": "Marcos Antônio", "modelo": "MERCEDES", "valor": 365, "pagto": "CARTÃO 2X", "data_br": "30/04/2026", "mes": "April/2026", "mes_num": 4}, {"n": 49, "data": "46146", "fornecedor": "Posto Espacial II", "desc": "Serviço No Pneu E Pino", "placa": "QYB-2A80", "motorista": "Petrônio José", "modelo": "VW", "valor": 200, "pagto": "PIX", "data_br": "04/05/2026", "mes": "May/2026", "mes_num": 5}, {"n": 50, "data": "46146", "fornecedor": "Borracharia Do Zé", "desc": "Serviço De Pneu", "placa": "OYM-4G46", "motorista": "Josenildo Vieira", "modelo": "VOLVO", "valor": 60, "pagto": "PIX", "data_br": "04/05/2026", "mes": "May/2026", "mes_num": 5}, {"n": 51, "data": "46147", "fornecedor": "Kropneus", "desc": "Compra De Pneu Tração - 8 Unidades", "placa": "", "motorista": "—", "modelo": "—", "valor": 15416, "pagto": "CARTÃO 10X", "data_br": "05/05/2026", "mes": "May/2026", "mes_num": 5}];
@@ -2249,15 +2122,15 @@ window.doLogin = async function() {
   const appEl = document.getElementById('appScreen');
   if (appEl && appEl.classList.contains('active')) {
     await syncLoadAll();
-    checkAdminProtection(document.getElementById('loginEmail')?.value?.trim() || '');
+    
   }
 };
 
 // ── OVERRIDE doLogout ──
 const __origLogout2 = window.doLogout;
 window.doLogout = function() {
-  sessionStorage.removeItem('__adminSession');
-  window.__isAdmin = false;
+  
+  
   const appEl = document.getElementById('appScreen');
   if (appEl) appEl.classList.remove('active');
   const loginEl = document.getElementById('loginScreen');
@@ -2267,7 +2140,7 @@ window.doLogout = function() {
   if (emailEl) emailEl.value = '';
   if (passEl) passEl.value = '';
   showTab && showTab('painel');
-  enableProtection && enableProtection();
+  enableProtection && 
 };
 </script>
 
