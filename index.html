@@ -1,3 +1,1102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="FrotaControl Pro — Sistema de gestão de frotas, manutenção, pneus e recapagens">
+<meta name="theme-color" content="#12110F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FrotaControl">
+<title>FrotaControl Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface2: #EEECEA;
+  --border: #D8D6D0;
+  --border2: #C8C6BF;
+  --text: #1A1917;
+  --text2: #5A5855;
+  --text3: #8A8885;
+  --blue: #1A5FA8;
+  --blue-bg: #E8F0FB;
+  --blue-text: #0C3D73;
+  --green: #2D7A3A;
+  --green-bg: #E6F4E8;
+  --green-text: #1A4A22;
+  --amber: #B85C00;
+  --amber-bg: #FEF0E0;
+  --amber-text: #7A3C00;
+  --red: #C0392B;
+  --red-bg: #FDECEA;
+  --red-text: #7A1F18;
+  --purple: #5B3EA8;
+  --purple-bg: #EEE9FC;
+  --purple-text: #3A2470;
+  --teal: #0F6E56;
+  --teal-bg: #E0F4EF;
+  --teal-text: #084D3C;
+  --topbar-bg: #12110F;
+  --sidebar-bg: #1A1917;
+  --sidebar-text: #C8C6BF;
+  --sidebar-hover: #2A2825;
+  --sidebar-active: #2C3E5A;
+  --sidebar-active-text: #7EB3F0;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── LOGIN ── */
+.login-bg {
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.login-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid var(--border);
+}
+
+.login-header { text-align: center; margin-bottom: 2rem; }
+
+.login-logo {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-lg);
+  background: var(--blue-bg);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 28px; color: var(--blue);
+}
+
+.login-header h1 { font-size: 1.4rem; font-weight: 600; color: var(--text); margin-bottom: .25rem; }
+.login-header p { font-size: .85rem; color: var(--text3); }
+
+.login-profiles { margin-bottom: 1.5rem; }
+.profiles-label { font-size: .75rem; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; font-weight: 500; margin-bottom: .6rem; }
+
+.profile-btn {
+  width: 100%; display: flex; align-items: center; gap: .75rem;
+  padding: .7rem .9rem; border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface); cursor: pointer;
+  margin-bottom: .5rem; text-align: left;
+  transition: border-color .15s, background .15s;
+}
+.profile-btn:hover { border-color: var(--blue); background: var(--blue-bg); }
+
+.profile-icon {
+  width: 34px; height: 34px; border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.profile-icon.admin { background: var(--blue-bg); color: var(--blue); }
+.profile-icon.gestor { background: var(--purple-bg); color: var(--purple); }
+.profile-icon.mec { background: var(--green-bg); color: var(--green); }
+
+.profile-info { flex: 1; }
+.profile-name { display: block; font-size: .85rem; font-weight: 500; color: var(--text); }
+.profile-desc { display: block; font-size: .75rem; color: var(--text3); }
+
+.profile-tag {
+  font-size: .7rem; padding: 2px 8px; border-radius: 999px; font-weight: 500;
+}
+.admin-tag { background: var(--blue-bg); color: var(--blue-text); }
+.gestor-tag { background: var(--purple-bg); color: var(--purple-text); }
+.mec-tag { background: var(--green-bg); color: var(--green-text); }
+
+.login-form { border-top: 1px solid var(--border); padding-top: 1.25rem; margin-top: .5rem; }
+
+.form-field { margin-bottom: .75rem; }
+.form-field label {
+  display: block; font-size: .8rem; font-weight: 500;
+  color: var(--text2); margin-bottom: .3rem;
+}
+.form-field input, .form-field select, .form-field textarea {
+  width: 100%; padding: .55rem .75rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text);
+  font-family: inherit; font-size: .875rem;
+  transition: border-color .15s;
+}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+  outline: none; border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(26,95,168,.12);
+}
+.form-field textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+.login-error {
+  font-size: .8rem; color: var(--red); background: var(--red-bg);
+  padding: .5rem .75rem; border-radius: var(--radius);
+  margin-bottom: .75rem; display: none;
+}
+
+.btn-login {
+  width: 100%; padding: .65rem; border-radius: var(--radius);
+  background: var(--blue); color: #fff; border: none;
+  font-family: inherit; font-size: .9rem; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem;
+  transition: background .15s;
+}
+.btn-login:hover { background: var(--blue-text); }
+
+.login-footer {
+  text-align: center; font-size: .75rem; color: var(--text3);
+  margin-top: 1.25rem;
+}
+
+/* ── APP LAYOUT ── */
+.app-layout {
+  display: flex; min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 230px; flex-shrink: 0;
+  background: var(--sidebar-bg);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100vh;
+  z-index: 100;
+  transition: transform .25s ease;
+}
+
+.sidebar-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1rem .75rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.sidebar-logo {
+  display: flex; align-items: center; gap: .6rem;
+  font-size: .95rem; font-weight: 600; color: #fff;
+}
+.sidebar-logo i { font-size: 20px; color: #7EB3F0; }
+
+.sidebar-close { display: none; background: none; border: none; color: var(--sidebar-text); font-size: 18px; cursor: pointer; }
+
+.sidebar-nav { flex: 1; padding: .75rem .5rem; overflow-y: auto; }
+.nav-sep { height: 1px; background: rgba(255,255,255,.06); margin: .5rem .5rem; }
+
+.nav-item {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .6rem .75rem; border-radius: var(--radius);
+  color: var(--sidebar-text); font-size: .875rem; cursor: pointer;
+  text-decoration: none; margin-bottom: 2px;
+  transition: background .12s, color .12s;
+  position: relative;
+}
+.nav-item i { font-size: 17px; flex-shrink: 0; }
+.nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+.nav-item.active { background: var(--sidebar-active); color: var(--sidebar-active-text); }
+
+.nav-badge {
+  margin-left: auto; font-size: .7rem; padding: 1px 7px;
+  border-radius: 999px; font-weight: 500;
+}
+.nav-badge.danger { background: var(--red-bg); color: var(--red-text); }
+.nav-badge.warn { background: var(--amber-bg); color: var(--amber-text); }
+
+.sidebar-user {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .75rem 1rem;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--blue); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 600; flex-shrink: 0;
+}
+.user-meta { flex: 1; min-width: 0; }
+.user-name { display: block; font-size: .8rem; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-email { display: block; font-size: .7rem; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.btn-logout {
+  background: none; border: none; color: var(--text3);
+  font-size: 17px; cursor: pointer; padding: 4px;
+  border-radius: var(--radius); flex-shrink: 0;
+  transition: color .12s;
+}
+.btn-logout:hover { color: var(--red); }
+
+/* MAIN */
+.main-content {
+  flex: 1;
+  margin-left: 230px;
+  display: flex; flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .75rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50;
+}
+.menu-toggle { display: none; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text2); }
+.page-title { font-size: 1rem; font-weight: 600; flex: 1; }
+
+.topbar-right { display: flex; align-items: center; gap: .6rem; }
+.role-chip {
+  font-size: .75rem; padding: 3px 10px; border-radius: 999px;
+  font-weight: 500; background: var(--blue-bg); color: var(--blue-text);
+}
+.topbar-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--blue); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 600;
+}
+
+.content-area { flex: 1; padding: 1.5rem; max-width: 960px; }
+
+/* TAB SECTIONS */
+.tab-section { display: none; }
+.tab-section.active { display: block; }
+
+/* ── COMPONENTS ── */
+
+/* Alerts */
+.alert-bar {
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--amber-bg); border: 1px solid #F5C077;
+  border-radius: var(--radius); padding: .65rem .9rem;
+  font-size: .85rem; color: var(--amber-text); margin-bottom: 1rem;
+}
+.alert-bar i { font-size: 16px; flex-shrink: 0; }
+
+/* Metrics */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: .75rem; margin-bottom: 1.25rem;
+}
+.metric-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .9rem 1rem;
+}
+.metric-label { display: block; font-size: .75rem; color: var(--text3); margin-bottom: .3rem; }
+.metric-value { display: block; font-size: 1.6rem; font-weight: 600; color: var(--text); line-height: 1; }
+.metric-value.warn { color: var(--amber); }
+.metric-value.danger { color: var(--red); }
+.metric-value.purple { color: var(--purple); }
+.metric-value.ok { color: var(--green); }
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1rem 1.1rem; margin-bottom: .9rem;
+}
+.card-title {
+  font-size: .875rem; font-weight: 600; color: var(--text);
+  margin-bottom: .85rem; display: flex; align-items: center; gap: .5rem;
+}
+.card-title i { font-size: 16px; color: var(--blue); }
+
+/* Two col */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+
+/* List items */
+.list-item {
+  display: flex; align-items: flex-start; gap: .7rem;
+  padding: .6rem 0; border-bottom: 1px solid var(--border);
+}
+.list-item:last-child { border-bottom: none; }
+.list-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+}
+.list-dot.danger { background: var(--red); }
+.list-dot.warn { background: var(--amber); }
+.list-dot.ok, .list-dot.green { background: var(--green); }
+.list-dot.blue { background: var(--blue); }
+.list-dot.purple { background: var(--purple); }
+.list-dot.teal { background: var(--teal); }
+
+.list-info { flex: 1; }
+.list-info strong { display: block; font-size: .85rem; font-weight: 500; color: var(--text); }
+.list-info span { display: block; font-size: .78rem; color: var(--text3); margin-top: 1px; }
+
+/* Badges */
+.badge {
+  display: inline-block; font-size: .7rem; padding: 2px 8px;
+  border-radius: 999px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+}
+.badge.danger { background: var(--red-bg); color: var(--red-text); }
+.badge.warn { background: var(--amber-bg); color: var(--amber-text); }
+.badge.ok, .badge.green { background: var(--green-bg); color: var(--green-text); }
+.badge.blue { background: var(--blue-bg); color: var(--blue-text); }
+.badge.purple { background: var(--purple-bg); color: var(--purple-text); }
+.badge.teal { background: var(--teal-bg); color: var(--teal-text); }
+.badge.gray { background: var(--surface2); color: var(--text2); }
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .5rem 1rem; border-radius: var(--radius);
+  background: var(--blue); color: #fff; border: none;
+  font-family: inherit; font-size: .85rem; font-weight: 500;
+  cursor: pointer; transition: background .12s; white-space: nowrap;
+}
+.btn-primary:hover { background: var(--blue-text); }
+.btn-full { width: 100%; justify-content: center; padding: .7rem; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .5rem 1rem; border-radius: var(--radius);
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  font-family: inherit; font-size: .85rem; cursor: pointer;
+  transition: background .12s;
+}
+.btn-secondary:hover { background: var(--surface2); }
+
+.btn-sm { padding: .35rem .75rem; font-size: .8rem; }
+.btn-xs { padding: .25rem .6rem; font-size: .75rem; }
+
+.btn-amber {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .35rem .75rem; border-radius: var(--radius);
+  background: var(--amber-bg); color: var(--amber-text);
+  border: 1px solid #F5C077; font-family: inherit; font-size: .8rem;
+  cursor: pointer; white-space: nowrap;
+}
+.btn-teal {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .35rem .75rem; border-radius: var(--radius);
+  background: var(--teal-bg); color: var(--teal-text);
+  border: 1px solid #5DCAA5; font-family: inherit; font-size: .8rem;
+  cursor: pointer;
+}
+.btn-danger-sm {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .35rem .75rem; border-radius: var(--radius);
+  background: var(--red-bg); color: var(--red-text);
+  border: 1px solid #F09595; font-family: inherit; font-size: .8rem;
+  cursor: pointer;
+}
+
+/* Section toolbar */
+.section-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem; gap: .75rem; flex-wrap: wrap;
+}
+.section-heading { font-size: .95rem; font-weight: 600; }
+.filters-bar { gap: .5rem; justify-content: flex-start; }
+
+.filter-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+.chip {
+  font-size: .8rem; padding: .3rem .75rem; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text2); cursor: pointer; transition: all .12s;
+  white-space: nowrap;
+}
+.chip:hover { border-color: var(--blue); color: var(--blue); }
+.chip.active { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue); font-weight: 500; }
+
+.filter-select {
+  padding: .35rem .6rem; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text);
+  font-family: inherit; font-size: .82rem; cursor: pointer;
+}
+
+/* Pneu grid */
+.pneu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: .9rem;
+}
+.pneu-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1rem;
+}
+.pneu-card-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem;
+}
+.pneu-ico {
+  width: 36px; height: 36px; border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.pneu-name { font-size: .875rem; font-weight: 500; color: var(--text); }
+.pneu-sub { font-size: .78rem; color: var(--text3); margin-top: 2px; }
+.pneu-bar-wrap { margin: .6rem 0; }
+.pneu-bar-labels {
+  display: flex; justify-content: space-between;
+  font-size: .75rem; color: var(--text3); margin-bottom: 4px;
+}
+.pneu-bar-bg {
+  height: 6px; background: var(--surface2);
+  border-radius: 3px; overflow: hidden;
+}
+.pneu-bar-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+.pneu-meta { font-size: .75rem; color: var(--text3); margin-bottom: .6rem; }
+.pneu-actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+/* Frota */
+.frota-list { display: flex; flex-direction: column; gap: .6rem; }
+.frota-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.frota-hd {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .8rem 1rem; cursor: pointer;
+  transition: background .12s;
+}
+.frota-hd:hover { background: var(--surface2); }
+.frota-hd-icon {
+  width: 36px; height: 36px; border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 18px;
+}
+.frota-hd-info { flex: 1; }
+.frota-hd-name { font-size: .875rem; font-weight: 500; color: var(--text); }
+.frota-hd-sub { font-size: .78rem; color: var(--text3); margin-top: 1px; }
+.frota-hd-chev { font-size: 16px; color: var(--text3); transition: transform .2s; }
+.frota-hd-chev.open { transform: rotate(180deg); }
+
+.frota-bd {
+  border-top: 1px solid var(--border); padding: .9rem 1rem;
+  display: none;
+}
+.frota-bd.open { display: block; }
+.frota-info-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: .7rem; margin-bottom: .75rem;
+}
+.fi-label { font-size: .75rem; color: var(--text3); margin-bottom: 2px; }
+.fi-val { font-size: .85rem; font-weight: 500; color: var(--text); }
+.frota-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; }
+.tl-item {
+  display: flex; gap: .75rem; padding-bottom: .9rem; position: relative;
+}
+.tl-item:not(:last-child)::before {
+  content: ''; position: absolute;
+  left: 10px; top: 22px; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.tl-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  flex-shrink: 0; display: flex; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 600;
+}
+.tl-dot.blue { background: var(--blue-bg); color: var(--blue-text); }
+.tl-dot.purple { background: var(--purple-bg); color: var(--purple-text); }
+.tl-dot.green { background: var(--green-bg); color: var(--green-text); }
+.tl-content { flex: 1; }
+.tl-title { font-size: .85rem; font-weight: 500; color: var(--text); }
+.tl-sub { font-size: .78rem; color: var(--text3); margin-top: 2px; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+
+/* Inline date edit */
+.date-edit-wrap { display: inline-flex; align-items: center; gap: .3rem; }
+.date-val { font-size: .78rem; color: var(--text3); }
+.date-edit-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--blue); font-size: .75rem; padding: 1px 4px;
+  border-radius: 4px; line-height: 1;
+}
+.date-edit-btn:hover { background: var(--blue-bg); }
+.date-input-inline {
+  font-size: .78rem; padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--blue); background: var(--surface);
+  color: var(--text); font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Ocorrências */
+.occ-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: .85rem 1rem; margin-bottom: .6rem;
+}
+.occ-header {
+  display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .4rem;
+}
+.occ-title { font-size: .875rem; font-weight: 500; color: var(--text); flex: 1; }
+.occ-meta {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .78rem; color: var(--text3); flex-wrap: wrap;
+}
+.occ-desc {
+  font-size: .8rem; color: var(--text2);
+  background: var(--surface2); padding: .45rem .7rem;
+  border-radius: var(--radius); margin-top: .5rem;
+  line-height: 1.5;
+}
+
+/* Register form */
+.reg-type-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: .5rem;
+}
+.reg-type-btn {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: .4rem; padding: .9rem .5rem;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); cursor: pointer;
+  font-family: inherit; font-size: .82rem; font-weight: 500; color: var(--text2);
+  transition: all .12s;
+}
+.reg-type-btn i { font-size: 22px; }
+.reg-type-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+.reg-type-btn.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue-text); }
+
+.reg-form { margin-top: .75rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+.form-trio { grid-template-columns: 1fr 1fr 1fr; }
+
+/* Permissions table */
+.perm-table { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.perm-header, .perm-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+}
+.perm-header span, .perm-row span {
+  padding: .5rem .75rem; font-size: .8rem; border-bottom: 1px solid var(--border);
+}
+.perm-header span { font-weight: 600; background: var(--surface2); color: var(--text2); }
+.perm-row:last-child span { border-bottom: none; }
+.perm-row span:not(:first-child) { text-align: center; }
+.py { color: var(--green); font-weight: 600; }
+.pn { color: var(--text3); }
+
+/* IA */
+.ia-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.ia-input-row { display: flex; gap: .6rem; margin-bottom: 1rem; }
+.ia-input-row input { flex: 1; }
+
+.ia-response {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1rem;
+}
+.ia-resp-header {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .78rem; color: var(--text3); margin-bottom: .6rem;
+}
+.ia-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+.ia-resp-body { font-size: .875rem; color: var(--text); line-height: 1.65; }
+
+/* Access denied */
+.access-denied {
+  text-align: center; padding: 3rem 2rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.access-denied i { font-size: 36px; color: var(--text3); display: block; margin-bottom: .75rem; }
+.access-denied p { font-size: 1rem; font-weight: 600; margin-bottom: .35rem; }
+.access-denied small { color: var(--text3); font-size: .82rem; }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.55); z-index: 500;
+  align-items: flex-start; justify-content: center;
+  padding: 3rem 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); width: 100%; max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  animation: modalIn .2s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: translateY(-12px); } to { opacity:1; transform: translateY(0); } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+}
+.modal-title-text { font-size: .95rem; font-weight: 600; }
+.modal-close {
+  background: none; border: none; cursor: pointer; font-size: 18px;
+  color: var(--text3); padding: 2px; border-radius: var(--radius);
+}
+.modal-close:hover { background: var(--surface2); }
+.modal-body { padding: 1.1rem 1.25rem; }
+.modal-footer {
+  display: flex; gap: .6rem; justify-content: flex-end;
+  padding: .85rem 1.25rem; border-top: 1px solid var(--border);
+}
+
+/* Toast */
+.toast {
+  display: none; position: fixed;
+  bottom: 1.5rem; right: 1.5rem;
+  background: var(--text); color: #fff;
+  padding: .6rem 1rem; border-radius: var(--radius);
+  font-size: .85rem; align-items: center; gap: .5rem;
+  z-index: 600; box-shadow: var(--shadow);
+  animation: toastIn .2s ease;
+}
+.toast.show { display: flex; }
+@keyframes toastIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar-close { display: block; }
+  .main-content { margin-left: 0; }
+  .menu-toggle { display: block; }
+  .two-col { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .form-trio { grid-template-columns: 1fr 1fr; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .frota-info-grid { grid-template-columns: 1fr 1fr; }
+  .reg-type-grid { grid-template-columns: 1fr 1fr; }
+  .content-area { padding: 1rem; }
+  .pneu-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .pneu-grid { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="screen active">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">
+          <i class="ti ti-truck" aria-hidden="true"></i>
+        </div>
+        <h1>FrotaControl Pro</h1>
+        <p>Sistema de gestão de frotas e manutenção</p>
+      </div>
+
+      <div class="login-profiles">
+        <p class="profiles-label">Entrar como:</p>
+        <button class="profile-btn" onclick="fillLogin('admin@frota.com','admin123')">
+          <span class="profile-icon admin"><i class="ti ti-shield-check"></i></span>
+          <span class="profile-info">
+            <span class="profile-name">Administrador</span>
+            <span class="profile-desc">Acesso total ao sistema</span>
+          </span>
+          <span class="profile-tag admin-tag">admin</span>
+        </button>
+        <button class="profile-btn" onclick="fillLogin('gestor@frota.com','gest123')">
+          <span class="profile-icon gestor"><i class="ti ti-chart-bar"></i></span>
+          <span class="profile-info">
+            <span class="profile-name">Gestor</span>
+            <span class="profile-desc">Relatórios e financeiro</span>
+          </span>
+          <span class="profile-tag gestor-tag">gestor</span>
+        </button>
+        <button class="profile-btn" onclick="fillLogin('mecanico@frota.com','mec123')">
+          <span class="profile-icon mec"><i class="ti ti-tool"></i></span>
+          <span class="profile-info">
+            <span class="profile-name">Mecânico</span>
+            <span class="profile-desc">Registra e anexa arquivos</span>
+          </span>
+          <span class="profile-tag mec-tag">mecânico</span>
+        </button>
+      </div>
+
+      <div class="login-form">
+        <div class="form-field">
+          <label for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" placeholder="seu@empresa.com.br" autocomplete="email">
+        </div>
+        <div class="form-field">
+          <label for="loginPass">Senha</label>
+          <input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="login-error" id="loginError">E-mail ou senha incorretos.</div>
+        <button class="btn-login" onclick="doLogin()">
+          <i class="ti ti-login" aria-hidden="true"></i> Entrar
+        </button>
+      </div>
+
+      <p class="login-footer">FrotaControl Pro &copy; 2026 &mdash; Use os perfis acima para demo</p>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen" class="screen">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">
+          <i class="ti ti-truck" aria-hidden="true"></i>
+          <span>FrotaControl</span>
+        </div>
+        <button class="sidebar-close" onclick="toggleSidebar()" aria-label="Fechar menu">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-tab="painel" onclick="showTab('painel')">
+          <i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Painel</span>
+        </a>
+        <a class="nav-item" data-tab="pneus" onclick="showTab('pneus')">
+          <i class="ti ti-circle-dashed" aria-hidden="true"></i><span>Pneus</span>
+          <span class="nav-badge danger" id="navBadgePneus">2</span>
+        </a>
+        <a class="nav-item" data-tab="frota" onclick="showTab('frota')">
+          <i class="ti ti-truck" aria-hidden="true"></i><span>Frota</span>
+        </a>
+        <a class="nav-item" data-tab="ocorrencias" onclick="showTab('ocorrencias')">
+          <i class="ti ti-clipboard-list" aria-hidden="true"></i><span>Ocorrências</span>
+        </a>
+        <a class="nav-item" data-tab="registrar" onclick="showTab('registrar')" id="navRegistrar">
+          <i class="ti ti-plus" aria-hidden="true"></i><span>Registrar</span>
+        </a>
+        <div class="nav-sep"></div>
+        <a class="nav-item" data-tab="permissoes" onclick="showTab('permissoes')" id="navPermissoes">
+          <i class="ti ti-shield" aria-hidden="true"></i><span>Permissões</span>
+        </a>
+        <a class="nav-item" data-tab="ia" onclick="showTab('ia')">
+          <i class="ti ti-sparkles" aria-hidden="true"></i><span>Assistente IA</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarAvatar">AD</div>
+        <div class="user-meta">
+          <span class="user-name" id="sidebarName">Administrador</span>
+          <span class="user-email" id="sidebarEmail">admin@frota.com</span>
+        </div>
+        <button class="btn-logout" onclick="doLogout()" aria-label="Sair">
+          <i class="ti ti-logout" aria-hidden="true"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">
+          <i class="ti ti-menu-2" aria-hidden="true"></i>
+        </button>
+        <h2 class="page-title" id="pageTitle">Painel</h2>
+        <div class="topbar-right">
+          <span class="role-chip" id="roleChip">Admin</span>
+          <div class="topbar-avatar" id="topbarAvatar">AD</div>
+        </div>
+      </header>
+
+      <div class="content-area">
+
+        <!-- PAINEL -->
+        <section id="painel" class="tab-section active">
+          <div id="alertBar" class="alert-bar">
+            <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+            <span>ABC-1234 — troca de óleo vencida há 3 dias. PQR-2345 — 2 pneus com desgaste crítico.</span>
+          </div>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">Caminhões ativos</span>
+              <span class="metric-value">6</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Manutenções abertas</span>
+              <span class="metric-value warn">3</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Pneus críticos</span>
+              <span class="metric-value danger">2</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Recapagens ativas</span>
+              <span class="metric-value purple">4</span>
+            </div>
+            <div class="metric-card financial-only">
+              <span class="metric-label">Custo mensal</span>
+              <span class="metric-value" style="font-size:1.2rem">R$&nbsp;4.930</span>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="card">
+              <div class="card-title">
+                <i class="ti ti-circle-dashed" aria-hidden="true"></i> Pneus — status rápido
+              </div>
+              <div class="list-item">
+                <span class="list-dot danger"></span>
+                <div class="list-info">
+                  <strong>PQR-2345 — eixo traseiro</strong>
+                  <span>Desgaste 92% &middot; recapagem necessária</span>
+                </div>
+                <span class="badge danger">Crítico</span>
+              </div>
+              <div class="list-item">
+                <span class="list-dot warn"></span>
+                <div class="list-info">
+                  <strong>ABC-1234 — eixo dianteiro</strong>
+                  <span>Desgaste 71% &middot; monitorar</span>
+                </div>
+                <span class="badge warn">Atenção</span>
+              </div>
+              <div class="list-item">
+                <span class="list-dot teal"></span>
+                <div class="list-info">
+                  <strong>JKL-3456 — todos os eixos</strong>
+                  <span>Recapagem concluída 28/04</span>
+                </div>
+                <span class="badge teal">Recapado</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <i class="ti ti-arrows-exchange" aria-hidden="true"></i> Trocas de veículo
+              </div>
+              <div class="list-item">
+                <span class="list-dot blue"></span>
+                <div class="list-info">
+                  <strong>MNO-7890 → MNO-7891</strong>
+                  <span>Volvo FH 2024 &middot; incorporado 15/03</span>
+                </div>
+                <span class="badge blue">Novo</span>
+              </div>
+              <div class="list-item">
+                <span class="list-dot purple"></span>
+                <div class="list-info">
+                  <strong>XYZ-0001 baixado</strong>
+                  <span>Scania G410 2017 &middot; vendido 10/01</span>
+                </div>
+                <span class="badge purple">Baixado</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PNEUS -->
+        <section id="pneus" class="tab-section">
+          <div class="section-toolbar">
+            <div class="filter-chips" id="pneuFilters">
+              <button class="chip active" onclick="filterPneus(this,'todos')">Todos</button>
+              <button class="chip" onclick="filterPneus(this,'novo')">Pneus novos</button>
+              <button class="chip" onclick="filterPneus(this,'recapado')">Recapados</button>
+              <button class="chip" onclick="filterPneus(this,'critico')">Críticos</button>
+            </div>
+            <button class="btn-primary" onclick="openRegister(1)">
+              <i class="ti ti-plus" aria-hidden="true"></i> Registrar pneu
+            </button>
+          </div>
+          <div class="pneu-grid" id="pneuGrid"></div>
+        </section>
+
+        <!-- FROTA -->
+        <section id="frota" class="tab-section">
+          <div class="section-toolbar">
+            <h3 class="section-heading">Gestão de frota</h3>
+            <button class="btn-primary" onclick="openRegister(3)">
+              <i class="ti ti-plus" aria-hidden="true"></i> Novo veículo / troca
+            </button>
+          </div>
+          <div id="frotaList" class="frota-list"></div>
+          <div class="card" style="margin-top:1rem">
+            <div class="card-title">
+              <i class="ti ti-history" aria-hidden="true"></i> Histórico de trocas
+            </div>
+            <div class="timeline" id="trocaTimeline"></div>
+          </div>
+        </section>
+
+        <!-- OCORRÊNCIAS -->
+        <section id="ocorrencias" class="tab-section">
+          <div class="section-toolbar filters-bar">
+            <select id="filtroStatus" onchange="renderOcorrencias()" class="filter-select">
+              <option value="">Todos os status</option>
+              <option>Urgente</option><option>Em breve</option><option>Concluído</option>
+            </select>
+            <select id="filtroVei" onchange="renderOcorrencias()" class="filter-select">
+              <option value="">Todos os veículos</option>
+              <option>ABC-1234</option><option>DEF-5678</option><option>GHI-9012</option>
+              <option>JKL-3456</option><option>MNO-7890</option><option>PQR-2345</option>
+            </select>
+            <select id="filtroTipo" onchange="renderOcorrencias()" class="filter-select">
+              <option value="">Todos os tipos</option>
+              <option>Manutenção</option><option>Pneu novo</option><option>Recapagem</option><option>Troca de veículo</option>
+            </select>
+          </div>
+          <div id="occList"></div>
+        </section>
+
+        <!-- REGISTRAR -->
+        <section id="registrar" class="tab-section">
+          <div id="regContent">
+            <div class="card">
+              <div class="card-title"><i class="ti ti-clipboard-plus" aria-hidden="true"></i> Tipo de registro</div>
+              <div class="reg-type-grid">
+                <button class="reg-type-btn" id="rtBtn0" onclick="selectRegType(0)">
+                  <i class="ti ti-tool" aria-hidden="true"></i>
+                  <span>Manutenção</span>
+                </button>
+                <button class="reg-type-btn" id="rtBtn1" onclick="selectRegType(1)">
+                  <i class="ti ti-circle-dashed" aria-hidden="true"></i>
+                  <span>Pneu novo</span>
+                </button>
+                <button class="reg-type-btn" id="rtBtn2" onclick="selectRegType(2)">
+                  <i class="ti ti-refresh" aria-hidden="true"></i>
+                  <span>Recapagem</span>
+                </button>
+                <button class="reg-type-btn" id="rtBtn3" onclick="selectRegType(3)">
+                  <i class="ti ti-arrows-exchange" aria-hidden="true"></i>
+                  <span>Troca de veículo</span>
+                </button>
+              </div>
+            </div>
+            <div id="formManutencao" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-tool" aria-hidden="true"></i> Manutenção</div>
+              <div class="form-row"><div class="form-field"><label>Placa</label><select id="mPlaca"><option>ABC-1234</option><option>DEF-5678</option><option>GHI-9012</option><option>JKL-3456</option><option>MNO-7890</option><option>PQR-2345</option></select></div><div class="form-field"><label>Tipo de serviço</label><select id="mTipo"><option>Troca de óleo</option><option>Revisão de freios</option><option>Filtro de ar</option><option>Revisão geral</option><option>Correia dentada</option><option>Outro</option></select></div></div>
+              <div class="form-row form-trio"><div class="form-field"><label>Data</label><input type="date" id="mData"></div><div class="form-field"><label>Km atual</label><input type="number" id="mKm" placeholder="km"></div><div class="form-field"><label>Status</label><select id="mStatus"><option>Em andamento</option><option>Concluído</option><option>Urgente</option><option>Em breve</option></select></div></div>
+              <div class="form-row"><div class="form-field"><label>Mecânico / Oficina</label><input type="text" id="mMec" placeholder="Nome"></div><div class="form-field financial-only"><label>Custo (R$)</label><input type="number" id="mCusto" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Descrição</label><textarea id="mDesc" rows="3" placeholder="Detalhe o serviço..."></textarea></div>
+            </div>
+            <div id="formPneu" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-circle-dashed" aria-hidden="true"></i> Pneu novo</div>
+              <div class="form-row"><div class="form-field"><label>Placa</label><select id="pnPlaca"><option>ABC-1234</option><option>DEF-5678</option><option>GHI-9012</option><option>JKL-3456</option><option>MNO-7890</option><option>PQR-2345</option></select></div><div class="form-field"><label>Posição / Eixo</label><select id="pnEixo"><option>Dianteiro esquerdo</option><option>Dianteiro direito</option><option>Traseiro esquerdo externo</option><option>Traseiro esquerdo interno</option><option>Traseiro direito externo</option><option>Traseiro direito interno</option><option>Todos os eixos</option></select></div></div>
+              <div class="form-row form-trio"><div class="form-field"><label>Marca</label><input type="text" id="pnMarca" placeholder="Ex: Bridgestone"></div><div class="form-field"><label>Medida</label><input type="text" id="pnMedida" placeholder="295/80 R22.5"></div><div class="form-field"><label>Data</label><input type="date" id="pnData"></div></div>
+              <div class="form-row"><div class="form-field"><label>Km na instalação</label><input type="number" id="pnKm" placeholder="km"></div><div class="form-field financial-only"><label>Custo (R$)</label><input type="number" id="pnCusto" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Número de série / DOT</label><input type="text" id="pnDot" placeholder="Ex: DOT 1523"></div>
+            </div>
+            <div id="formRecapagem" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-refresh" aria-hidden="true"></i> Recapagem</div>
+              <div class="form-row"><div class="form-field"><label>Placa</label><select id="rcPlaca"><option>ABC-1234</option><option>DEF-5678</option><option>GHI-9012</option><option>JKL-3456</option><option>MNO-7890</option><option>PQR-2345</option></select></div><div class="form-field"><label>Eixo / Posição</label><select id="rcEixo"><option>Traseiro duplo esquerdo</option><option>Traseiro duplo direito</option><option>Dianteiro esquerdo</option><option>Dianteiro direito</option><option>Todos os traseiros</option></select></div></div>
+              <div class="form-row form-trio"><div class="form-field"><label>Recapadora</label><input type="text" id="rcRecap" placeholder="Nome da empresa"></div><div class="form-field"><label>Data entrada</label><input type="date" id="rcEntrada"></div><div class="form-field"><label>Data saída</label><input type="date" id="rcSaida"></div></div>
+              <div class="form-row"><div class="form-field"><label>Km no envio</label><input type="number" id="rcKm" placeholder="km"></div><div class="form-field financial-only"><label>Custo (R$)</label><input type="number" id="rcCusto" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Banda / observações</label><input type="text" id="rcObs" placeholder="Ex: Banda 295 — 3ª vida do pneu"></div>
+            </div>
+            <div id="formVeiculo" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-arrows-exchange" aria-hidden="true"></i> Troca / entrada de veículo</div>
+              <div class="form-row"><div class="form-field"><label>Tipo de movimentação</label><select id="vTipo"><option>Incorporação (veículo novo)</option><option>Substituição (troca)</option><option>Baixa (venda / sucata)</option><option>Retorno de terceiros</option></select></div><div class="form-field"><label>Data</label><input type="date" id="vData"></div></div>
+              <div class="form-row"><div class="form-field"><label>Placa do veículo</label><input type="text" id="vPlaca" placeholder="Ex: MNO-7891"></div><div class="form-field"><label>Modelo / Ano</label><input type="text" id="vModelo" placeholder="Ex: Volvo FH 460 2024"></div></div>
+              <div class="form-row"><div class="form-field"><label>Placa substituída (se troca)</label><input type="text" id="vPlacaAnt" placeholder="Ex: MNO-7890"></div><div class="form-field"><label>Km inicial</label><input type="number" id="vKm" placeholder="km"></div></div>
+              <div class="form-row"><div class="form-field"><label>Motivo</label><input type="text" id="vMotivo" placeholder="Ex: Renovação de frota"></div><div class="form-field financial-only"><label>Valor (R$)</label><input type="number" id="vValor" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Observações</label><textarea id="vObs" rows="2" placeholder="Condição, documentação, responsável..."></textarea></div>
+            </div>
+            <div id="btnSalvar" style="display:none;margin-top:.5rem">
+              <button class="btn-primary btn-full" onclick="salvarRegistro()">
+                <i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar registro
+              </button>
+            </div>
+          </div>
+          <div id="regDenied" class="access-denied" style="display:none">
+            <i class="ti ti-lock" aria-hidden="true"></i>
+            <p>Acesso restrito</p>
+            <small>Gestores não podem registrar. Contate um administrador.</small>
+          </div>
+        </section>
+
+        <!-- PERMISSÕES -->
+        <section id="permissoes" class="tab-section">
+          <div id="permContent">
+            <div class="card">
+              <div class="card-title"><i class="ti ti-shield" aria-hidden="true"></i> Controle de acesso por perfil</div>
+              <div class="perm-table">
+                <div class="perm-header"><span>Funcionalidade</span><span>Admin</span><span>Gestor</span><span>Mecânico</span></div>
+                <div class="perm-row"><span>Painel geral</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Ver ocorrências e anexos</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Anexar fotos e NF</span><span class="py">✓</span><span class="pn">✗</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Ver custos financeiros</span><span class="py">✓</span><span class="py">✓</span><span class="pn">✗</span></div>
+                <div class="perm-row"><span>Registrar ocorrência</span><span class="py">✓</span><span class="pn">✗</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Gestão de pneus</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Registrar pneu / recapagem</span><span class="py">✓</span><span class="pn">✗</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Troca de veículo</span><span class="py">✓</span><span class="pn">✗</span><span class="pn">✗</span></div>
+                <div class="perm-row"><span>Gerenciar permissões</span><span class="py">✓</span><span class="pn">✗</span><span class="pn">✗</span></div>
+                <div class="perm-row"><span>Assistente IA</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="permDenied" class="access-denied" style="display:none">
+            <i class="ti ti-lock" aria-hidden="true"></i>
+            <p>Acesso restrito</p>
+            <small>Somente administradores podem gerenciar permissões.</small>
+          </div>
+        </section>
+
+        <!-- IA -->
+        <section id="ia" class="tab-section">
+          <div class="ia-chips">
+            <button class="chip" onclick="sendIA('Quais manutenções preventivas devo fazer na frota este mês?')">Manutenções do mês</button>
+            <button class="chip" onclick="sendIA('Quando recapar pneus de caminhão pesado — critérios técnicos?')">Critérios de recapagem</button>
+            <button class="chip" onclick="sendIA('Comparativo: pneu novo vs recapagem — custo-benefício para frota pesada?')">Novo vs recapagem</button>
+            <button class="chip" onclick="sendIA('Monte um plano preventivo de 12 meses para frota de 6 caminhões pesados')">Plano 12 meses</button>
+            <button class="chip" onclick="sendIA('Como reduzir custos de manutenção em frotas pesadas?')">Reduzir custos</button>
+          </div>
+          <div class="ia-input-row">
+            <input type="text" id="iaInput" placeholder="Pergunte sobre pneus, manutenções, recapagens, veículos..." onkeydown="if(event.key==='Enter')sendIA()">
+            <button class="btn-primary" onclick="sendIA()">
+              <i class="ti ti-sparkles" aria-hidden="true"></i> Perguntar
+            </button>
+          </div>
+          <div id="iaResp" class="ia-response" style="display:none">
+            <div class="ia-resp-header">
+              <span class="ia-dot"></span> Assistente IA
+            </div>
+            <div id="iaText" class="ia-resp-body"></div>
+          </div>
+        </section>
+
+      </div><!-- /content-area -->
+    </main>
+  </div><!-- /app-layout -->
+
+  <!-- MODAL -->
+  <div id="modalOverlay" class="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal-box" id="modalBox">
+      <div class="modal-header">
+        <span id="modalTitle" class="modal-title-text">Editar</span>
+        <button class="modal-close" onclick="closeModal()" aria-label="Fechar">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button class="btn-primary" onclick="saveModal()">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast">
+    <i class="ti ti-check" aria-hidden="true"></i>
+    <span id="toastMsg"></span>
+  </div>
+
+</div><!-- /appScreen -->
+
+<script>
 const USERS = {
   'admin@frota.com':   { pass:'admin123', role:'Administrador', initials:'AD', perms:{ registrar:true, financeiro:true, permissoes:true, trocaVeiculo:true } },
   'gestor@frota.com':  { pass:'gest123',  role:'Gestor',         initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
@@ -35,3 +1134,591 @@ let OCORRENCIAS = [
   { id:4, veiculo:'MNO-7890', tipo:'Troca de veículo',servico:'Baixa',           data:'15/03/2026', status:'Concluído', mec:'Setor admin',    custo:'R$ 95.000',  desc:'Vendido para terceiros.' },
   { id:5, veiculo:'PQR-2345', tipo:'Pneu novo',       servico:'Dianteiro esq.',  data:'10/01/2026', status:'Concluído', mec:'Oficina Central',custo:'R$ 1.850',   desc:'Bridgestone 295/80 R22.5 instalado.' },
 ];
+
+</script>
+<script>
+/* ── STATE ── */
+let CU = null;
+let sidebarOpen = false;
+let modalCb = null;
+let regTypeSel = -1;
+
+/* ── AUTH ── */
+function fillLogin(email, pass) {
+  document.getElementById('loginEmail').value = email;
+  document.getElementById('loginPass').value = pass;
+  document.getElementById('loginError').style.display = 'none';
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const user  = USERS[email];
+  const err   = document.getElementById('loginError');
+  if (!user || user.pass !== pass) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  CU = user;
+
+  /* topbar */
+  document.getElementById('roleChip').textContent = user.role;
+  document.getElementById('topbarAvatar').textContent = user.initials;
+
+  /* sidebar */
+  document.getElementById('sidebarAvatar').textContent = user.initials;
+  document.getElementById('sidebarName').textContent = user.role;
+  document.getElementById('sidebarEmail').textContent = email;
+
+  /* screens */
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+
+  applyPermissions();
+  renderPneus('todos');
+  renderFrota();
+  renderTrocas();
+  renderOcorrencias();
+}
+
+function doLogout() {
+  CU = null;
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+  showTab('painel');
+}
+
+/* ── PERMISSIONS ── */
+function applyPermissions() {
+  if (!CU) return;
+  const p = CU.perms;
+
+  /* financial fields */
+  document.querySelectorAll('.financial-only').forEach(el => {
+    el.style.display = p.financeiro ? '' : 'none';
+  });
+
+  /* registrar tab */
+  document.getElementById('regContent').style.display  = p.registrar ? '' : 'none';
+  document.getElementById('regDenied').style.display   = p.registrar ? 'none' : 'block';
+  const navReg = document.getElementById('navRegistrar');
+  if (!p.registrar) navReg.classList.add('locked');
+
+  /* permissões tab */
+  document.getElementById('permContent').style.display = p.permissoes ? '' : 'none';
+  document.getElementById('permDenied').style.display  = p.permissoes ? 'none' : 'block';
+  const navPerm = document.getElementById('navPermissoes');
+  if (!p.permissoes) {
+    navPerm.classList.add('locked');
+    navPerm.onclick = (e) => { e.preventDefault(); showToast('Acesso restrito — apenas administradores', '#C0392B'); };
+  }
+}
+
+/* ── NAVIGATION ── */
+function showTab(id) {
+  if (!CU) return;
+  if (id === 'permissoes' && !CU.perms.permissoes) { showToast('Acesso restrito', '#C0392B'); return; }
+
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const sec = document.getElementById(id);
+  if (sec) sec.classList.add('active');
+
+  const nav = document.querySelector(`.nav-item[data-tab="${id}"]`);
+  if (nav) nav.classList.add('active');
+
+  const titles = { painel:'Painel', pneus:'Pneus', frota:'Frota', ocorrencias:'Ocorrências', registrar:'Registrar', permissoes:'Permissões', ia:'Assistente IA' };
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+
+  if (window.innerWidth < 769 && sidebarOpen) toggleSidebar();
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  sidebarOpen = !sidebarOpen;
+  sb.classList.toggle('open', sidebarOpen);
+}
+
+/* ── PNEUS ── */
+function filterPneus(btn, tipo) {
+  document.querySelectorAll('#pneuFilters .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderPneus(tipo);
+}
+
+function renderPneus(tipo) {
+  const list = tipo === 'todos' ? PNEUS :
+               tipo === 'critico' ? PNEUS.filter(p => p.desgaste >= 80) :
+               PNEUS.filter(p => p.tipo === tipo);
+
+  const g = document.getElementById('pneuGrid');
+  g.innerHTML = '';
+
+  if (!list.length) {
+    g.innerHTML = '<p style="color:var(--text3);font-size:.85rem;padding:.5rem">Nenhum pneu encontrado.</p>';
+    return;
+  }
+
+  list.forEach(p => {
+    const barColor = p.desgaste >= 80 ? 'var(--red)' : p.desgaste >= 55 ? 'var(--amber)' : 'var(--green)';
+    const icoColor = p.tipo === 'novo' ? 'var(--blue)' : 'var(--teal)';
+    const icoBg    = p.tipo === 'novo' ? 'var(--blue-bg)' : 'var(--teal-bg)';
+    const icoName  = p.tipo === 'novo' ? 'ti-circle-dashed' : 'ti-refresh';
+    const badgeCls = p.tipo === 'novo' ? 'blue' : 'teal';
+    const badgeLabel = p.tipo === 'novo' ? 'Novo' : 'Recapado';
+    const custo = CU && CU.perms.financeiro ? ` · R$ ${p.custo.toLocaleString('pt-BR')}` : '';
+
+    const card = document.createElement('div');
+    card.className = 'pneu-card';
+    card.innerHTML = `
+      <div class="pneu-card-top">
+        <div class="pneu-ico" style="background:${icoBg};color:${icoColor}">
+          <i class="ti ${icoName}" aria-hidden="true"></i>
+        </div>
+        <span class="badge ${badgeCls}">${badgeLabel}</span>
+      </div>
+      <div class="pneu-name">${p.veiculo} · ${p.eixo}</div>
+      <div class="pneu-sub">${p.marca} · ${p.medida}</div>
+      <div class="pneu-bar-wrap">
+        <div class="pneu-bar-labels">
+          <span>Desgaste</span>
+          <span style="color:${barColor};font-weight:600">${p.desgaste}%</span>
+        </div>
+        <div class="pneu-bar-bg">
+          <div class="pneu-bar-fill" style="width:${p.desgaste}%;background:${barColor}"></div>
+        </div>
+      </div>
+      <div class="pneu-meta">${p.data} · ${p.km.toLocaleString('pt-BR')} km${custo}</div>
+      <div class="pneu-actions">
+        <button class="btn-amber btn-xs" onclick="editarPneu(${p.id})">
+          <i class="ti ti-edit" aria-hidden="true"></i> Editar
+        </button>
+        ${p.tipo === 'novo' && p.desgaste > 50
+          ? `<button class="btn-teal btn-xs" onclick="openRecapagem(${p.id})">
+               <i class="ti ti-refresh" aria-hidden="true"></i> Recapar
+             </button>` : ''}
+      </div>`;
+    g.appendChild(card);
+  });
+}
+
+/* ── FROTA ── */
+function renderFrota() {
+  const g = document.getElementById('frotaList');
+  g.innerHTML = '';
+  FROTA.filter(v => v.tipo === 'ativo').forEach(v => {
+    const icoBg    = v.status === 'ok' ? 'var(--blue-bg)' : 'var(--amber-bg)';
+    const icoColor = v.status === 'ok' ? 'var(--blue)' : 'var(--amber)';
+    const card = document.createElement('div');
+    card.className = 'frota-card';
+    card.innerHTML = `
+      <div class="frota-hd" onclick="toggleFrota(this)">
+        <div class="frota-hd-icon" style="background:${icoBg};color:${icoColor}">
+          <i class="ti ti-truck" aria-hidden="true"></i>
+        </div>
+        <div class="frota-hd-info">
+          <div class="frota-hd-name">${v.placa} · ${v.modelo}</div>
+          <div class="frota-hd-sub">${v.km.toLocaleString('pt-BR')} km · ${v.ano}</div>
+        </div>
+        <span class="badge ${v.status}">${v.statusLabel}</span>
+        <i class="ti ti-chevron-down frota-hd-chev" aria-hidden="true"></i>
+      </div>
+      <div class="frota-bd">
+        <div class="frota-info-grid">
+          <div><div class="fi-label">Quilometragem</div><div class="fi-val">${v.km.toLocaleString('pt-BR')} km</div></div>
+          <div><div class="fi-label">Ano</div><div class="fi-val">${v.ano}</div></div>
+          <div><div class="fi-label">Status</div><div class="fi-val"><span class="badge ${v.status}">${v.statusLabel}</span></div></div>
+        </div>
+        <div class="frota-actions">
+          <button class="btn-amber btn-xs" onclick="editarVeiculo(${v.id})">
+            <i class="ti ti-edit" aria-hidden="true"></i> Editar
+          </button>
+          <button class="btn-secondary btn-xs" onclick="showTab('pneus')">
+            <i class="ti ti-circle-dashed" aria-hidden="true"></i> Ver pneus
+          </button>
+          ${CU && CU.perms.trocaVeiculo
+            ? `<button class="btn-danger-sm btn-xs" onclick="baixarVeiculo(${v.id})">
+                 <i class="ti ti-arrow-down" aria-hidden="true"></i> Dar baixa
+               </button>` : ''}
+        </div>
+      </div>`;
+    g.appendChild(card);
+  });
+}
+
+function toggleFrota(hd) {
+  const bd   = hd.nextElementSibling;
+  const chev = hd.querySelector('.frota-hd-chev');
+  const open = bd.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+/* ── TROCAS ── */
+function renderTrocas() {
+  const g = document.getElementById('trocaTimeline');
+  g.innerHTML = '';
+  TROCAS.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    item.innerHTML = `
+      <div class="tl-dot ${t.cor}">${t.tipo}</div>
+      <div class="tl-content">
+        <div class="tl-title">${t.titulo}</div>
+        <div class="tl-sub">
+          ${t.sub} ·
+          <span class="date-edit-wrap">
+            <span class="date-val" id="td_${t.id}">${t.data}</span>
+            <button class="date-edit-btn" onclick="inlineEditDate('td_${t.id}')" aria-label="Editar data">
+              <i class="ti ti-edit" aria-hidden="true"></i>
+            </button>
+          </span>
+        </div>
+      </div>`;
+    g.appendChild(item);
+  });
+}
+
+/* ── OCORRÊNCIAS ── */
+function renderOcorrencias() {
+  const fs = (document.getElementById('filtroStatus')?.value || '');
+  const fv = (document.getElementById('filtroVei')?.value    || '');
+  const ft = (document.getElementById('filtroTipo')?.value   || '');
+
+  const list = OCORRENCIAS.filter(o =>
+    (!fs || o.status === fs) &&
+    (!fv || o.veiculo === fv) &&
+    (!ft || o.tipo === ft)
+  );
+
+  const g = document.getElementById('occList');
+  g.innerHTML = '';
+
+  if (!list.length) {
+    g.innerHTML = '<p style="color:var(--text3);font-size:.85rem;padding:.5rem">Nenhuma ocorrência encontrada.</p>';
+    return;
+  }
+
+  list.forEach(o => {
+    const sc = o.status === 'Urgente' ? 'danger' : o.status === 'Em breve' ? 'warn' : o.status === 'Concluído' ? 'ok' : 'blue';
+    const tc = o.tipo === 'Pneu novo' ? 'purple' : o.tipo === 'Recapagem' ? 'teal' : o.tipo === 'Troca de veículo' ? 'blue' : '';
+    const custo = CU && CU.perms.financeiro && o.custo !== '—' ? ` · <strong>${o.custo}</strong>` : '';
+
+    const card = document.createElement('div');
+    card.className = 'occ-card';
+    card.innerHTML = `
+      <div class="occ-header">
+        <span class="list-dot ${sc}" style="margin-top:4px;flex-shrink:0"></span>
+        <div class="occ-title">
+          ${o.servico} — ${o.veiculo}
+          ${tc ? `<span class="badge ${tc}" style="font-size:.7rem;margin-left:.4rem">${o.tipo}</span>` : ''}
+        </div>
+        <span class="badge ${sc}">${o.status}</span>
+      </div>
+      <div class="occ-meta">
+        <span class="date-edit-wrap">
+          <span class="date-val" id="od_${o.id}">${o.data}</span>
+          <button class="date-edit-btn" onclick="inlineEditDate('od_${o.id}')" aria-label="Editar data">
+            <i class="ti ti-edit" aria-hidden="true"></i>
+          </button>
+        </span>
+        · ${o.mec}${custo}
+      </div>
+      ${o.desc ? `<div class="occ-desc">${o.desc}</div>` : ''}`;
+    g.appendChild(card);
+  });
+}
+
+/* ── INLINE DATE EDIT ── */
+function inlineEditDate(spanId) {
+  const span = document.getElementById(spanId);
+  if (!span) return;
+  const current = span.textContent.trim();
+  const parts   = current.split('/');
+  const isoVal  = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+  const inp = document.createElement('input');
+  inp.type = 'date';
+  inp.className = 'date-input-inline';
+  inp.value = isoVal;
+  inp.onblur = () => {
+    if (inp.value) {
+      const [y,m,d] = inp.value.split('-');
+      span.textContent = `${d}/${m}/${y}`;
+    }
+    inp.replaceWith(span);
+    showToast('Data atualizada');
+  };
+  inp.onkeydown = e => {
+    if (e.key === 'Enter') inp.blur();
+    if (e.key === 'Escape') inp.replaceWith(span);
+  };
+  span.replaceWith(inp);
+  setTimeout(() => inp.focus(), 0);
+}
+
+/* ── MODALS ── */
+function openModal(title, html, cb) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+  modalCb = cb;
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); modalCb = null; }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+function saveModal() { if (modalCb) modalCb(); closeModal(); }
+
+function fieldHtml(label, id, type, value, placeholder = '') {
+  if (type === 'select') return '';
+  return `<div class="form-field">
+    <label>${label}</label>
+    <input type="${type}" id="${id}" value="${value}" placeholder="${placeholder}"
+      style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;font-family:inherit">
+  </div>`;
+}
+
+/* Edit pneu */
+function editarPneu(id) {
+  const p = PNEUS.find(x => x.id === id);
+  if (!p) return;
+  const isoData = brToIso(p.data);
+  openModal(`Editar pneu — ${p.veiculo}`, `
+    <div class="form-row">
+      ${fieldHtml('Marca', 'ep_marca', 'text', p.marca)}
+      ${fieldHtml('Medida', 'ep_medida', 'text', p.medida)}
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Data instalação</label>
+        <input type="date" id="ep_data" value="${isoData}" style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+      </div>
+      ${fieldHtml('Desgaste (%)', 'ep_desgaste', 'number', p.desgaste)}
+    </div>
+    <div class="form-row">
+      ${fieldHtml('Km na instalação', 'ep_km', 'number', p.km)}
+      ${fieldHtml('DOT', 'ep_dot', 'text', p.dot)}
+    </div>`, () => {
+    p.marca    = v('ep_marca')    || p.marca;
+    p.medida   = v('ep_medida')   || p.medida;
+    p.desgaste = parseInt(v('ep_desgaste')) || p.desgaste;
+    p.km       = parseInt(v('ep_km'))       || p.km;
+    p.dot      = v('ep_dot')      || p.dot;
+    const dv   = v('ep_data');
+    if (dv) { const [y,m,d] = dv.split('-'); p.data = `${d}/${m}/${y}`; }
+    renderPneus('todos');
+    showToast('Pneu atualizado com sucesso');
+  });
+}
+
+/* Edit veiculo */
+function editarVeiculo(id) {
+  const vei = FROTA.find(x => x.id === id);
+  if (!vei) return;
+  openModal(`Editar veículo — ${vei.placa}`, `
+    <div class="form-row">
+      ${fieldHtml('Modelo', 'ev_modelo', 'text', vei.modelo)}
+      ${fieldHtml('Ano', 'ev_ano', 'number', vei.ano)}
+    </div>
+    <div class="form-row">
+      ${fieldHtml('Km atual', 'ev_km', 'number', vei.km)}
+      <div class="form-field"><label>Status</label>
+        <select id="ev_status" style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+          <option value="ok"     ${vei.status==='ok'?'selected':''}>Em dia</option>
+          <option value="warn"   ${vei.status==='warn'?'selected':''}>Próximo</option>
+          <option value="danger" ${vei.status==='danger'?'selected':''}>Atrasado</option>
+        </select>
+      </div>
+    </div>`, () => {
+    vei.modelo = v('ev_modelo') || vei.modelo;
+    vei.ano    = parseInt(v('ev_ano')) || vei.ano;
+    vei.km     = parseInt(v('ev_km'))  || vei.km;
+    vei.status = v('ev_status');
+    vei.statusLabel = { ok:'Em dia', warn:'Próximo', danger:'Atrasado' }[vei.status];
+    renderFrota();
+    showToast('Veículo atualizado com sucesso');
+  });
+}
+
+/* Baixar veículo */
+function baixarVeiculo(id) {
+  const vei = FROTA.find(x => x.id === id);
+  if (!vei) return;
+  openModal(`Baixar veículo — ${vei.placa}`, `
+    <p style="font-size:.875rem;color:var(--text);margin-bottom:.9rem">
+      Confirma a baixa do veículo <strong>${vei.placa} (${vei.modelo})</strong>?
+    </p>
+    <div class="form-field"><label>Motivo</label>
+      <input type="text" id="bx_motivo" placeholder="Ex: Venda, sucateamento..."
+        style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Data da baixa</label>
+        <input type="date" id="bx_data"
+          style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+      </div>
+      <div class="form-field financial-only"><label>Valor (R$)</label>
+        <input type="number" id="bx_valor" placeholder="0,00"
+          style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+      </div>
+    </div>`, () => {
+    vei.tipo = 'baixado';
+    const dv = v('bx_data');
+    const motivo = v('bx_motivo') || 'Baixa';
+    let dataStr = new Date().toLocaleDateString('pt-BR');
+    if (dv) { const [y,m,d] = dv.split('-'); dataStr = `${d}/${m}/${y}`; }
+    const cv = v('bx_valor');
+    const custo = cv ? 'R$ ' + parseFloat(cv).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—';
+    OCORRENCIAS.unshift({ id: OCORRENCIAS.length + 1, veiculo: vei.placa, tipo: 'Troca de veículo', servico: 'Baixa', data: dataStr, status: 'Concluído', mec: 'Setor admin', custo, desc: motivo });
+    TROCAS.unshift({ id: TROCAS.length + 1, tipo: '−', cor: 'purple', titulo: `${vei.placa} baixado — ${vei.modelo}`, sub: motivo, data: dataStr });
+    renderFrota(); renderTrocas(); renderOcorrencias();
+    showToast(`${vei.placa} baixado da frota`, '#C0392B');
+  });
+}
+
+/* ── REGISTER ── */
+function openRegister(type) {
+  if (!CU || !CU.perms.registrar) { showToast('Sem permissão para registrar', '#C0392B'); return; }
+  showTab('registrar');
+  setTimeout(() => selectRegType(type), 80);
+}
+
+function openRecapagem(pneuId) {
+  const p = PNEUS.find(x => x.id === pneuId);
+  if (!p) return;
+  openRegister(2);
+  setTimeout(() => {
+    const el = document.getElementById('rcPlaca');
+    if (el) el.value = p.veiculo;
+  }, 150);
+  showToast('Pneu pré-selecionado para recapagem');
+}
+
+function selectRegType(i) {
+  regTypeSel = i;
+  [0,1,2,3].forEach(j => {
+    const b = document.getElementById(`rtBtn${j}`);
+    if (b) b.classList.toggle('selected', j === i);
+  });
+  const ids = ['formManutencao','formPneu','formRecapagem','formVeiculo'];
+  ids.forEach((id, j) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = j === i ? 'block' : 'none';
+  });
+  const btn = document.getElementById('btnSalvar');
+  if (btn) btn.style.display = 'block';
+
+  const el = document.getElementById(ids[i]);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function salvarRegistro() {
+  const tipos = ['Manutenção','Pneu novo','Recapagem','Troca de veículo'];
+  const tipo = tipos[regTypeSel] || 'Manutenção';
+  let veiculo = '—', servico = '—', mec = '—', custo = '—', desc = '';
+  let data = new Date().toLocaleDateString('pt-BR');
+
+  if (regTypeSel === 0) {
+    veiculo = v('mPlaca'); servico = v('mTipo');
+    data = isoToBr(v('mData')) || data;
+    mec = v('mMec') || '—';
+    custo = formatCusto(v('mCusto'));
+    desc = v('mDesc');
+  } else if (regTypeSel === 1) {
+    veiculo = v('pnPlaca'); servico = v('pnEixo');
+    data = isoToBr(v('pnData')) || data;
+    mec = v('pnMarca') || '—';
+    custo = formatCusto(v('pnCusto'));
+    const kmN = parseInt(v('pnKm')) || 0;
+    if (veiculo && servico) {
+      PNEUS.push({ id: PNEUS.length + 1, veiculo, eixo: servico, marca: mec, medida: v('pnMedida') || '—', tipo: 'novo', desgaste: 0, km: kmN, data, custo: parseFloat(v('pnCusto')) || 0, dot: v('pnDot') || '—' });
+    }
+    desc = `${v('pnMedida')} DOT ${v('pnDot')}`;
+  } else if (regTypeSel === 2) {
+    veiculo = v('rcPlaca'); servico = v('rcEixo');
+    data = isoToBr(v('rcSaida')) || data;
+    mec = v('rcRecap') || '—';
+    custo = formatCusto(v('rcCusto'));
+    desc = v('rcObs');
+    const existing = PNEUS.find(p => p.veiculo === veiculo);
+    if (existing) { existing.tipo = 'recapado'; existing.desgaste = 15; }
+  } else if (regTypeSel === 3) {
+    veiculo = v('vPlaca') || '—'; servico = v('vTipo');
+    data = isoToBr(v('vData')) || data;
+    mec = 'Setor admin'; custo = formatCusto(v('vValor'));
+    desc = v('vObs');
+    const modelo = v('vModelo');
+    if (veiculo !== '—' && modelo && servico.includes('Incorp')) {
+      const kmN = parseInt(v('vKm')) || 0;
+      FROTA.push({ id: FROTA.length + 1, placa: veiculo, modelo, ano: new Date().getFullYear(), km: kmN, status: 'ok', statusLabel: 'Em dia', tipo: 'ativo' });
+      TROCAS.unshift({ id: TROCAS.length + 1, tipo: '+', cor: 'blue', titulo: `${veiculo} incorporado — ${modelo}`, sub: v('vMotivo') || 'Incorporação', data });
+    }
+  }
+
+  OCORRENCIAS.unshift({ id: OCORRENCIAS.length + 1, veiculo, tipo, servico, data, status: 'Concluído', mec, custo, desc });
+  renderFrota(); renderTrocas(); renderOcorrencias(); renderPneus('todos');
+  showToast('Registro salvo com sucesso!');
+  showTab('ocorrencias');
+}
+
+/* ── IA ── */
+async function sendIA(prompt) {
+  const input = document.getElementById('iaInput');
+  const q = prompt || input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  const resp = document.getElementById('iaResp');
+  const txt  = document.getElementById('iaText');
+  resp.style.display = 'block';
+  txt.innerHTML = '<span style="color:var(--text3);font-style:italic">Consultando IA...</span>';
+
+  const ctx = FROTA.filter(f => f.tipo === 'ativo').map(f => `${f.placa} ${f.modelo} ${f.km.toLocaleString('pt-BR')}km`).join(', ');
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Você é especialista em manutenção de frotas de caminhões pesados, pneus e recapagens. Responda em português de forma prática e objetiva. Frota atual: ${ctx}.`,
+        messages: [{ role: 'user', content: q }]
+      })
+    });
+    const d = await r.json();
+    const ans = d.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    txt.innerHTML = ans.replace(/\n/g, '<br>');
+  } catch(e) {
+    txt.innerHTML = 'Erro ao conectar com a IA. Verifique sua conexão.';
+  }
+}
+
+/* ── HELPERS ── */
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+function brToIso(br) {
+  const p = br.split('/');
+  return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+}
+function isoToBr(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function formatCusto(val) {
+  if (!val) return '—';
+  return 'R$ ' + parseFloat(val).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+
+function showToast(msg, bg) {
+  const t   = document.getElementById('toast');
+  const msg_el = document.getElementById('toastMsg');
+  msg_el.textContent = msg;
+  t.style.background = bg || 'var(--text)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+</script>
+</body>
+</html>
