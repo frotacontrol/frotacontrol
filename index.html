@@ -1748,153 +1748,7 @@ function showToast(msg, bg) {
 
 </script>
 
-<script>
-// ── GOOGLE SHEETS INTEGRATION ──
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqkJbzc9RMh1TxD-QfvR-mVu1sy47dzfuAheCIQW0luhHA21DQMlM4qfvE8daXaw8/exec';
 
-async function sheetsRead(sheet) {
-  try {
-    const r = await fetch(`${SCRIPT_URL}?action=read&sheet=${sheet}`);
-    const d = await r.json();
-    return d.ok ? d.data : [];
-  } catch(e) { console.error('sheetsRead error:', e); return []; }
-}
-
-async function sheetsWrite(sheet, rows) {
-  try {
-    const r = await fetch(`${SCRIPT_URL}?action=write&sheet=${sheet}&rows=${encodeURIComponent(JSON.stringify(rows))}`);
-    const d = await r.json();
-    return d.ok;
-  } catch(e) { console.error('sheetsWrite error:', e); return false; }
-}
-
-async function sheetsAppend(sheet, row) {
-  try {
-    const r = await fetch(`${SCRIPT_URL}?action=append&sheet=${sheet}&row=${encodeURIComponent(JSON.stringify(row))}`);
-    const d = await r.json();
-    return d.ok;
-  } catch(e) { console.error('sheetsAppend error:', e); return false; }
-}
-
-// ── LOAD DATA FROM SHEETS ON LOGIN ──
-async function loadFromSheets() {
-  showSyncStatus('Carregando dados da planilha...');
-  try {
-    const [frotaData, pneusData, occData, trocasData] = await Promise.all([
-      sheetsRead('frota'),
-      sheetsRead('pneus'),
-      sheetsRead('ocorrencias'),
-      sheetsRead('trocas')
-    ]);
-
-    if (frotaData.length > 1) {
-      FROTA = frotaData.slice(1).map(r => ({
-        id: parseInt(r[0]) || Date.now(),
-        placa: r[1] || '', modelo: r[2] || '', ano: parseInt(r[3]) || 2020,
-        km: parseInt(r[4]) || 0, status: r[5] || 'ok',
-        statusLabel: r[6] || 'Em dia', tipo: r[7] || 'ativo'
-      }));
-    }
-
-    if (pneusData.length > 1) {
-      PNEUS = pneusData.slice(1).map(r => ({
-        id: parseInt(r[0]) || Date.now(),
-        veiculo: r[1] || '', eixo: r[2] || '', marca: r[3] || '',
-        medida: r[4] || '', tipo: r[5] || 'novo',
-        desgaste: parseInt(r[6]) || 0, km: parseInt(r[7]) || 0,
-        data: r[8] || '', custo: parseFloat(r[9]) || 0, dot: r[10] || ''
-      }));
-    }
-
-    if (occData.length > 1) {
-      OCORRENCIAS = occData.slice(1).map(r => ({
-        id: parseInt(r[0]) || Date.now(),
-        veiculo: r[1] || '', tipo: r[2] || '', servico: r[3] || '',
-        data: r[4] || '', status: r[5] || '', mec: r[6] || '',
-        custo: r[7] || '—', desc: r[8] || ''
-      }));
-    }
-
-    if (trocasData.length > 1) {
-      TROCAS = trocasData.slice(1).map(r => ({
-        id: parseInt(r[0]) || Date.now(),
-        tipo: r[1] || '+', cor: r[2] || 'blue',
-        titulo: r[3] || '', sub: r[4] || '', data: r[5] || ''
-      }));
-    }
-
-    // Se planilha vazia, salva dados iniciais
-    if (frotaData.length <= 1) await saveAllToSheets();
-
-    showSyncStatus('✓ Dados sincronizados', true);
-  } catch(e) {
-    showSyncStatus('⚠ Usando dados locais', false);
-  }
-  renderPneus('todos');
-  renderFrota();
-  renderTrocas();
-  renderOcorrencias();
-}
-
-async function saveAllToSheets() {
-  const frotaRows = [['id','placa','modelo','ano','km','status','statusLabel','tipo'],
-    ...FROTA.map(v => [v.id, v.placa, v.modelo, v.ano, v.km, v.status, v.statusLabel, v.tipo])];
-  const pneusRows = [['id','veiculo','eixo','marca','medida','tipo','desgaste','km','data','custo','dot'],
-    ...PNEUS.map(p => [p.id, p.veiculo, p.eixo, p.marca, p.medida, p.tipo, p.desgaste, p.km, p.data, p.custo, p.dot])];
-  const occRows = [['id','veiculo','tipo','servico','data','status','mec','custo','desc'],
-    ...OCORRENCIAS.map(o => [o.id, o.veiculo, o.tipo, o.servico, o.data, o.status, o.mec, o.custo, o.desc])];
-  const trocasRows = [['id','tipo','cor','titulo','sub','data'],
-    ...TROCAS.map(t => [t.id, t.tipo, t.cor, t.titulo, t.sub, t.data])];
-
-  await Promise.all([
-    sheetsWrite('frota', frotaRows),
-    sheetsWrite('pneus', pneusRows),
-    sheetsWrite('ocorrencias', occRows),
-    sheetsWrite('trocas', trocasRows)
-  ]);
-}
-
-function showSyncStatus(msg, ok) {
-  let bar = document.getElementById('syncBar');
-  if (!bar) {
-    bar = document.createElement('div');
-    bar.id = 'syncBar';
-    bar.style.cssText = 'position:fixed;bottom:4rem;right:1.5rem;background:#1A1917;color:#fff;font-size:.8rem;padding:.5rem 1rem;border-radius:6px;z-index:700;display:flex;align-items:center;gap:.5rem;box-shadow:0 2px 8px rgba(0,0,0,.3)';
-    document.body.appendChild(bar);
-  }
-  bar.textContent = msg;
-  bar.style.background = ok === true ? '#2D7A3A' : ok === false ? '#854F0B' : '#1A1917';
-  bar.style.display = 'flex';
-  if (ok !== undefined) setTimeout(() => bar.style.display='none', 3000);
-}
-
-// Override salvarRegistro to also save to sheets
-const _origSalvar = salvarRegistro;
-salvarRegistro = async function() {
-  _origSalvar();
-  showSyncStatus('Salvando na planilha...');
-  await saveAllToSheets();
-  showSyncStatus('✓ Salvo na planilha!', true);
-};
-
-// Override editarVeiculo save
-const _origSaveModal = saveModal;
-saveModal = async function() {
-  _origSaveModal();
-  showSyncStatus('Salvando na planilha...');
-  await saveAllToSheets();
-  showSyncStatus('✓ Salvo na planilha!', true);
-};
-
-// Override doLogin to load from sheets
-const _origLogin = doLogin;
-doLogin = async function() {
-  _origLogin();
-  if (document.getElementById('appScreen').classList.contains('active')) {
-    await loadFromSheets();
-  }
-};
-</script>
 
 
 
@@ -2201,6 +2055,219 @@ showTab = function(id) {
   if (id === 'financeiro') {
     setTimeout(renderFinanceiro, 80);
   }
+};
+</script>
+
+
+<script>
+// ── SINCRONIZAÇÃO COMPLETA COM GOOGLE SHEETS ──
+// Todas as abas: frota, pneus, ocorrencias, trocas, lancamentos
+const GS_URL = 'https://script.google.com/macros/s/AKfycbwqkJbzc9RMh1TxD-QfvR-mVu1sy47dzfuAheCIQW0luhHA21DQMlM4qfvE8daXaw8/exec';
+
+async function gsRead(sheet) {
+  try {
+    const r = await fetch(`${GS_URL}?action=read&sheet=${encodeURIComponent(sheet)}`);
+    const d = await r.json();
+    return d.ok ? d.data : [];
+  } catch(e) { console.warn('gsRead erro:', sheet, e); return []; }
+}
+
+async function gsWrite(sheet, rows) {
+  try {
+    const r = await fetch(`${GS_URL}?action=write&sheet=${encodeURIComponent(sheet)}&rows=${encodeURIComponent(JSON.stringify(rows))}`);
+    const d = await r.json();
+    return d.ok;
+  } catch(e) { console.warn('gsWrite erro:', sheet, e); return false; }
+}
+
+// ── SALVAR TUDO NA PLANILHA ──
+async function syncSaveAll(context) {
+  showSyncBar('💾 Salvando na planilha...', 'saving');
+
+  const frotaRows = [
+    ['id','placa','modelo','motorista','carreta','ano','km','status','statusLabel','tipo'],
+    ...FROTA.map(v => [v.id, v.placa, v.modelo, v.motorista||'—', v.carreta||'—', v.ano, v.km, v.status, v.statusLabel, v.tipo])
+  ];
+  const pneusRows = [
+    ['id','veiculo','eixo','marca','medida','tipo','desgaste','km','data','custo','dot'],
+    ...PNEUS.map(p => [p.id, p.veiculo, p.eixo, p.marca, p.medida, p.tipo, p.desgaste, p.km, p.data, p.custo, p.dot])
+  ];
+  const occRows = [
+    ['id','veiculo','tipo','servico','data','status','mec','custo','desc'],
+    ...OCORRENCIAS.map(o => [o.id, o.veiculo, o.tipo, o.servico, o.data, o.status, o.mec, o.custo, o.desc])
+  ];
+  const trocasRows = [
+    ['id','tipo','cor','titulo','sub','data'],
+    ...TROCAS.map(t => [t.id, t.tipo, t.cor, t.titulo, t.sub, t.data])
+  ];
+  const lancRows = [
+    ['n','data_br','fornecedor','desc','placa','motorista','modelo','valor','pagto','mes','mes_num'],
+    ...LANCAMENTOS.map(l => [l.n, l.data_br, l.fornecedor, l.desc, l.placa||'', l.motorista, l.modelo, l.valor, l.pagto, l.mes||'', l.mes_num||0])
+  ];
+
+  const results = await Promise.all([
+    gsWrite('frota', frotaRows),
+    gsWrite('pneus', pneusRows),
+    gsWrite('ocorrencias', occRows),
+    gsWrite('trocas', trocasRows),
+    gsWrite('lancamentos', lancRows),
+  ]);
+
+  const ok = results.every(Boolean);
+  showSyncBar(ok ? '✓ Planilha atualizada com sucesso!' : '⚠ Erro parcial — tente novamente', ok ? 'ok' : 'warn');
+  return ok;
+}
+
+// ── CARREGAR TUDO DA PLANILHA ──
+async function syncLoadAll() {
+  showSyncBar('🔄 Carregando da planilha...', 'loading');
+  try {
+    const [frotaData, pneusData, occData, trocasData, lancData] = await Promise.all([
+      gsRead('frota'),
+      gsRead('pneus'),
+      gsRead('ocorrencias'),
+      gsRead('trocas'),
+      gsRead('lancamentos'),
+    ]);
+
+    let loaded = 0;
+
+    if (frotaData.length > 1) {
+      FROTA = frotaData.slice(1).filter(r => r[1]).map(r => ({
+        id: parseInt(r[0])||Date.now(), placa:r[1]||'', modelo:r[2]||'',
+        motorista:r[3]||'—', carreta:r[4]||'—',
+        ano:parseInt(r[5])||0, km:parseInt(r[6])||0,
+        status:r[7]||'ok', statusLabel:r[8]||'Em dia', tipo:r[9]||'ativo'
+      }));
+      loaded++;
+    }
+
+    if (pneusData.length > 1) {
+      PNEUS = pneusData.slice(1).filter(r => r[1]).map(r => ({
+        id:parseInt(r[0])||Date.now(), veiculo:r[1]||'', eixo:r[2]||'',
+        marca:r[3]||'', medida:r[4]||'', tipo:r[5]||'novo',
+        desgaste:parseInt(r[6])||0, km:parseInt(r[7])||0,
+        data:r[8]||'', custo:parseFloat(r[9])||0, dot:r[10]||'—'
+      }));
+      loaded++;
+    }
+
+    if (occData.length > 1) {
+      OCORRENCIAS = occData.slice(1).filter(r => r[1]).map(r => ({
+        id:parseInt(r[0])||Date.now(), veiculo:r[1]||'', tipo:r[2]||'',
+        servico:r[3]||'', data:r[4]||'', status:r[5]||'',
+        mec:r[6]||'', custo:r[7]||'—', desc:r[8]||''
+      }));
+      loaded++;
+    }
+
+    if (trocasData.length > 1) {
+      TROCAS = trocasData.slice(1).filter(r => r[1]).map(r => ({
+        id:parseInt(r[0])||Date.now(), tipo:r[1]||'+', cor:r[2]||'blue',
+        titulo:r[3]||'', sub:r[4]||'', data:r[5]||''
+      }));
+      loaded++;
+    }
+
+    if (lancData.length > 1) {
+      LANCAMENTOS = lancData.slice(1).filter(r => r[0]).map(r => ({
+        n:parseInt(r[0])||0, data_br:r[1]||'', fornecedor:r[2]||'',
+        desc:r[3]||'', placa:r[4]||'', motorista:r[5]||'—',
+        modelo:r[6]||'—', valor:parseFloat(r[7])||0, pagto:r[8]||'',
+        mes:r[9]||'', mes_num:parseInt(r[10])||0
+      }));
+      loaded++;
+    }
+
+    // Se planilha vazia (primeira vez), salva os dados iniciais
+    if (loaded === 0) {
+      showSyncBar('⬆ Primeira vez — enviando dados para planilha...', 'loading');
+      await syncSaveAll('init');
+      return;
+    }
+
+    showSyncBar(`✓ ${loaded} abas carregadas da planilha`, 'ok');
+
+  } catch(e) {
+    showSyncBar('⚠ Offline — usando dados locais', 'warn');
+  }
+
+  renderPneus('todos');
+  renderFrota();
+  renderTrocas();
+  renderOcorrencias();
+}
+
+// ── BARRA DE SYNC ──
+function showSyncBar(msg, tipo) {
+  let bar = document.getElementById('syncBar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'syncBar';
+    bar.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);font-size:.82rem;padding:.5rem 1.1rem;border-radius:6px;z-index:800;display:flex;align-items:center;gap:.5rem;box-shadow:0 2px 12px rgba(0,0,0,.25);transition:opacity .3s;font-family:IBM Plex Sans,sans-serif;white-space:nowrap';
+    document.body.appendChild(bar);
+  }
+  const cores = {
+    saving:  ['#0C3D73','#fff'],
+    loading: ['#1A1917','#fff'],
+    ok:      ['#1A4A22','#fff'],
+    warn:    ['#7A3C00','#fff'],
+  };
+  const [bg, fg] = cores[tipo] || cores.loading;
+  bar.style.background = bg;
+  bar.style.color = fg;
+  bar.style.opacity = '1';
+  bar.style.display = 'flex';
+  bar.textContent = msg;
+
+  if (tipo === 'ok' || tipo === 'warn') {
+    setTimeout(() => { bar.style.opacity='0'; setTimeout(()=>bar.style.display='none', 300); }, 3500);
+  }
+}
+
+// ── OVERRIDE salvarRegistro PARA AUTO-SYNC ──
+const __origSalvar = salvarRegistro;
+salvarRegistro = async function() {
+  __origSalvar();
+  await syncSaveAll('registro');
+  renderOcorrencias();
+  renderFrota();
+  renderPneus('todos');
+};
+
+// ── OVERRIDE saveModal PARA AUTO-SYNC ──
+const __origSaveModal = saveModal;
+saveModal = async function() {
+  __origSaveModal();
+  await syncSaveAll('modal');
+};
+
+// ── OVERRIDE doLogin PARA CARREGAR DA PLANILHA ──
+const __origLogin2 = window.doLogin;
+window.doLogin = async function() {
+  __origLogin2();
+  const appEl = document.getElementById('appScreen');
+  if (appEl && appEl.classList.contains('active')) {
+    await syncLoadAll();
+    checkAdminProtection(document.getElementById('loginEmail')?.value?.trim() || '');
+  }
+};
+
+// ── OVERRIDE doLogout ──
+const __origLogout2 = window.doLogout;
+window.doLogout = function() {
+  sessionStorage.removeItem('__adminSession');
+  window.__isAdmin = false;
+  const appEl = document.getElementById('appScreen');
+  if (appEl) appEl.classList.remove('active');
+  const loginEl = document.getElementById('loginScreen');
+  if (loginEl) loginEl.classList.add('active');
+  const emailEl = document.getElementById('loginEmail');
+  const passEl = document.getElementById('loginPass');
+  if (emailEl) emailEl.value = '';
+  if (passEl) passEl.value = '';
+  showTab && showTab('painel');
+  enableProtection && enableProtection();
 };
 </script>
 
