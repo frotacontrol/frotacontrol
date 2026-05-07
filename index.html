@@ -802,9 +802,11 @@ textarea{resize:vertical}
 <script>
 /* ── DADOS EXPRESSO PB ── */
 var USERS = {
-  'daphinin@frotaexpressopb.com': { pass:'121909', role:'Administrador', initials:'DI', perms:{ registrar:true, financeiro:true, permissoes:true, trocaVeiculo:true } },
-  'gestor@frota.com':   { pass:'gest123',  role:'Gestor',   initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
-  'mecanico@frota.com': { pass:'mec123',   role:'Mecanico', initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } }
+  'daphinin@frotaexpressopb.com':         { pass:'121909',  role:'Administrador', initials:'DI', perms:{ registrar:true,  financeiro:true,  permissoes:true,  trocaVeiculo:true  } },
+  'natanael@transportadoraexpressopb.com':{ pass:'nat2026', role:'Gestor',        initials:'NL', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'financeiro@transportadoraexpressopb.com':{ pass:'fin2026', role:'Gestor',      initials:'FN', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'gestor@frota.com':                     { pass:'gest123', role:'Gestor',        initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'mecanico@frota.com':                   { pass:'mec123',  role:'Mecanico',      initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } }
 };
 
 var PNEUS = [
