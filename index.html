@@ -437,19 +437,173 @@ textarea{resize:vertical}
 
         <!-- PNEUS -->
         <section id="pneus" class="tab-section">
-          <div class="section-toolbar">
-            <div class="filter-chips" id="pneuFilters">
-              <button class="chip active" onclick="filterPneus(this,'todos')">Todos</button>
-              <button class="chip" onclick="filterPneus(this,'novo')">Pneus novos</button>
-              <button class="chip" onclick="filterPneus(this,'recapado')">Recapados</button>
-              <button class="chip" onclick="filterPneus(this,'critico')">Críticos</button>
-            </div>
-            <button class="btn-primary" onclick="openRegister(1)"><i class="ti ti-plus" aria-hidden="true"></i> Registrar pneu</button>
-          </div>
-          <div class="pneu-grid" id="pneuGrid"></div>
-        </section>
 
-        <!-- FROTA -->
+  <!-- MÉTRICAS TOPO -->
+  <div class="metrics-grid" id="pneuMetrics" style="margin-bottom:1rem"></div>
+
+  <!-- ABAS INTERNAS -->
+  <div style="display:flex;gap:.4rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.75rem;flex-wrap:wrap">
+    <button class="chip active" id="ptab-estoque"   onclick="showPneuTab('estoque')">📦 Estoque</button>
+    <button class="chip"        id="ptab-compras"   onclick="showPneuTab('compras')">🛒 Compras</button>
+    <button class="chip"        id="ptab-instalados" onclick="showPneuTab('instalados')">🚛 Instalados</button>
+    <button class="chip"        id="ptab-mensal"    onclick="showPneuTab('mensal')">📊 Gasto mensal</button>
+  </div>
+
+  <!-- ABA: ESTOQUE -->
+  <div id="pneu-tab-estoque">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Pneus em estoque (depósito)</span>
+      <button class="btn-primary btn-sm" onclick="openCompraModal()">
+        <i class="ti ti-plus" aria-hidden="true"></i> Registrar compra
+      </button>
+    </div>
+    <div id="estoqueList"></div>
+  </div>
+
+  <!-- ABA: COMPRAS -->
+  <div id="pneu-tab-compras" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Histórico de compras</span>
+      <button class="btn-primary btn-sm" onclick="openCompraModal()">
+        <i class="ti ti-plus" aria-hidden="true"></i> Nova compra
+      </button>
+    </div>
+    <div id="comprasList"></div>
+  </div>
+
+  <!-- ABA: INSTALADOS -->
+  <div id="pneu-tab-instalados" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Pneus instalados por veículo</span>
+      <button class="btn-primary btn-sm" onclick="openInstalacaoModal()">
+        <i class="ti ti-truck" aria-hidden="true"></i> Registrar instalação
+      </button>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">
+      <select id="filtroVeiculoPneu" onchange="renderInstaladosList()" class="filter-select">
+        <option value="">Todos os veículos</option>
+        <option>RLR-1H73</option><option>QYA-3I45</option><option>QYA-6G28</option>
+        <option>QSK-2H66</option><option>QSH-9C56</option><option>RLU-7G93</option>
+        <option>OYM-4G46</option><option>QYB-2A80</option>
+      </select>
+    </div>
+    <div id="instaladosList"></div>
+  </div>
+
+  <!-- ABA: GASTO MENSAL -->
+  <div id="pneu-tab-mensal" style="display:none">
+    <div style="margin-bottom:.75rem">
+      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Gasto mensal em pneus</span>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem">
+      <div class="card"><div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Por mês</div><div style="position:relative;height:200px"><canvas id="chartPneuMes"></canvas></div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Por veículo</div><div style="position:relative;height:200px"><canvas id="chartPneuVei"></canvas></div></div>
+    </div>
+    <div id="mensalList"></div>
+  </div>
+
+  <!-- MODAL COMPRA -->
+  <div id="modalCompra" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
+        <span style="font-size:.95rem;font-weight:600">Registrar compra de pneus</span>
+        <button onclick="closeCompraModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
+      </div>
+      <div style="padding:1rem 1.1rem">
+        <div class="form-row">
+          <div class="form-field"><label>Data da compra</label><input type="date" id="cpData"></div>
+          <div class="form-field"><label>Fornecedor</label><input type="text" id="cpFornecedor" placeholder="Ex: Kropneus"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Marca / Modelo</label><input type="text" id="cpMarca" placeholder="Ex: Meridional Torino GS853"></div>
+          <div class="form-field"><label>Medida</label><input type="text" id="cpMedida" placeholder="Ex: 295/80R22.5"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Tipo</label>
+            <select id="cpTipo">
+              <option value="tracao">Tração</option>
+              <option value="direcional">Direcional</option>
+              <option value="livre">Livre</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Quantidade</label><input type="number" id="cpQtd" min="1" value="1" placeholder="qtd"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Valor unitário (R$)</label><input type="number" id="cpValorUnit" step="0.01" placeholder="0,00"></div>
+          <div class="form-field"><label>Valor total</label><input type="text" id="cpValorTotal" readonly style="background:var(--surface2);font-weight:600;color:var(--green)"></div>
+        </div>
+        <div class="form-field"><label>Condição de pagamento</label><input type="text" id="cpPagto" placeholder="Ex: Cartão 10x, PIX, Boleto"></div>
+        <div class="form-field"><label>Observações</label><textarea id="cpObs" rows="2" placeholder="Número da NF, garantia..."></textarea></div>
+      </div>
+      <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
+        <button class="btn-secondary" onclick="closeCompraModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarCompra()"><i class="ti ti-device-floppy"></i> Salvar compra</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL INSTALAÇÃO -->
+  <div id="modalInstalacao" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
+    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
+        <span style="font-size:.95rem;font-weight:600">Registrar instalação de pneu</span>
+        <button onclick="closeInstalacaoModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
+      </div>
+      <div style="padding:1rem 1.1rem">
+        <div class="form-row">
+          <div class="form-field"><label>Veículo (placa)</label>
+            <select id="instPlaca">
+              <option value="">Selecione</option>
+              <optgroup label="Cavalos">
+                <option>RLR-1H73 — Sérgio Soares</option><option>QYA-3I45 — Marcos Antônio</option>
+                <option>QYA-6G28 — Cícero E.</option><option>QSK-2H66 — Allan R.</option>
+                <option>QSH-9C56 — Carlos A.</option><option>RLU-7G93 — Joel</option>
+                <option>OYM-4G46 — Josenildo Vieira</option><option>QYB-2A80 — Petrônio José</option>
+              </optgroup>
+              <optgroup label="Carretas">
+                <option>QFC-6A51</option><option>QFC-6A71</option><option>RLQ-4F74</option>
+                <option>RZE-7B94</option><option>PGS-9402</option><option>RLT-2I85</option><option>SNN-5J37</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-field"><label>Data de instalação</label><input type="date" id="instData"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Posição / Eixo</label>
+            <select id="instEixo">
+              <option>Dianteiro esquerdo</option><option>Dianteiro direito</option>
+              <option>Tração LE externo</option><option>Tração LE interno</option>
+              <option>Tração LD externo</option><option>Tração LD interno</option>
+              <option>Truck LE externo</option><option>Truck LE interno</option>
+              <option>Truck LD externo</option><option>Truck LD interno</option>
+              <option>Estepe</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Km no momento</label><input type="number" id="instKm" placeholder="km"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Marca / Modelo</label><input type="text" id="instMarca" placeholder="Ex: Meridional GS853"></div>
+          <div class="form-field"><label>Medida</label><input type="text" id="instMedida" placeholder="295/80R22.5"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Tipo</label>
+            <select id="instTipo"><option value="tracao">Tração</option><option value="direcional">Direcional</option><option value="livre">Livre</option></select>
+          </div>
+          <div class="form-field"><label>Condição</label>
+            <select id="instCondicao"><option value="novo">Novo</option><option value="recapado">Recapado</option><option value="usado">Usado</option></select>
+          </div>
+        </div>
+        <div class="form-field"><label>Observações</label><textarea id="instObs" rows="2" placeholder="DOT, número de série, origem..."></textarea></div>
+      </div>
+      <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
+        <button class="btn-secondary" onclick="closeInstalacaoModal()">Cancelar</button>
+        <button class="btn-primary" onclick="salvarInstalacao()"><i class="ti ti-device-floppy"></i> Salvar instalação</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
         <section id="frota" class="tab-section">
           <div class="section-toolbar">
             <h3 class="section-heading">Gestão de frota</h3>
@@ -564,9 +718,14 @@ textarea{resize:vertical}
             <div class="card"><div class="card-title"><i class="ti ti-trending-up" aria-hidden="true"></i> Evolução mensal</div><div style="position:relative;height:220px"><canvas id="chartMes"></canvas></div></div>
           </div>
           <div class="two-col" style="margin-bottom:1rem">
-            <div class="card"><div class="card-title"><i class="ti ti-trophy" aria-hidden="true"></i> Ranking — motoristas</div><div id="rankMotorista"></div></div>
-            <div class="card"><div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Ranking — veículos</div><div id="rankVeiculo"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-trophy" aria-hidden="true"></i> Maior gasto — motoristas <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankMotorista"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Maior gasto — veículos <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankVeiculo"></div></div>
           </div>
+          <div class="two-col" style="margin-bottom:1rem">
+            <div class="card"><div class="card-title"><i class="ti ti-tool" aria-hidden="true"></i> Maior gasto — tipo de serviço <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankServico"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-building-store" aria-hidden="true"></i> Maior gasto — fornecedor <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankFornecedor"></div></div>
+          </div>
+
           <div class="card">
             <div class="card-title"><i class="ti ti-list" aria-hidden="true"></i> Lançamentos
               <div style="margin-left:auto;display:flex;gap:6px">
@@ -1593,6 +1752,72 @@ function renderFinanceiro(){
   var rv=document.getElementById('rankVeiculo');
   if(rv){var h2='';vS.forEach(function(p,i){var pct=(p[1].t/mxV*100).toFixed(1);h2+='<div class="rank-item"><div class="rank-num '+cls3[i]+'">'+(i+1)+'</div><div class="rank-bar-wrap"><div class="rank-name">'+p[0]+' <span style="font-size:.75rem;color:var(--text3)">'+p[1].m+'</span></div><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+(col3[i]||'#1A5FA8')+'"></div></div></div><div class="rank-val">'+brMoney(p[1].t)+'</div></div>';});rv.innerHTML=h2;}
 
+  /* ── RANKING POR TIPO DE SERVIÇO ── */
+  var byServ = {};
+  LANCAMENTOS.forEach(function(l) {
+    if (!l.desc) return;
+    /* Categorize by keywords in description */
+    var desc = l.desc.toLowerCase();
+    var cat = 'Outros';
+    if (desc.indexOf('pneu') >= 0 || desc.indexOf('borracha') >= 0 || desc.indexOf('rodizio') >= 0 || desc.indexOf('vulcaniz') >= 0) cat = 'Pneus';
+    else if (desc.indexOf('socorro') >= 0 || desc.indexOf('reboque') >= 0) cat = 'Socorro / Reboque';
+    else if (desc.indexOf('filtro') >= 0 || desc.indexOf('oleo') >= 0 || desc.indexOf('motor') >= 0) cat = 'Filtros / Oleo';
+    else if (desc.indexOf('freio') >= 0 || desc.indexOf('lona') >= 0 || desc.indexOf('tambor') >= 0) cat = 'Freios';
+    else if (desc.indexOf('mangueira') >= 0 || desc.indexOf('valvula') >= 0 || desc.indexOf('arla') >= 0) cat = 'Mangueiras / Hidraulico';
+    else if (desc.indexOf('eletric') >= 0 || desc.indexOf('modulo') >= 0 || desc.indexOf('sensor') >= 0 || desc.indexOf('chicote') >= 0) cat = 'Eletrica';
+    else if (desc.indexOf('suspensao') >= 0 || desc.indexOf('mola') >= 0 || desc.indexOf('amortecedor') >= 0) cat = 'Suspensao';
+    else if (desc.indexOf('tacografo') >= 0 || desc.indexOf('aferica') >= 0) cat = 'Tacografo';
+    else if (desc.indexOf('compra') >= 0 && desc.indexOf('pneu') >= 0) cat = 'Pneus';
+    if (!byServ[cat]) byServ[cat] = 0;
+    byServ[cat] += l.valor;
+  });
+  var servSort = Object.entries(byServ).sort(function(a,b){return b[1]-a[1];});
+  var mxS = servSort.length ? servSort[0][1] : 1;
+  var rs = document.getElementById('rankServico');
+  if (rs) {
+    var hs = '';
+    var iconsServ = {'Pneus':'ti-circle-dashed','Socorro / Reboque':'ti-crane','Filtros / Oleo':'ti-droplet','Freios':'ti-hand-stop','Mangueiras / Hidraulico':'ti-pipe','Eletrica':'ti-bolt','Suspensao':'ti-car-crash','Tacografo':'ti-device-watch','Outros':'ti-tool'};
+    servSort.forEach(function(p,i) {
+      var pct = (p[1]/mxS*100).toFixed(1);
+      var ic = iconsServ[p[0]] || 'ti-tool';
+      hs += '<div class="rank-item">'
+          + '<div class="rank-num '+(cls3[i]||'rn')+'">'+(i+1)+'</div>'
+          + '<div class="rank-bar-wrap">'
+          + '<div class="rank-name"><i class="ti '+ic+'" style="font-size:12px;margin-right:4px"></i>'+p[0]+'</div>'
+          + '<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+(col3[i]||'#1A5FA8')+'"></div></div>'
+          + '</div>'
+          + '<div class="rank-val">'+brMoney(p[1])+'</div>'
+          + '</div>';
+    });
+    rs.innerHTML = hs || '<p style="color:var(--text3);font-size:.82rem">Sem dados</p>';
+  }
+
+  /* ── RANKING POR FORNECEDOR ── */
+  var byForn = {};
+  LANCAMENTOS.forEach(function(l) {
+    if (!l.fornecedor || l.fornecedor === '—') return;
+    if (!byForn[l.fornecedor]) byForn[l.fornecedor] = 0;
+    byForn[l.fornecedor] += l.valor;
+  });
+  var fornSort = Object.entries(byForn).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
+  var mxF = fornSort.length ? fornSort[0][1] : 1;
+  var rf = document.getElementById('rankFornecedor');
+  if (rf) {
+    var hf = '';
+    fornSort.forEach(function(p,i) {
+      var pct = (p[1]/mxF*100).toFixed(1);
+      hf += '<div class="rank-item">'
+          + '<div class="rank-num '+(cls3[i]||'rn')+'">'+(i+1)+'</div>'
+          + '<div class="rank-bar-wrap">'
+          + '<div class="rank-name">'+p[0]+'</div>'
+          + '<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+(col3[i]||'#1A5FA8')+'"></div></div>'
+          + '</div>'
+          + '<div class="rank-val">'+brMoney(p[1])+'</div>'
+          + '</div>';
+    });
+    rf.innerHTML = hf || '<p style="color:var(--text3);font-size:.82rem">Sem dados</p>';
+  }
+
   var lEl=document.getElementById('lancamentosList');
   if(lEl){
     if(!fil.length){lEl.innerHTML='<p style="color:var(--text3);padding:.5rem">Nenhum lancamento.</p>';}
@@ -1651,11 +1876,454 @@ showTab=function(id){
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js', { scope: '/frotacontrol/' })
-      .then(function(reg) { console.log('SW registrado:', reg.scope); })
-      .catch(function(err) { console.log('SW erro:', err); });
+    /* Só registra SW no GitHub Pages */
+    if (location.hostname === 'frotacontrol.github.io') {
+      navigator.serviceWorker.register('sw.js', { scope: '/frotacontrol/' })
+        .then(function(reg) { console.log('SW registrado:', reg.scope); })
+        .catch(function(err) { console.log('SW erro:', err); });
+    }
   });
 }
+</script>
+
+
+<script>
+/* ── MÓDULO COMPLETO DE PNEUS — EXPRESSO PB ── */
+
+/* Dados de compras e instalações */
+var COMPRAS_PNEU = [];
+var INSTALACOES_PNEU = [];
+
+/* Inicializa com dados históricos reais */
+function initPneusData() {
+  if (COMPRAS_PNEU.length === 0) {
+    COMPRAS_PNEU = [
+      { id:1, data:'28/04/2026', fornecedor:'Kropneus', marca:'Meridional Torino GS853', medida:'295/80R22.5', tipo:'tracao',    qtd:8, valorUnit:1927.00, valorTotal:15416.00, pagto:'Cartao 10x', obs:'NF Kropneus 28/04', mes:4, ano:2026 },
+      { id:2, data:'17/04/2026', fornecedor:'Patrimonial Pneus', marca:'Goodtrip GHA20', medida:'295/80R22.5', tipo:'direcional', qtd:6, valorUnit:1930.00, valorTotal:11580.00, pagto:'Cartao 10x', obs:'NF 243 Serie 1', mes:4, ano:2026 },
+      { id:3, data:'03/04/2026', fornecedor:'Kropneus', marca:'Casumina GS851',       medida:'295/80R22.5', tipo:'tracao',    qtd:4, valorUnit:1740.00, valorTotal:6960.00,  pagto:'A vista',    obs:'Orcamento Kropneus 03/04', mes:4, ano:2026 },
+    ];
+  }
+  if (INSTALACOES_PNEU.length === 0) {
+    INSTALACOES_PNEU = [
+      { id:1, placa:'QSH-9C56', motorista:'Carlos A.',        data:'29/04/2026', eixo:'Dianteiro esquerdo', marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'direcional', condicao:'novo',    km:0,      obs:'', desgaste:10, mes:4, ano:2026 },
+      { id:2, placa:'QSH-9C56', motorista:'Carlos A.',        data:'29/04/2026', eixo:'Dianteiro direito',  marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'direcional', condicao:'novo',    km:0,      obs:'', desgaste:10, mes:4, ano:2026 },
+      { id:3, placa:'QSK-2H66', motorista:'Allan R.',         data:'17/04/2026', eixo:'Dianteiro',          marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'direcional', condicao:'novo',    km:0,      obs:'', desgaste:20, mes:4, ano:2026 },
+      { id:4, placa:'QYA-3I45', motorista:'Marcos Antonio',   data:'03/04/2026', eixo:'Tracao',             marca:'Casumina GS851',   medida:'295/80R22.5', tipo:'tracao',     condicao:'novo',    km:0,      obs:'', desgaste:15, mes:4, ano:2026 },
+      { id:5, placa:'OYM-4G46', motorista:'Josenildo Vieira', data:'22/04/2026', eixo:'Traseiro rodizio',   marca:'',                 medida:'295/80R22.5', tipo:'tracao',     condicao:'recapado',km:0,      obs:'', desgaste:65, mes:4, ano:2026 },
+      { id:6, placa:'QYB-2A80', motorista:'Petronio Jose',    data:'04/05/2026', eixo:'Pneu consertado',    marca:'',                 medida:'295/80R22.5', tipo:'tracao',     condicao:'novo',    km:0,      obs:'Vulcanizacao R$150 + pito R$50', desgaste:50, mes:5, ano:2026 },
+      { id:7, placa:'RLR-1H73', motorista:'Sergio Soares',    data:'28/04/2026', eixo:'Tracao necessita 4', marca:'Meridional Torino',medida:'295/80R22.5', tipo:'tracao',     condicao:'novo',    km:421117, obs:'4 pneus necessarios', desgaste:95, mes:4, ano:2026 },
+    ];
+  }
+}
+
+/* ── MÉTRICAS DO TOPO ── */
+function renderPneuMetrics() {
+  initPneusData();
+  var totalComprado = COMPRAS_PNEU.reduce(function(a,b){return a+b.valorTotal;},0);
+  var totalQtd = COMPRAS_PNEU.reduce(function(a,b){return a+b.qtd;},0);
+  var instalados = INSTALACOES_PNEU.length;
+  var estoque = totalQtd - instalados;
+  if (estoque < 0) estoque = 0;
+  var criticos = INSTALACOES_PNEU.filter(function(p){return p.desgaste>=80;}).length;
+
+  var el = document.getElementById('pneuMetrics');
+  if (!el) return;
+  el.innerHTML =
+    '<div class="metric-card"><span class="metric-label">Total gasto em pneus</span><span class="metric-value" style="font-size:1.1rem">R$\u00a0'+totalComprado.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Pneus comprados</span><span class="metric-value">'+totalQtd+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Em estoque</span><span class="metric-value ok">'+estoque+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Instalados</span><span class="metric-value blue">'+instalados+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Criticos (desgaste)</span><span class="metric-value '+(criticos>0?'danger':'ok')+'">'+criticos+'</span></div>';
+}
+
+/* ── ABAS INTERNAS ── */
+function showPneuTab(tab) {
+  var tabs = ['estoque','compras','instalados','mensal'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('pneu-tab-'+t);
+    var btn = document.getElementById('ptab-'+t);
+    if (el) el.style.display = t===tab ? 'block' : 'none';
+    if (btn) { btn.classList.toggle('active', t===tab); }
+  });
+  if (tab==='estoque')   renderEstoque();
+  if (tab==='compras')   renderCompras();
+  if (tab==='instalados') renderInstaladosList();
+  if (tab==='mensal')    renderMensal();
+}
+
+/* ── ESTOQUE ── */
+function renderEstoque() {
+  initPneusData();
+  var el = document.getElementById('estoqueList');
+  if (!el) return;
+
+  var totalQtd = COMPRAS_PNEU.reduce(function(a,b){return a+b.qtd;},0);
+  var instalados = INSTALACOES_PNEU.length;
+  var estoque = totalQtd - instalados;
+  if (estoque < 0) estoque = 0;
+
+  /* Agrupa compras por tipo */
+  var porTipo = {};
+  COMPRAS_PNEU.forEach(function(c) {
+    var key = c.tipo;
+    if (!porTipo[key]) porTipo[key] = {qtd:0, marcas:{}};
+    porTipo[key].qtd += c.qtd;
+    porTipo[key].marcas[c.marca] = (porTipo[key].marcas[c.marca]||0) + c.qtd;
+  });
+
+  var h = '';
+
+  /* Card de resumo do estoque */
+  h += '<div class="card" style="margin-bottom:.75rem;border-left:3px solid '+(estoque>0?'var(--green)':'var(--red)')+'">'
+     + '<div style="display:flex;align-items:center;gap:1rem">'
+     + '<div style="width:52px;height:52px;border-radius:var(--radius);background:'+(estoque>0?'var(--green-bg)':'var(--red-bg)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+     + '<i class="ti ti-package" style="font-size:26px;color:'+(estoque>0?'var(--green)':'var(--red)')+'" aria-hidden="true"></i></div>'
+     + '<div><div style="font-size:1.4rem;font-weight:700;color:'+(estoque>0?'var(--green)':'var(--red)')+'">'+estoque+' pneu'+(estoque!==1?'s':'')+' em estoque</div>'
+     + '<div style="font-size:.82rem;color:var(--text3)">'+totalQtd+' comprados — '+instalados+' instalados</div></div>'
+     + '<button class="btn-primary btn-sm" style="margin-left:auto" onclick="openInstalacaoModal()"><i class="ti ti-truck"></i> Instalar</button>'
+     + '</div></div>';
+
+  /* Cards por tipo */
+  Object.entries(porTipo).forEach(function(pair) {
+    var tipo = pair[0], d = pair[1];
+    var marcasStr = Object.entries(d.marcas).map(function(m){return m[1]+'x '+m[0];}).join(', ');
+    var icon = tipo==='tracao' ? 'ti-circle-dashed' : tipo==='direcional' ? 'ti-arrow-right' : 'ti-refresh';
+    var tipoLabel = tipo==='tracao' ? 'Tração' : tipo==='direcional' ? 'Direcional' : 'Livre';
+    h += '<div class="card" style="margin-bottom:.6rem">'
+       + '<div style="display:flex;align-items:center;gap:.75rem">'
+       + '<div style="width:36px;height:36px;border-radius:var(--radius);background:var(--amber-bg);display:flex;align-items:center;justify-content:center"><i class="ti '+icon+'" style="font-size:18px;color:var(--amber-text)"></i></div>'
+       + '<div style="flex:1"><div style="font-size:.875rem;font-weight:500">Pneus '+tipoLabel+'</div><div style="font-size:.78rem;color:var(--text3)">'+marcasStr+'</div></div>'
+       + '<div style="font-size:1.5rem;font-weight:700;color:var(--text)">'+d.qtd+'</div>'
+       + '</div></div>';
+  });
+
+  if (!COMPRAS_PNEU.length) {
+    h = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)"><i class="ti ti-package" style="font-size:36px;display:block;margin-bottom:.5rem"></i>Nenhuma compra registrada ainda.</div>';
+  }
+
+  el.innerHTML = h;
+}
+
+/* ── COMPRAS ── */
+function renderCompras() {
+  initPneusData();
+  var el = document.getElementById('comprasList');
+  if (!el) return;
+
+  if (!COMPRAS_PNEU.length) {
+    el.innerHTML = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma compra registrada.</div>';
+    return;
+  }
+
+  var sorted = COMPRAS_PNEU.slice().sort(function(a,b){return b.id-a.id;});
+  var h = '';
+  sorted.forEach(function(c) {
+    h += '<div class="card" style="margin-bottom:.6rem">'
+       + '<div style="display:flex;align-items:flex-start;gap:.75rem">'
+       + '<div style="width:38px;height:38px;border-radius:var(--radius);background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-receipt" style="font-size:18px;color:var(--blue)"></i></div>'
+       + '<div style="flex:1">'
+       + '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:4px">'
+       + '<span style="font-size:.875rem;font-weight:500">'+c.fornecedor+'</span>'
+       + '<span class="badge blue">'+c.qtd+' pneus</span>'
+       + '<span style="font-size:.78rem;font-weight:600;color:var(--green);margin-left:auto">R$\u00a0'+c.valorTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+       + '</div>'
+       + '<div style="font-size:.8rem;color:var(--text2);margin-bottom:3px">'+c.marca+' · '+c.medida+' · '+(c.tipo==='tracao'?'Tração':c.tipo==='direcional'?'Direcional':'Livre')+'</div>'
+       + '<div style="font-size:.75rem;color:var(--text3)">'
+       + c.data+' · R$\u00a0'+c.valorUnit.toLocaleString('pt-BR',{minimumFractionDigits:2})+' un. · '+c.pagto
+       + (c.obs ? ' · '+c.obs : '')
+       + '</div>'
+       + '</div>'
+       + '<button onclick="deleteCompra('+c.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:2px 4px;border-radius:4px;flex-shrink:0" title="Remover"><i class="ti ti-trash"></i></button>'
+       + '</div></div>';
+  });
+  el.innerHTML = h;
+}
+
+function deleteCompra(id) {
+  if (!confirm('Remover esta compra?')) return;
+  COMPRAS_PNEU = COMPRAS_PNEU.filter(function(c){return c.id!==id;});
+  renderCompras();
+  renderEstoque();
+  renderPneuMetrics();
+  savePneusToSheets();
+}
+
+/* ── INSTALADOS ── */
+function renderInstaladosList() {
+  initPneusData();
+  var el = document.getElementById('instaladosList');
+  if (!el) return;
+
+  var filtro = (document.getElementById('filtroVeiculoPneu')||{value:''}).value || '';
+  var lista = filtro
+    ? INSTALACOES_PNEU.filter(function(p){return p.placa===filtro;})
+    : INSTALACOES_PNEU;
+
+  if (!lista.length) {
+    el.innerHTML = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma instalação registrada.</div>';
+    return;
+  }
+
+  /* Agrupa por veículo */
+  var byVei = {};
+  lista.forEach(function(p) {
+    if (!byVei[p.placa]) byVei[p.placa] = [];
+    byVei[p.placa].push(p);
+  });
+
+  var h = '';
+  Object.entries(byVei).forEach(function(pair) {
+    var placa = pair[0], items = pair[1];
+    var vdata = FROTA.find(function(f){return f.placa===placa;});
+    var motorista = vdata ? vdata.motorista : placa;
+    h += '<div class="card" style="margin-bottom:.75rem">'
+       + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem">'
+       + '<div style="width:34px;height:34px;border-radius:var(--radius);background:var(--amber-bg);display:flex;align-items:center;justify-content:center"><i class="ti ti-truck" style="font-size:17px;color:var(--amber-text)"></i></div>'
+       + '<div><div style="font-size:.875rem;font-weight:600">'+placa+'</div><div style="font-size:.75rem;color:var(--text3)">'+motorista+'</div></div>'
+       + '<span class="badge blue" style="margin-left:auto">'+items.length+' pneu'+(items.length>1?'s':'')+'</span>'
+       + '</div>';
+
+    items.forEach(function(p) {
+      var bc = p.desgaste>=80?'var(--red)':p.desgaste>=55?'#D97706':'var(--green)';
+      var condLabel = p.condicao==='novo'?'Novo':p.condicao==='recapado'?'Recapado':'Usado';
+      h += '<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">'
+         + '<div style="flex:1">'
+         + '<div style="font-size:.82rem;font-weight:500">'+p.eixo+'</div>'
+         + '<div style="font-size:.75rem;color:var(--text3)">'+p.marca+' · '+p.medida+' · '+condLabel+' · '+p.data+'</div>'
+         + '</div>'
+         + '<div style="width:90px;text-align:right">'
+         + '<div style="font-size:.72rem;color:var(--text3);margin-bottom:2px">Desgaste</div>'
+         + '<div style="display:flex;align-items:center;gap:.4rem">'
+         + '<div style="flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:'+p.desgaste+'%;height:100%;background:'+bc+';border-radius:2px"></div></div>'
+         + '<span style="font-size:.72rem;font-weight:600;color:'+bc+';white-space:nowrap">'+p.desgaste+'%</span>'
+         + '</div></div>'
+         + '<button onclick="deleteInstalacao('+p.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px;border-radius:4px" title="Remover"><i class="ti ti-trash"></i></button>'
+         + '</div>';
+    });
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function deleteInstalacao(id) {
+  if (!confirm('Remover esta instalação?')) return;
+  INSTALACOES_PNEU = INSTALACOES_PNEU.filter(function(p){return p.id!==id;});
+  renderInstaladosList();
+  renderPneuMetrics();
+  savePneusToSheets();
+}
+
+/* ── GASTO MENSAL ── */
+var _chartPM = null, _chartPV = null;
+function renderMensal() {
+  initPneusData();
+  var el = document.getElementById('mensalList');
+  if (!el) return;
+
+  /* Total por mês */
+  var porMes = {};
+  COMPRAS_PNEU.forEach(function(c) {
+    var key = c.mes+'/'+c.ano;
+    if (!porMes[key]) porMes[key] = {total:0, qtd:0, label: c.mes+'/'+c.ano};
+    porMes[key].total += c.valorTotal;
+    porMes[key].qtd += c.qtd;
+  });
+
+  /* Total por veículo */
+  var porVei = {};
+  INSTALACOES_PNEU.forEach(function(p) {
+    if (!porVei[p.placa]) porVei[p.placa] = {qtd:0, placa:p.placa};
+    porVei[p.placa].qtd++;
+  });
+
+  /* Table de resumo mensal */
+  var meses = Object.values(porMes).sort(function(a,b){return a.label.localeCompare(b.label);});
+  var totalGeral = COMPRAS_PNEU.reduce(function(a,b){return a+b.valorTotal;},0);
+  var totalPneus = COMPRAS_PNEU.reduce(function(a,b){return a+b.qtd;},0);
+
+  var h = '<div class="card" style="margin-bottom:.75rem">'
+        + '<div class="card-title"><i class="ti ti-calendar" aria-hidden="true"></i> Resumo mensal</div>';
+
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.78rem;font-weight:500;color:var(--text3);padding:.4rem .5rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:.5rem">'
+     + '<span>Mês</span><span style="text-align:center">Pneus</span><span style="text-align:right">Valor</span></div>';
+
+  meses.forEach(function(m) {
+    var mesNome = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m.label.split('/')[0])] || m.label;
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.82rem;padding:.45rem .5rem;border-bottom:1px solid var(--border)">'
+       + '<span style="font-weight:500">'+mesNome+'/'+m.label.split('/')[1]+'</span>'
+       + '<span style="text-align:center;color:var(--blue)">'+m.qtd+' un.</span>'
+       + '<span style="text-align:right;font-weight:600;color:var(--green)">R$\u00a0'+m.total.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+       + '</div>';
+  });
+
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.85rem;padding:.5rem .5rem;font-weight:700">'
+     + '<span>Total</span><span style="text-align:center;color:var(--blue)">'+totalPneus+' un.</span>'
+     + '<span style="text-align:right;color:var(--red)">R$\u00a0'+totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+     + '</div></div>';
+
+  el.innerHTML = h;
+
+  /* Charts */
+  if (typeof Chart !== 'undefined') {
+    var cmEl = document.getElementById('chartPneuMes');
+    if (cmEl && meses.length) {
+      if (_chartPM) _chartPM.destroy();
+      var mLabels = meses.map(function(m){
+        return ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m.label.split('/')[0])]||m.label;
+      });
+      _chartPM = new Chart(cmEl, {type:'bar',
+        data:{labels:mLabels, datasets:[{data:meses.map(function(m){return m.total;}),backgroundColor:'#F59E0B',borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{y:{ticks:{callback:function(v){return 'R$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false}}}}});
+    }
+    var cvEl = document.getElementById('chartPneuVei');
+    if (cvEl) {
+      if (_chartPV) _chartPV.destroy();
+      var veiEntries = Object.entries(porVei).sort(function(a,b){return b[1].qtd-a[1].qtd;});
+      _chartPV = new Chart(cvEl, {type:'bar',
+        data:{labels:veiEntries.map(function(p){return p[0];}),
+              datasets:[{data:veiEntries.map(function(p){return p[1].qtd;}),backgroundColor:'#1A5FA8',borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{y:{ticks:{stepSize:1},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false}}}}});
+    }
+  }
+}
+
+/* ── MODAIS ── */
+function openCompraModal() {
+  var el = document.getElementById('modalCompra');
+  if (el) { el.style.display = 'flex'; }
+  var today = new Date().toISOString().split('T')[0];
+  var dpEl = document.getElementById('cpData');
+  if (dpEl && !dpEl.value) dpEl.value = today;
+  /* Auto-calc total */
+  var qtdEl = document.getElementById('cpQtd');
+  var unitEl = document.getElementById('cpValorUnit');
+  var totEl = document.getElementById('cpValorTotal');
+  function calcTotal() {
+    var q = parseFloat(qtdEl.value)||0;
+    var u = parseFloat(unitEl.value)||0;
+    totEl.value = 'R$\u00a0' + (q*u).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  }
+  if (qtdEl) qtdEl.oninput = calcTotal;
+  if (unitEl) unitEl.oninput = calcTotal;
+}
+
+function closeCompraModal() {
+  var el = document.getElementById('modalCompra');
+  if (el) el.style.display = 'none';
+}
+
+function salvarCompra() {
+  var data     = document.getElementById('cpData').value;
+  var forn     = document.getElementById('cpFornecedor').value.trim();
+  var marca    = document.getElementById('cpMarca').value.trim();
+  var medida   = document.getElementById('cpMedida').value.trim();
+  var tipo     = document.getElementById('cpTipo').value;
+  var qtd      = parseInt(document.getElementById('cpQtd').value)||0;
+  var unit     = parseFloat(document.getElementById('cpValorUnit').value)||0;
+  var pagto    = document.getElementById('cpPagto').value.trim();
+  var obs      = document.getElementById('cpObs').value.trim();
+
+  if (!data || !forn || !marca || qtd<=0 || unit<=0) {
+    alert('Preencha: data, fornecedor, marca, quantidade e valor unitário.');
+    return;
+  }
+
+  var parts = data.split('-');
+  var dataBr = parts[2]+'/'+parts[1]+'/'+parts[0];
+  var mes = parseInt(parts[1]);
+  var ano = parseInt(parts[0]);
+
+  COMPRAS_PNEU.push({
+    id: Date.now(), data:dataBr, fornecedor:forn, marca:marca,
+    medida:medida||'295/80R22.5', tipo:tipo, qtd:qtd,
+    valorUnit:unit, valorTotal:qtd*unit, pagto:pagto, obs:obs, mes:mes, ano:ano
+  });
+
+  closeCompraModal();
+  renderEstoque(); renderCompras(); renderPneuMetrics();
+  showPneuTab('estoque');
+  savePneusToSheets();
+  alert('Compra registrada! ' + qtd + ' pneus adicionados ao estoque.');
+}
+
+function openInstalacaoModal() {
+  var el = document.getElementById('modalInstalacao');
+  if (el) el.style.display = 'flex';
+  var today = new Date().toISOString().split('T')[0];
+  var dpEl = document.getElementById('instData');
+  if (dpEl && !dpEl.value) dpEl.value = today;
+}
+
+function closeInstalacaoModal() {
+  var el = document.getElementById('modalInstalacao');
+  if (el) el.style.display = 'none';
+}
+
+function salvarInstalacao() {
+  var placaVal = document.getElementById('instPlaca').value;
+  var data     = document.getElementById('instData').value;
+  var eixo     = document.getElementById('instEixo').value;
+  var km       = parseInt(document.getElementById('instKm').value)||0;
+  var marca    = document.getElementById('instMarca').value.trim();
+  var medida   = document.getElementById('instMedida').value.trim();
+  var tipo     = document.getElementById('instTipo').value;
+  var condicao = document.getElementById('instCondicao').value;
+  var obs      = document.getElementById('instObs').value.trim();
+
+  if (!placaVal || !data || !eixo) {
+    alert('Preencha veículo, data e posição/eixo.');
+    return;
+  }
+
+  var placa = placaVal.split(' — ')[0].trim();
+  var parts = data.split('-');
+  var dataBr = parts[2]+'/'+parts[1]+'/'+parts[0];
+  var mes = parseInt(parts[1]);
+  var ano = parseInt(parts[0]);
+
+  var vdata = FROTA.find(function(f){return f.placa===placa;});
+  var motorista = vdata ? vdata.motorista : '';
+
+  INSTALACOES_PNEU.push({
+    id:Date.now(), placa:placa, motorista:motorista, data:dataBr,
+    eixo:eixo, marca:marca, medida:medida||'295/80R22.5',
+    tipo:tipo, condicao:condicao, km:km, obs:obs, desgaste:0, mes:mes, ano:ano
+  });
+
+  closeInstalacaoModal();
+  renderInstaladosList(); renderPneuMetrics(); renderEstoque();
+  showPneuTab('instalados');
+  savePneusToSheets();
+  alert('Instalação registrada em ' + placa + '!');
+}
+
+/* ── SYNC COM SHEETS ── */
+function savePneusToSheets() {
+  if (typeof gsWrite !== 'function') return;
+  var cpRows = [['id','data','fornecedor','marca','medida','tipo','qtd','valorUnit','valorTotal','pagto','obs','mes','ano']];
+  COMPRAS_PNEU.forEach(function(c){cpRows.push([c.id,c.data,c.fornecedor,c.marca,c.medida,c.tipo,c.qtd,c.valorUnit,c.valorTotal,c.pagto,c.obs,c.mes,c.ano]);});
+  var ipRows = [['id','placa','motorista','data','eixo','marca','medida','tipo','condicao','km','obs','desgaste','mes','ano']];
+  INSTALACOES_PNEU.forEach(function(p){ipRows.push([p.id,p.placa,p.motorista,p.data,p.eixo,p.marca,p.medida,p.tipo,p.condicao,p.km,p.obs,p.desgaste,p.mes,p.ano]);});
+  gsWrite('compras_pneu', cpRows);
+  gsWrite('instalacoes_pneu', ipRows);
+}
+
+/* Inicializa ao abrir a aba */
+function initPneusTab() {
+  initPneusData();
+  renderPneuMetrics();
+  showPneuTab('estoque');
+}
+
+
+/* Hook showTab para pneus */
+var _origSTpneus = showTab;
+showTab = function(id) {
+  _origSTpneus(id);
+  if (id === 'pneus') setTimeout(initPneusTab, 60);
+};
 </script>
 
 </body>
