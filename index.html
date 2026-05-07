@@ -336,8 +336,8 @@ textarea{resize:vertical}
 
       <div class="login-divider"></div>
 
-      <div class="login-field"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" placeholder="seu@empresa.com.br" autocomplete="email"></div>
-      <div class="login-field"><label for="loginPass">Senha</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="login-field"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" placeholder="seu@empresa.com.br" autocomplete="off"></div>
+      <div class="login-field"><label for="loginPass">Senha</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="login-error" id="loginError">E-mail ou senha incorretos.</div>
       <button class="btn-login" onclick="doLogin()"><i class="ti ti-login" aria-hidden="true"></i> Entrar</button>
       <p class="login-footer">Expresso PB Transportes Ltda &copy; 2026</p>
@@ -2147,6 +2147,16 @@ showTab = function(id) {
 };
 
 </script>
+<script>
+/* Limpa campos de login ao carregar a pagina */
+window.addEventListener('load', function() {
+  var em = document.getElementById('loginEmail');
+  var ps = document.getElementById('loginPass');
+  if (em) em.value = '';
+  if (ps) ps.value = '';
+});
+</script>
+
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
