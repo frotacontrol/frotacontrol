@@ -1,25 +1,15 @@
 <!DOCTYPE html>
-<!-- Expresso PB FrotaControl v3.1 - 07/05/2026 11:03 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Expresso PB — Sistema de Gestão de Frota">
 <meta name="theme-color" content="#0C1F3D">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Expresso PB">
-<meta name="mobile-web-app-capable" content="yes">
 <title>Expresso PB — Frota</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 /* ── RESET ── */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -314,7 +304,6 @@ textarea{resize:vertical}
 }
 @media(max-width:480px){.pneu-grid{grid-template-columns:1fr}.metrics-grid{grid-template-columns:1fr 1fr}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 
@@ -437,173 +426,19 @@ textarea{resize:vertical}
 
         <!-- PNEUS -->
         <section id="pneus" class="tab-section">
-
-  <!-- MÉTRICAS TOPO -->
-  <div class="metrics-grid" id="pneuMetrics" style="margin-bottom:1rem"></div>
-
-  <!-- ABAS INTERNAS -->
-  <div style="display:flex;gap:.4rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.75rem;flex-wrap:wrap">
-    <button class="chip active" id="ptab-estoque"   onclick="showPneuTab('estoque')">📦 Estoque</button>
-    <button class="chip"        id="ptab-compras"   onclick="showPneuTab('compras')">🛒 Compras</button>
-    <button class="chip"        id="ptab-instalados" onclick="showPneuTab('instalados')">🚛 Instalados</button>
-    <button class="chip"        id="ptab-mensal"    onclick="showPneuTab('mensal')">📊 Gasto mensal</button>
-  </div>
-
-  <!-- ABA: ESTOQUE -->
-  <div id="pneu-tab-estoque">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
-      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Pneus em estoque (depósito)</span>
-      <button class="btn-primary btn-sm" onclick="openCompraModal()">
-        <i class="ti ti-plus" aria-hidden="true"></i> Registrar compra
-      </button>
-    </div>
-    <div id="estoqueList"></div>
-  </div>
-
-  <!-- ABA: COMPRAS -->
-  <div id="pneu-tab-compras" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
-      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Histórico de compras</span>
-      <button class="btn-primary btn-sm" onclick="openCompraModal()">
-        <i class="ti ti-plus" aria-hidden="true"></i> Nova compra
-      </button>
-    </div>
-    <div id="comprasList"></div>
-  </div>
-
-  <!-- ABA: INSTALADOS -->
-  <div id="pneu-tab-instalados" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
-      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Pneus instalados por veículo</span>
-      <button class="btn-primary btn-sm" onclick="openInstalacaoModal()">
-        <i class="ti ti-truck" aria-hidden="true"></i> Registrar instalação
-      </button>
-    </div>
-    <div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">
-      <select id="filtroVeiculoPneu" onchange="renderInstaladosList()" class="filter-select">
-        <option value="">Todos os veículos</option>
-        <option>RLR-1H73</option><option>QYA-3I45</option><option>QYA-6G28</option>
-        <option>QSK-2H66</option><option>QSH-9C56</option><option>RLU-7G93</option>
-        <option>OYM-4G46</option><option>QYB-2A80</option>
-      </select>
-    </div>
-    <div id="instaladosList"></div>
-  </div>
-
-  <!-- ABA: GASTO MENSAL -->
-  <div id="pneu-tab-mensal" style="display:none">
-    <div style="margin-bottom:.75rem">
-      <span style="font-size:.875rem;font-weight:600;color:var(--text)">Gasto mensal em pneus</span>
-    </div>
-    <div class="two-col" style="margin-bottom:1rem">
-      <div class="card"><div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Por mês</div><div style="position:relative;height:200px"><canvas id="chartPneuMes"></canvas></div></div>
-      <div class="card"><div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Por veículo</div><div style="position:relative;height:200px"><canvas id="chartPneuVei"></canvas></div></div>
-    </div>
-    <div id="mensalList"></div>
-  </div>
-
-  <!-- MODAL COMPRA -->
-  <div id="modalCompra" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
-    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
-        <span style="font-size:.95rem;font-weight:600">Registrar compra de pneus</span>
-        <button onclick="closeCompraModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
-      </div>
-      <div style="padding:1rem 1.1rem">
-        <div class="form-row">
-          <div class="form-field"><label>Data da compra</label><input type="date" id="cpData"></div>
-          <div class="form-field"><label>Fornecedor</label><input type="text" id="cpFornecedor" placeholder="Ex: Kropneus"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Marca / Modelo</label><input type="text" id="cpMarca" placeholder="Ex: Meridional Torino GS853"></div>
-          <div class="form-field"><label>Medida</label><input type="text" id="cpMedida" placeholder="Ex: 295/80R22.5"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Tipo</label>
-            <select id="cpTipo">
-              <option value="tracao">Tração</option>
-              <option value="direcional">Direcional</option>
-              <option value="livre">Livre</option>
-            </select>
+          <div class="section-toolbar">
+            <div class="filter-chips" id="pneuFilters">
+              <button class="chip active" onclick="filterPneus(this,'todos')">Todos</button>
+              <button class="chip" onclick="filterPneus(this,'novo')">Pneus novos</button>
+              <button class="chip" onclick="filterPneus(this,'recapado')">Recapados</button>
+              <button class="chip" onclick="filterPneus(this,'critico')">Críticos</button>
+            </div>
+            <button class="btn-primary" onclick="openRegister(1)"><i class="ti ti-plus" aria-hidden="true"></i> Registrar pneu</button>
           </div>
-          <div class="form-field"><label>Quantidade</label><input type="number" id="cpQtd" min="1" value="1" placeholder="qtd"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Valor unitário (R$)</label><input type="number" id="cpValorUnit" step="0.01" placeholder="0,00"></div>
-          <div class="form-field"><label>Valor total</label><input type="text" id="cpValorTotal" readonly style="background:var(--surface2);font-weight:600;color:var(--green)"></div>
-        </div>
-        <div class="form-field"><label>Condição de pagamento</label><input type="text" id="cpPagto" placeholder="Ex: Cartão 10x, PIX, Boleto"></div>
-        <div class="form-field"><label>Observações</label><textarea id="cpObs" rows="2" placeholder="Número da NF, garantia..."></textarea></div>
-      </div>
-      <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
-        <button class="btn-secondary" onclick="closeCompraModal()">Cancelar</button>
-        <button class="btn-primary" onclick="salvarCompra()"><i class="ti ti-device-floppy"></i> Salvar compra</button>
-      </div>
-    </div>
-  </div>
+          <div class="pneu-grid" id="pneuGrid"></div>
+        </section>
 
-  <!-- MODAL INSTALAÇÃO -->
-  <div id="modalInstalacao" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
-    <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
-        <span style="font-size:.95rem;font-weight:600">Registrar instalação de pneu</span>
-        <button onclick="closeInstalacaoModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
-      </div>
-      <div style="padding:1rem 1.1rem">
-        <div class="form-row">
-          <div class="form-field"><label>Veículo (placa)</label>
-            <select id="instPlaca">
-              <option value="">Selecione</option>
-              <optgroup label="Cavalos">
-                <option>RLR-1H73 — Sérgio Soares</option><option>QYA-3I45 — Marcos Antônio</option>
-                <option>QYA-6G28 — Cícero E.</option><option>QSK-2H66 — Allan R.</option>
-                <option>QSH-9C56 — Carlos A.</option><option>RLU-7G93 — Joel</option>
-                <option>OYM-4G46 — Josenildo Vieira</option><option>QYB-2A80 — Petrônio José</option>
-              </optgroup>
-              <optgroup label="Carretas">
-                <option>QFC-6A51</option><option>QFC-6A71</option><option>RLQ-4F74</option>
-                <option>RZE-7B94</option><option>PGS-9402</option><option>RLT-2I85</option><option>SNN-5J37</option>
-              </optgroup>
-            </select>
-          </div>
-          <div class="form-field"><label>Data de instalação</label><input type="date" id="instData"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Posição / Eixo</label>
-            <select id="instEixo">
-              <option>Dianteiro esquerdo</option><option>Dianteiro direito</option>
-              <option>Tração LE externo</option><option>Tração LE interno</option>
-              <option>Tração LD externo</option><option>Tração LD interno</option>
-              <option>Truck LE externo</option><option>Truck LE interno</option>
-              <option>Truck LD externo</option><option>Truck LD interno</option>
-              <option>Estepe</option>
-            </select>
-          </div>
-          <div class="form-field"><label>Km no momento</label><input type="number" id="instKm" placeholder="km"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Marca / Modelo</label><input type="text" id="instMarca" placeholder="Ex: Meridional GS853"></div>
-          <div class="form-field"><label>Medida</label><input type="text" id="instMedida" placeholder="295/80R22.5"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-field"><label>Tipo</label>
-            <select id="instTipo"><option value="tracao">Tração</option><option value="direcional">Direcional</option><option value="livre">Livre</option></select>
-          </div>
-          <div class="form-field"><label>Condição</label>
-            <select id="instCondicao"><option value="novo">Novo</option><option value="recapado">Recapado</option><option value="usado">Usado</option></select>
-          </div>
-        </div>
-        <div class="form-field"><label>Observações</label><textarea id="instObs" rows="2" placeholder="DOT, número de série, origem..."></textarea></div>
-      </div>
-      <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
-        <button class="btn-secondary" onclick="closeInstalacaoModal()">Cancelar</button>
-        <button class="btn-primary" onclick="salvarInstalacao()"><i class="ti ti-device-floppy"></i> Salvar instalação</button>
-      </div>
-    </div>
-  </div>
-
-</section>
-
+        <!-- FROTA -->
         <section id="frota" class="tab-section">
           <div class="section-toolbar">
             <h3 class="section-heading">Gestão de frota</h3>
@@ -718,14 +553,13 @@ textarea{resize:vertical}
             <div class="card"><div class="card-title"><i class="ti ti-trending-up" aria-hidden="true"></i> Evolução mensal</div><div style="position:relative;height:220px"><canvas id="chartMes"></canvas></div></div>
           </div>
           <div class="two-col" style="margin-bottom:1rem">
-            <div class="card"><div class="card-title"><i class="ti ti-trophy" aria-hidden="true"></i> Maior gasto — motoristas <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankMotorista"></div></div>
-            <div class="card"><div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Maior gasto — veículos <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankVeiculo"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-trophy" aria-hidden="true"></i> Maior gasto — motoristas <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankMotorista"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Maior gasto — veículos <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankVeiculo"></div></div>
           </div>
           <div class="two-col" style="margin-bottom:1rem">
-            <div class="card"><div class="card-title"><i class="ti ti-tool" aria-hidden="true"></i> Maior gasto — tipo de serviço <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankServico"></div></div>
-            <div class="card"><div class="card-title"><i class="ti ti-building-store" aria-hidden="true"></i> Maior gasto — fornecedor <span style="font-size:.7rem;font-weight:400;color:var(--text3);margin-left:4px">do maior para o menor</span></div><div id="rankFornecedor"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-tool" aria-hidden="true"></i> Maior gasto — tipo de servico <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankServico"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-building-store" aria-hidden="true"></i> Maior gasto — fornecedor <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankFornecedor"></div></div>
           </div>
-
           <div class="card">
             <div class="card-title"><i class="ti ti-list" aria-hidden="true"></i> Lançamentos
               <div style="margin-left:auto;display:flex;gap:6px">
@@ -801,12 +635,13 @@ textarea{resize:vertical}
 
 <script>
 /* ── DADOS EXPRESSO PB ── */
+
 var USERS = {
-  'daphinin@frotaexpressopb.com':         { pass:'121909',  role:'Administrador', initials:'DI', perms:{ registrar:true,  financeiro:true,  permissoes:true,  trocaVeiculo:true  } },
-  'natanael@transportadoraexpressopb.com':{ pass:'nat2026', role:'Gestor',        initials:'NL', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
-  'financeiro@transportadoraexpressopb.com':{ pass:'fin2026', role:'Gestor',      initials:'FN', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
-  'gestor@frota.com':                     { pass:'gest123', role:'Gestor',        initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
-  'mecanico@frota.com':                   { pass:'mec123',  role:'Mecanico',      initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } }
+  'daphinin@frotaexpressopb.com':           { pass:'121909',  role:'Administrador', initials:'DI', perms:{ registrar:true,  financeiro:true,  permissoes:true,  trocaVeiculo:true  } },
+  'natanael@transportadoraexpressopb.com':  { pass:'nat2026', role:'Gestor',        initials:'NL', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'financeiro@transportadoraexpressopb.com':{ pass:'fin2026', role:'Gestor',        initials:'FN', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'gestor@frota.com':                       { pass:'gest123', role:'Gestor',        initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'mecanico@frota.com':                     { pass:'mec123',  role:'Mecanico',      initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } }
 };
 
 var PNEUS = [
@@ -853,9 +688,7 @@ var OCORRENCIAS = [
   { id:13, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'8 pneus tracao Meridional Kropneus',         data:'28/04/2026', status:'Concluido', mec:'Kropneus',               custo:'R$ 15.416,00',desc:'8 un 295/80R22.5 GS853 Meridional Torino Cartao 10x' },
   { id:14, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'6 pneus direcionais Goodtrip Patrimonial',   data:'17/04/2026', status:'Concluido', mec:'Patrimonial Pneus',      custo:'R$ 11.580,00',desc:'6 un Goodtrip GHA20 295/80R22.5 NF 243' }
 ];
-</script>
 
-<script>
 var LANCAMENTOS = [
   {n:1,data_br:'01/03/2026',fornecedor:"Edson Lona",desc:"Vulcanização E Mao De Obra",placa:"",motorista:"—",modelo:"—",valor:500,pagto:"PIX",mes:"March/2026",mes_num:3},
   {n:2,data_br:'02/03/2026',fornecedor:"Joao Wictor Mec.",desc:"Socorro Daf Aruera Pe",placa:"RLR-1H73",motorista:"Sérgio Soares",modelo:"DAF",valor:5700,pagto:"PIX",mes:"March/2026",mes_num:3},
@@ -909,6 +742,7 @@ var LANCAMENTOS = [
   {n:50,data_br:'04/05/2026',fornecedor:"Borracharia Do Zé",desc:"Serviço De Pneu",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"VOLVO",valor:60,pagto:"PIX",mes:"May/2026",mes_num:5},
   {n:51,data_br:'05/05/2026',fornecedor:"Kropneus",desc:"Compra De Pneu Tração - 8 Unidades",placa:"",motorista:"—",modelo:"—",valor:15416,pagto:"CARTÃO 10X",mes:"May/2026",mes_num:5},
 ];
+
 </script>
 <script>
 /* ── STATE ── */
@@ -1820,6 +1654,8 @@ function renderFinanceiro(){
     rf.innerHTML = hf || '<p style="color:var(--text3);font-size:.82rem">Sem dados</p>';
   }
 
+  
+
   var lEl=document.getElementById('lancamentosList');
   if(lEl){
     if(!fil.length){lEl.innerHTML='<p style="color:var(--text3);padding:.5rem">Nenhum lancamento.</p>';}
@@ -1845,7 +1681,6 @@ doLogin=function(){
     var seName=document.getElementById('sidebarEmail');
     if(seName)seName.textContent=em===ADMIN_EMAIL?'DAPHININ':em.split('@')[0];
     renderAll();
-    setTimeout(renderFinanceiro, 150);
     loadFromSheets();
   }
 };
@@ -1874,21 +1709,6 @@ showTab=function(id){
 };
 
 </script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    /* Só registra SW no GitHub Pages */
-    if (location.hostname === 'frotacontrol.github.io') {
-      navigator.serviceWorker.register('sw.js', { scope: '/frotacontrol/' })
-        .then(function(reg) { console.log('SW registrado:', reg.scope); })
-        .catch(function(err) { console.log('SW erro:', err); });
-    }
-  });
-}
-</script>
-
-
 <script>
 /* ── MÓDULO COMPLETO DE PNEUS — EXPRESSO PB ── */
 
@@ -2320,13 +2140,23 @@ function initPneusTab() {
 }
 
 
-/* Hook showTab para pneus */
 var _origSTpneus = showTab;
 showTab = function(id) {
   _origSTpneus(id);
   if (id === 'pneus') setTimeout(initPneusTab, 60);
 };
-</script>
 
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    if (location.hostname === 'frotacontrol.github.io') {
+      navigator.serviceWorker.register('sw.js', { scope: '/frotacontrol/' })
+        .then(function(reg) { console.log('SW ok'); })
+        .catch(function(err) { console.log('SW err:', err); });
+    }
+  });
+}
+</script>
 </body>
 </html>
