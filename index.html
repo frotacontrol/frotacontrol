@@ -336,8 +336,8 @@ textarea{resize:vertical}
 
       <div class="login-divider"></div>
 
-      <div class="login-field"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" placeholder="seu@empresa.com.br" autocomplete="off"></div>
-      <div class="login-field"><label for="loginPass">Senha</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="login-field"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" placeholder="seu@empresa.com.br" autocomplete="email"></div>
+      <div class="login-field"><label for="loginPass">Senha</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="login-error" id="loginError">E-mail ou senha incorretos.</div>
       <button class="btn-login" onclick="doLogin()"><i class="ti ti-login" aria-hidden="true"></i> Entrar</button>
       <p class="login-footer">Expresso PB Transportes Ltda &copy; 2026</p>
@@ -367,6 +367,7 @@ textarea{resize:vertical}
         <a class="nav-item" data-tab="pneus" onclick="showTab('pneus')"><i class="ti ti-circle-dashed" aria-hidden="true"></i><span>Pneus</span><span class="nav-badge" id="navBadgePneus">2</span></a>
         <a class="nav-item" data-tab="frota" onclick="showTab('frota')"><i class="ti ti-truck" aria-hidden="true"></i><span>Frota</span></a>
         <a class="nav-item" data-tab="ocorrencias" onclick="showTab('ocorrencias')"><i class="ti ti-clipboard-list" aria-hidden="true"></i><span>Ocorrências</span></a>
+        <a class="nav-item" data-tab="cadastros" onclick="showTab('cadastros')"><i class="ti ti-users" aria-hidden="true"></i><span>Cadastros</span></a>
         <a class="nav-item" data-tab="relatorios" onclick="showTab('relatorios')"><i class="ti ti-file-report" aria-hidden="true"></i><span>Relatórios</span></a>
         <a class="nav-item" data-tab="registrar" onclick="showTab('registrar')" id="navRegistrar"><i class="ti ti-plus" aria-hidden="true"></i><span>Registrar</span></a>
         <div class="nav-sep"></div>
@@ -461,6 +462,64 @@ textarea{resize:vertical}
           <div id="occList"></div>
         </section>
 
+
+        <!-- CADASTROS -->
+        <section id="cadastros" class="tab-section">
+          <div style="display:flex;gap:.4rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.75rem;flex-wrap:wrap">
+            <button class="chip active" id="ctab-motoristas" onclick="showCadTab('motoristas')">👤 Motoristas</button>
+            <button class="chip" id="ctab-veiculos"   onclick="showCadTab('veiculos')">🚛 Veículos</button>
+            <button class="chip" id="ctab-documentos" onclick="showCadTab('documentos')">📋 Documentos</button>
+          </div>
+          <div id="cad-tab-motoristas">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+              <span style="font-size:.875rem;font-weight:600">Motoristas da frota</span>
+              <button class="btn-primary btn-sm" onclick="openDocModal('motorista','','')"><i class="ti ti-plus"></i> Adicionar documento</button>
+            </div>
+            <div id="cadMotoristasList"></div>
+          </div>
+          <div id="cad-tab-veiculos" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+              <span style="font-size:.875rem;font-weight:600">Veículos da frota</span>
+              <button class="btn-primary btn-sm" onclick="openDocModal('veiculo','','')"><i class="ti ti-plus"></i> Adicionar documento</button>
+            </div>
+            <div id="cadVeiculosList"></div>
+          </div>
+          <div id="cad-tab-documentos" style="display:none">
+            <div id="docsList"></div>
+          </div>
+
+          <!-- MODAL DOCUMENTO -->
+          <div id="modalDoc" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
+            <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:460px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
+                <span id="modalDocTitle" style="font-size:.95rem;font-weight:600">Adicionar documento</span>
+                <button onclick="closeDocModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
+              </div>
+              <div style="padding:1rem 1.1rem">
+                <input type="hidden" id="docTipo"><input type="hidden" id="docPlaca"><input type="hidden" id="docNome">
+                <div class="form-row">
+                  <div class="form-field"><label>Tipo de documento</label>
+                    <select id="docDocumento">
+                      <option>CNH</option><option>CRLV</option><option>Tacografo</option>
+                      <option>Seguro</option><option>Exame médico</option><option>Certificado RNTRC</option>
+                      <option>Vistoria</option><option>Licença</option><option>Outro</option>
+                    </select>
+                  </div>
+                  <div class="form-field"><label>Número / Protocolo</label><input type="text" id="docNumero" placeholder="Ex: 12345678"></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-field"><label>Vencimento</label><input type="date" id="docVencimento"></div>
+                  <div class="form-field"><label>Observações</label><input type="text" id="docObs" placeholder="Opcional"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
+                <button class="btn-secondary" onclick="closeDocModal()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarDoc()"><i class="ti ti-device-floppy"></i> Salvar</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- RELATÓRIOS -->
         <section id="relatorios" class="tab-section">
           <div class="section-toolbar" style="flex-wrap:wrap;gap:.6rem">
@@ -494,6 +553,25 @@ textarea{resize:vertical}
             <button class="btn-secondary btn-sm" style="margin-bottom:1rem" onclick="voltarRelatorio()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
             <div id="relDetalheConteudo"></div>
           </div>
+
+          <!-- RELATÓRIO MENSAL -->
+          <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem">
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap">
+              <span style="font-size:.875rem;font-weight:600;color:var(--text)">📆 Relatório mensal</span>
+              <select id="relMesSelect" class="filter-select" onchange="renderRelatorioMensal()">
+                <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+                <option value="4">Abril</option><option value="5" selected>Maio</option><option value="6">Junho</option>
+                <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+                <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+              </select>
+              <select id="relAnoSelect" class="filter-select" onchange="renderRelatorioMensal()">
+                <option value="2026" selected>2026</option><option value="2025">2025</option>
+              </select>
+              <button class="btn-primary btn-sm" onclick="renderRelatorioMensal()"><i class="ti ti-refresh"></i> Gerar</button>
+            </div>
+            <div id="relMensalConteudo"></div>
+          </div>
+
         </section>
 
         <!-- REGISTRAR -->
@@ -635,7 +713,6 @@ textarea{resize:vertical}
 
 <script>
 /* ── DADOS EXPRESSO PB ── */
-
 var USERS = {
   'daphinin@frotaexpressopb.com':           { pass:'121909',  role:'Administrador', initials:'DI', perms:{ registrar:true,  financeiro:true,  permissoes:true,  trocaVeiculo:true  } },
   'natanael@transportadoraexpressopb.com':  { pass:'nat2026', role:'Gestor',        initials:'NL', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
@@ -643,7 +720,6 @@ var USERS = {
   'gestor@frota.com':                       { pass:'gest123', role:'Gestor',        initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
   'mecanico@frota.com':                     { pass:'mec123',  role:'Mecanico',      initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } }
 };
-
 var PNEUS = [
   { id:1, veiculo:'RLR-1H73', eixo:'Tracao 4 pneus necessarios', marca:'Meridional Torino', medida:'295/80R22.5', tipo:'novo',     desgaste:95, km:421117, data:'28/04/2026', custo:1927,  dot:'GS853' },
   { id:2, veiculo:'QYA-3I45', eixo:'Tracao',                     marca:'Casumina GS851',   medida:'295/80R22.5', tipo:'novo',     desgaste:15, km:0,      data:'03/04/2026', custo:1740,  dot:'GS851' },
@@ -653,7 +729,6 @@ var PNEUS = [
   { id:6, veiculo:'QYB-2A80', eixo:'Pneu consertado',            marca:'',                 medida:'295/80R22.5', tipo:'novo',     desgaste:50, km:0,      data:'04/05/2026', custo:200,   dot:'' },
   { id:7, veiculo:'QSK-2H66', eixo:'Dianteiro',                  marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo',     desgaste:20, km:0,      data:'17/04/2026', custo:1930,  dot:'GHA20' }
 ];
-
 var FROTA = [
   { id:1, placa:'RLR-1H73', modelo:'DAF',                  motorista:'Sergio Soares',    carreta:'QFC-6A51', ano:2019, km:421117, status:'danger', statusLabel:'Critico',     tipo:'ativo' },
   { id:2, placa:'QYA-3I45', modelo:'Mercedes-Benz Actros', motorista:'Marcos Antonio',   carreta:'QFC-6A71', ano:2019, km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
@@ -664,29 +739,27 @@ var FROTA = [
   { id:7, placa:'OYM-4G46', modelo:'Volvo',                motorista:'Josenildo Vieira', carreta:'RLT-2I85', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
   { id:8, placa:'QYB-2A80', modelo:'Volkswagen VW',        motorista:'Petronio Jose',    carreta:'SNN-5J37', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' }
 ];
-
 var TROCAS = [
   { id:1, tipo:'+', cor:'blue',  titulo:'QSK-2H66 Freios e filtros OS 73465', sub:'Turbo Freio R$ 5.287,40', data:'29/04/2026' },
   { id:2, tipo:'+', cor:'green', titulo:'QYA-3I45 Turbo freio OS 73378',      sub:'Turbo Freio R$ 1.550,00', data:'17/04/2026' },
   { id:3, tipo:'+', cor:'blue',  titulo:'QYA-3I45 Mangueiras reparadas',      sub:'Turbo Freio',             data:'20/04/2026' },
   { id:4, tipo:'+', cor:'green', titulo:'QYB-2A80 Tacografo e pneu',          sub:'Posto Espacial R$ 200,00',data:'04/05/2026' }
 ];
-
 var OCORRENCIAS = [
-  { id:1,  veiculo:'RLR-1H73', tipo:'Manutencao', servico:'Situacao critica forca eletrica pneus eixo', data:'05/05/2026', status:'Urgente',   mec:'Aguardando oficina',     custo:'',            desc:'Forca eletrica 4 pneus tracao danificados eixo truck nao suspende risco ao modulo novo' },
+  { id:1,  veiculo:'RLR-1H73', tipo:'Manutencao', servico:'Situacao critica forca eletrica pneus eixo', data:'05/05/2026', status:'Urgente',   mec:'Aguardando oficina',     custo:'',            desc:'Forca eletrica 4 pneus tracao danificados eixo truck nao suspende' },
   { id:2,  veiculo:'QYA-3I45', tipo:'Manutencao', servico:'Balao de ar grande furado',                  data:'05/05/2026', status:'Urgente',   mec:'Aguardando reparo',      custo:'',            desc:'Balao de ar grande furado pendente desde 29/04' },
-  { id:3,  veiculo:'QYA-6G28', tipo:'Manutencao', servico:'Imobilizado aguardando oficina',             data:'05/05/2026', status:'Urgente',   mec:'Reboque Sao Jose',       custo:'',            desc:'Imobilizado desde 30/04. Previsao de entrega 06/05/2026' },
-  { id:4,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'Vazamento no retentor',                      data:'05/05/2026', status:'Em breve',  mec:'Joel',                   custo:'',            desc:'Liberado apos OS 73465. Retentor ainda com vazamento' },
-  { id:5,  veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Farois com problema',                        data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Farois nao clareiam o suficiente' },
-  { id:6,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Step para-lama roda tracao pneu',            data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Step ausente para-lama roda tracao com vazamento pneu necessario' },
-  { id:7,  veiculo:'RLU-7G93', tipo:'Manutencao', servico:'Na oficina molas eixos tanque suspensao',    data:'04/05/2026', status:'Em breve',  mec:'Oficina',                custo:'',            desc:'Em reparo molas eixos tanque furado e suspensao' },
-  { id:8,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'OS 73465 Freios filtros suspensao',          data:'29/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 5.287,40', desc:'Lona mola freio filtros oleo motor 15W40 amortecedor terminal direcao OS 73465' },
-  { id:9,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Tacografo vulcanizacao pito pneu',           data:'04/05/2026', status:'Concluido', mec:'Posto Espacial II Tete', custo:'R$ 200,00',   desc:'Conserto pneu R$150 mais pito R$50 aferio tacografo sem custo' },
-  { id:10, veiculo:'QSH-9C56', tipo:'Pneu novo',  servico:'Troca 2 pneus dianteiros balanceamento',     data:'29/04/2026', status:'Concluido', mec:'',                       custo:'R$ 60,00',    desc:'Troca 2 pneus dianteiros e balanceamento' },
-  { id:11, veiculo:'QYA-3I45', tipo:'Manutencao', servico:'OS 73378 Filtros mangueiras diagnostico',    data:'17/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 1.550,00', desc:'Filtro APU Wabco mangueira carreta filtro ar Mann diagnostico Jaltest' },
-  { id:12, veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Rodizio de pneus',                           data:'22/04/2026', status:'Concluido', mec:'',                       custo:'R$ 30,00',    desc:'Rodizio realizado' },
-  { id:13, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'8 pneus tracao Meridional Kropneus',         data:'28/04/2026', status:'Concluido', mec:'Kropneus',               custo:'R$ 15.416,00',desc:'8 un 295/80R22.5 GS853 Meridional Torino Cartao 10x' },
-  { id:14, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'6 pneus direcionais Goodtrip Patrimonial',   data:'17/04/2026', status:'Concluido', mec:'Patrimonial Pneus',      custo:'R$ 11.580,00',desc:'6 un Goodtrip GHA20 295/80R22.5 NF 243' }
+  { id:3,  veiculo:'QYA-6G28', tipo:'Manutencao', servico:'Imobilizado aguardando oficina',             data:'05/05/2026', status:'Urgente',   mec:'Reboque Sao Jose',       custo:'',            desc:'Imobilizado desde 30/04' },
+  { id:4,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'Vazamento no retentor',                      data:'05/05/2026', status:'Em breve',  mec:'Joel',                   custo:'',            desc:'Retentor com vazamento' },
+  { id:5,  veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Farois com problema',                        data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Farois nao clareiam' },
+  { id:6,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Step para-lama roda tracao pneu',            data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Step ausente' },
+  { id:7,  veiculo:'RLU-7G93', tipo:'Manutencao', servico:'Na oficina molas eixos tanque suspensao',    data:'04/05/2026', status:'Em breve',  mec:'Oficina',                custo:'',            desc:'Em reparo' },
+  { id:8,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'OS 73465 Freios filtros suspensao',          data:'29/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 5.287,40', desc:'OS 73465' },
+  { id:9,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Tacografo vulcanizacao pito pneu',           data:'04/05/2026', status:'Concluido', mec:'Posto Espacial II Tete', custo:'R$ 200,00',   desc:'Conserto pneu' },
+  { id:10, veiculo:'QSH-9C56', tipo:'Pneu novo',  servico:'Troca 2 pneus dianteiros balanceamento',     data:'29/04/2026', status:'Concluido', mec:'',                       custo:'R$ 60,00',    desc:'Troca pneus' },
+  { id:11, veiculo:'QYA-3I45', tipo:'Manutencao', servico:'OS 73378 Filtros mangueiras diagnostico',    data:'17/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 1.550,00', desc:'OS 73378' },
+  { id:12, veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Rodizio de pneus',                           data:'22/04/2026', status:'Concluido', mec:'',                       custo:'R$ 30,00',    desc:'Rodizio' },
+  { id:13, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'8 pneus tracao Meridional Kropneus',         data:'28/04/2026', status:'Concluido', mec:'Kropneus',               custo:'R$ 15.416,00',desc:'8 pneus tracao' },
+  { id:14, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'6 pneus direcionais Goodtrip Patrimonial',   data:'17/04/2026', status:'Concluido', mec:'Patrimonial Pneus',      custo:'R$ 11.580,00',desc:'6 pneus direcionais' }
 ];
 
 var LANCAMENTOS = [
@@ -1379,6 +1452,11 @@ function loadFromSheets() {
 }
 function renderAll() {
   renderPneus('todos'); renderFrota(); renderTrocas(); renderOcorrencias(); renderPainelRanking();
+  /* Sempre atualiza o financeiro se estiver visível */
+  setTimeout(function() {
+    var finSection = document.getElementById('financeiro');
+    if (finSection && finSection.classList.contains('active')) renderFinanceiro();
+  }, 200);
 }
 
 /* ── PAINEL RANKING ── */
@@ -1656,6 +1734,8 @@ function renderFinanceiro(){
 
   
 
+  
+
   var lEl=document.getElementById('lancamentosList');
   if(lEl){
     if(!fil.length){lEl.innerHTML='<p style="color:var(--text3);padding:.5rem">Nenhum lancamento.</p>';}
@@ -1688,7 +1768,16 @@ doLogin=function(){
 var _origSalvar=salvarRegistro;
 salvarRegistro=function(){_origSalvar();saveToSheets();};
 var _origSaveModal=saveModal;
-saveModal=function(){_origSaveModal();saveToSheets();};
+saveModal=function(){
+  _origSaveModal();
+  saveToSheets();
+  /* Atualiza financeiro em tempo real */
+  setTimeout(function(){
+    var finEl=document.getElementById('financeiro');
+    if(finEl&&finEl.classList.contains('active'))renderFinanceiro();
+    renderPainelRanking();
+  },150);
+};
 
 var _origST=showTab;
 showTab=function(id){
@@ -2063,10 +2152,34 @@ function salvarCompra() {
     valorUnit:unit, valorTotal:qtd*unit, pagto:pagto, obs:obs, mes:mes, ano:ano
   });
 
+  /* Adiciona ao LANCAMENTOS para aparecer no Financeiro */
+  var mesAtual = mes;
+  var mesNomes = {1:'January',2:'February',3:'March',4:'April',5:'May',6:'June',7:'July',8:'August',9:'September',10:'October',11:'November',12:'December'};
+  LANCAMENTOS.unshift({
+    n: LANCAMENTOS.length + 1,
+    data_br: dataBr,
+    fornecedor: forn,
+    desc: 'Compra pneu: ' + marca + ' (' + qtd + ' un)',
+    placa: '',
+    motorista: '—',
+    modelo: '—',
+    valor: qtd * unit,
+    pagto: pagto,
+    mes: mesNomes[mes] + '/' + ano,
+    mes_num: mes
+  });
+
   closeCompraModal();
   renderEstoque(); renderCompras(); renderPneuMetrics();
   showPneuTab('estoque');
   savePneusToSheets();
+  saveToSheets();
+  /* Atualiza financeiro em tempo real */
+  setTimeout(function() {
+    var finEl = document.getElementById('financeiro');
+    if (finEl && finEl.classList.contains('active')) renderFinanceiro();
+    renderPainelRanking();
+  }, 150);
   alert('Compra registrada! ' + qtd + ' pneus adicionados ao estoque.');
 }
 
@@ -2139,34 +2252,461 @@ function initPneusTab() {
   showPneuTab('estoque');
 }
 
-
-var _origSTpneus = showTab;
-showTab = function(id) {
-  _origSTpneus(id);
-  if (id === 'pneus') setTimeout(initPneusTab, 60);
-};
-
+var _origSTpneus=showTab;showTab=function(id){_origSTpneus(id);if(id==='pneus')setTimeout(initPneusTab,60);};
 </script>
 <script>
-/* Limpa campos de login ao carregar a pagina */
-window.addEventListener('load', function() {
-  var em = document.getElementById('loginEmail');
-  var ps = document.getElementById('loginPass');
-  if (em) em.value = '';
-  if (ps) ps.value = '';
-});
-</script>
+/* ═══════════════════════════════════════════════════
+   MÓDULO: CADASTROS + DOCUMENTOS + RELATÓRIO MENSAL
+   Expresso PB — FrotaControl
+═══════════════════════════════════════════════════ */
 
+/* ── DADOS ── */
+var DOCUMENTOS = [];
+var ADMIN_EMAIL_GLOBAL = 'daphinin@frotaexpressopb.com';
+
+function initDocumentos() {
+  if (DOCUMENTOS.length === 0) {
+    DOCUMENTOS = [
+      /* Motoristas */
+      { id:1, tipo:'motorista', nome:'Sergio Soares',    placa:'RLR-1H73', documento:'CNH',            numero:'123456789',  vencimento:'2027-03-15', obs:'' },
+      { id:2, tipo:'motorista', nome:'Marcos Antonio',   placa:'QYA-3I45', documento:'CNH',            numero:'987654321',  vencimento:'2026-08-20', obs:'' },
+      { id:3, tipo:'motorista', nome:'Cicero E.',         placa:'QYA-6G28', documento:'CNH',            numero:'456789123',  vencimento:'2026-06-10', obs:'' },
+      { id:4, tipo:'motorista', nome:'Allan R.',          placa:'QSK-2H66', documento:'CNH',            numero:'321654987',  vencimento:'2027-01-05', obs:'' },
+      { id:5, tipo:'motorista', nome:'Carlos A.',         placa:'QSH-9C56', documento:'CNH',            numero:'654987321',  vencimento:'2025-12-30', obs:'VENCIDO' },
+      { id:6, tipo:'motorista', nome:'Joel',              placa:'RLU-7G93', documento:'CNH',            numero:'789123456',  vencimento:'2026-09-18', obs:'' },
+      { id:7, tipo:'motorista', nome:'Josenildo Vieira',  placa:'OYM-4G46', documento:'CNH',            numero:'159357486',  vencimento:'2027-05-22', obs:'' },
+      { id:8, tipo:'motorista', nome:'Petronio Jose',     placa:'QYB-2A80', documento:'CNH',            numero:'357159264',  vencimento:'2026-11-14', obs:'' },
+      /* Veículos */
+      { id:9,  tipo:'veiculo', nome:'RLR-1H73', placa:'RLR-1H73', documento:'CRLV',        numero:'RLR1H73',    vencimento:'2026-12-31', obs:'' },
+      { id:10, tipo:'veiculo', nome:'QYA-3I45', placa:'QYA-3I45', documento:'CRLV',        numero:'QYA3I45',    vencimento:'2026-12-31', obs:'' },
+      { id:11, tipo:'veiculo', nome:'QYA-6G28', placa:'QYA-6G28', documento:'CRLV',        numero:'QYA6G28',    vencimento:'2026-12-31', obs:'' },
+      { id:12, tipo:'veiculo', nome:'QSK-2H66', placa:'QSK-2H66', documento:'Tacografo',   numero:'TAC2H66',    vencimento:'2026-07-15', obs:'' },
+      { id:13, tipo:'veiculo', nome:'QSH-9C56', placa:'QSH-9C56', documento:'Seguro',      numero:'SEG9C56',    vencimento:'2026-10-01', obs:'' },
+      { id:14, tipo:'veiculo', nome:'OYM-4G46', placa:'OYM-4G46', documento:'CRLV',        numero:'OYM4G46',    vencimento:'2026-12-31', obs:'' },
+      { id:15, tipo:'veiculo', nome:'QYB-2A80', placa:'QYB-2A80', documento:'Tacografo',   numero:'TAC2A80',    vencimento:'2026-08-20', obs:'' },
+    ];
+  }
+}
+
+/* ── HELPERS ── */
+function diasParaVencer(vencimento) {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var venc = new Date(vencimento + 'T00:00:00');
+  return Math.round((venc - hoje) / (1000*60*60*24));
+}
+
+function statusVencimento(dias) {
+  if (dias < 0)   return { label:'VENCIDO',       cls:'danger' };
+  if (dias <= 30) return { label:'Vence em '+dias+'d', cls:'danger' };
+  if (dias <= 90) return { label:'Vence em '+dias+'d', cls:'warn' };
+  return { label:'OK',              cls:'ok' };
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  var p = iso.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+/* ── ABA CADASTROS ── */
+function showCadTab(tab) {
+  var tabs = ['motoristas','veiculos','documentos'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('cad-tab-'+t);
+    var btn = document.getElementById('ctab-'+t);
+    if (el) el.style.display = t===tab ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', t===tab);
+  });
+  if (tab==='motoristas') renderCadMotoristas();
+  if (tab==='veiculos')   renderCadVeiculos();
+  if (tab==='documentos') renderDocumentos();
+}
+
+/* ── CADASTRO MOTORISTAS ── */
+function renderCadMotoristas() {
+  var el = document.getElementById('cadMotoristasList');
+  if (!el) return;
+  var h = '';
+  FROTA.forEach(function(v) {
+    var docsM = DOCUMENTOS.filter(function(d){return d.tipo==='motorista'&&d.placa===v.placa;});
+    var vencendo = docsM.filter(function(d){return diasParaVencer(d.vencimento)<=90;}).length;
+    h += '<div class="card" style="margin-bottom:.6rem">'
+       + '<div style="display:flex;align-items:center;gap:.75rem">'
+       + '<div style="width:40px;height:40px;border-radius:50%;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--amber-text);flex-shrink:0">'
+       + (v.motorista||'?').split(' ').map(function(n){return n[0];}).join('').slice(0,2).toUpperCase()
+       + '</div>'
+       + '<div style="flex:1">'
+       + '<div style="font-size:.875rem;font-weight:500">'+v.motorista+'</div>'
+       + '<div style="font-size:.78rem;color:var(--text3)">'+v.placa+' · '+v.modelo+' · Carreta: '+v.carreta+'</div>'
+       + '</div>'
+       + (vencendo>0?'<span class="badge danger">'+vencendo+' doc vencendo</span>':'<span class="badge ok">Docs OK</span>')
+       + '<button onclick="openDocModal(\'motorista\',\''+v.placa+'\',\''+v.motorista+'\')" class="btn-primary btn-sm" style="margin-left:8px"><i class="ti ti-plus"></i></button>'
+       + '</div>'
+       + (docsM.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'
+         + docsM.map(function(d){
+             var st=statusVencimento(diasParaVencer(d.vencimento));
+             return '<span style="font-size:.72rem;padding:2px 8px;border-radius:999px;border:.5px solid var(--border);background:var(--surface2)">'
+               +d.documento+' <span class="badge '+st.cls+'" style="font-size:.65rem">'+st.label+'</span>'
+               +'<button onclick="deleteDoc('+d.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0 2px">✕</button>'
+               +'</span>';
+           }).join('')
+         +'</div>':'')
+       + '</div>';
+  });
+  el.innerHTML = h || '<p style="color:var(--text3);padding:1rem">Nenhum motorista cadastrado.</p>';
+}
+
+/* ── CADASTRO VEÍCULOS ── */
+function renderCadVeiculos() {
+  var el = document.getElementById('cadVeiculosList');
+  if (!el) return;
+  var h = '';
+  FROTA.forEach(function(v) {
+    var docsV = DOCUMENTOS.filter(function(d){return d.tipo==='veiculo'&&d.placa===v.placa;});
+    var vencendo = docsV.filter(function(d){return diasParaVencer(d.vencimento)<=90;}).length;
+    var stColor = v.status==='danger'?'var(--red)':v.status==='warn'?'#D97706':'var(--green)';
+    h += '<div class="card" style="margin-bottom:.6rem;border-left:3px solid '+stColor+'">'
+       + '<div style="display:flex;align-items:center;gap:.75rem">'
+       + '<div style="width:40px;height:40px;border-radius:var(--radius);background:var(--blue-bg);display:flex;align-items:center;justify-content:center"><i class="ti ti-truck" style="font-size:20px;color:var(--blue)"></i></div>'
+       + '<div style="flex:1">'
+       + '<div style="font-size:.875rem;font-weight:500">'+v.placa+' <span style="font-size:.75rem;color:var(--text3)">'+v.modelo+'</span></div>'
+       + '<div style="font-size:.78rem;color:var(--text3)">'+v.motorista+' · Carreta: '+v.carreta+'</div>'
+       + '</div>'
+       + (vencendo>0?'<span class="badge danger">'+vencendo+' doc vencendo</span>':'<span class="badge ok">Docs OK</span>')
+       + '<button onclick="openDocModal(\'veiculo\',\''+v.placa+'\',\''+v.placa+'\')" class="btn-primary btn-sm" style="margin-left:8px"><i class="ti ti-plus"></i></button>'
+       + '</div>'
+       + (docsV.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'
+         + docsV.map(function(d){
+             var st=statusVencimento(diasParaVencer(d.vencimento));
+             return '<span style="font-size:.72rem;padding:2px 8px;border-radius:999px;border:.5px solid var(--border);background:var(--surface2)">'
+               +d.documento+' · '+d.numero+' <span class="badge '+st.cls+'" style="font-size:.65rem">'+st.label+'</span>'
+               +'<button onclick="deleteDoc('+d.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0 2px">✕</button>'
+               +'</span>';
+           }).join('')
+         +'</div>':'')
+       + '</div>';
+  });
+  el.innerHTML = h;
+}
+
+/* ── DOCUMENTOS GERAL ── */
+function renderDocumentos() {
+  initDocumentos();
+  var el = document.getElementById('docsList');
+  if (!el) return;
+
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var alertas = DOCUMENTOS.filter(function(d){return diasParaVencer(d.vencimento)<=90;})
+                           .sort(function(a,b){return diasParaVencer(a.vencimento)-diasParaVencer(b.vencimento);});
+
+  var h = '';
+
+  /* Alertas no topo */
+  if (alertas.length) {
+    h += '<div class="card" style="margin-bottom:.75rem;border-left:3px solid var(--red)">'
+       + '<div class="card-title"><i class="ti ti-alert-triangle" style="color:var(--red)"></i> Documentos vencidos ou vencendo em 90 dias</div>';
+    alertas.forEach(function(d) {
+      var dias = diasParaVencer(d.vencimento);
+      var st = statusVencimento(dias);
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:.5px solid var(--border);font-size:.8rem">'
+         + '<span class="badge '+st.cls+'">'+st.label+'</span>'
+         + '<span style="font-weight:500">'+d.nome+'</span>'
+         + '<span style="color:var(--text3)">'+d.documento+'</span>'
+         + '<span style="color:var(--text3);margin-left:auto">Vence: '+formatDate(d.vencimento)+'</span>'
+         + '</div>';
+    });
+    h += '</div>';
+  }
+
+  /* Todos os docs agrupados por tipo */
+  ['motorista','veiculo'].forEach(function(tipo) {
+    var docs = DOCUMENTOS.filter(function(d){return d.tipo===tipo;})
+                          .sort(function(a,b){return diasParaVencer(a.vencimento)-diasParaVencer(b.vencimento);});
+    if (!docs.length) return;
+    h += '<div class="card" style="margin-bottom:.75rem">'
+       + '<div class="card-title"><i class="ti ti-'+(tipo==='motorista'?'user':'truck')+'" aria-hidden="true"></i> '
+       + (tipo==='motorista'?'Documentos dos motoristas':'Documentos dos veículos')+'</div>';
+    docs.forEach(function(d) {
+      var dias = diasParaVencer(d.vencimento);
+      var st = statusVencimento(dias);
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border)">'
+         + '<div style="flex:1">'
+         + '<div style="font-size:.82rem;font-weight:500">'+d.nome+' <span style="font-size:.72rem;color:var(--text3)">— '+d.documento+'</span></div>'
+         + '<div style="font-size:.72rem;color:var(--text3)">Nº '+d.numero+(d.obs?' · '+d.obs:'')+'</div>'
+         + '</div>'
+         + '<div style="text-align:right">'
+         + '<span class="badge '+st.cls+'">'+st.label+'</span>'
+         + '<div style="font-size:.72rem;color:var(--text3);margin-top:2px">'+formatDate(d.vencimento)+'</div>'
+         + '</div>'
+         + '<button onclick="deleteDoc('+d.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px;border-radius:4px"><i class="ti ti-trash"></i></button>'
+         + '</div>';
+    });
+    h += '</div>';
+  });
+
+  if (!DOCUMENTOS.length) h = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)">Nenhum documento cadastrado.</div>';
+  el.innerHTML = h;
+}
+
+/* ── MODAL DOCUMENTO ── */
+function openDocModal(tipo, placa, nome) {
+  var el = document.getElementById('modalDoc');
+  if (!el) return;
+  el.style.display = 'flex';
+  var title = document.getElementById('modalDocTitle');
+  if (title) title.textContent = 'Adicionar documento — ' + nome;
+  document.getElementById('docTipo').value = tipo;
+  document.getElementById('docPlaca').value = placa;
+  document.getElementById('docNome').value = nome;
+  document.getElementById('docDocumento').value = tipo==='motorista'?'CNH':'CRLV';
+  document.getElementById('docNumero').value = '';
+  document.getElementById('docVencimento').value = '';
+  document.getElementById('docObs').value = '';
+}
+
+function closeDocModal() {
+  var el = document.getElementById('modalDoc');
+  if (el) el.style.display = 'none';
+}
+
+function salvarDoc() {
+  var tipo       = document.getElementById('docTipo').value;
+  var placa      = document.getElementById('docPlaca').value;
+  var nome       = document.getElementById('docNome').value;
+  var documento  = document.getElementById('docDocumento').value.trim();
+  var numero     = document.getElementById('docNumero').value.trim();
+  var vencimento = document.getElementById('docVencimento').value;
+  var obs        = document.getElementById('docObs').value.trim();
+
+  if (!documento || !vencimento) { alert('Preencha o tipo de documento e a data de vencimento.'); return; }
+
+  DOCUMENTOS.push({ id:Date.now(), tipo:tipo, nome:nome, placa:placa, documento:documento, numero:numero||'—', vencimento:vencimento, obs:obs });
+  closeDocModal();
+  renderCadMotoristas(); renderCadVeiculos(); renderDocumentos();
+  saveDocsToSheets();
+  alert('Documento adicionado!');
+}
+
+function deleteDoc(id) {
+  if (!confirm('Remover este documento?')) return;
+  DOCUMENTOS = DOCUMENTOS.filter(function(d){return d.id!==id;});
+  renderCadMotoristas(); renderCadVeiculos(); renderDocumentos();
+  saveDocsToSheets();
+}
+
+/* ── RELATÓRIO MENSAL ── */
+function renderRelatorioMensal() {
+  var mesEl = document.getElementById('relMesSelect');
+  var anoEl = document.getElementById('relAnoSelect');
+  var mes = mesEl ? parseInt(mesEl.value) : (new Date().getMonth()+1);
+  var ano = anoEl ? parseInt(anoEl.value) : 2026;
+  var mesNome = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes];
+
+  var el = document.getElementById('relMensalConteudo');
+  if (!el) return;
+
+  /* Ocorrências do mês */
+  var occsDoMes = OCORRENCIAS.filter(function(o) {
+    if (!o.data) return false;
+    var p = o.data.split('/');
+    return parseInt(p[1])===mes && parseInt(p[2])===ano;
+  });
+
+  /* Lançamentos do mês */
+  var lancsDoMes = LANCAMENTOS.filter(function(l){return l.mes_num===mes;});
+  var totalLanc = lancsDoMes.reduce(function(a,b){return a+b.valor;},0);
+
+  /* Compras de pneu do mês */
+  var pneusDoMes = (typeof COMPRAS_PNEU!=='undefined') ? COMPRAS_PNEU.filter(function(c){return c.mes===mes&&c.ano===ano;}) : [];
+  var totalPneus = pneusDoMes.reduce(function(a,b){return a+b.valorTotal;},0);
+
+  var totalGeral = totalLanc + totalPneus;
+
+  var h = '';
+
+  /* Header */
+  h += '<div class="metrics-grid" style="margin-bottom:1rem">'
+     + '<div class="metric-card"><span class="metric-label">Mês</span><span class="metric-value" style="font-size:1rem">'+mesNome+'/'+ano+'</span></div>'
+     + '<div class="metric-card"><span class="metric-label">Ocorrências</span><span class="metric-value">'+occsDoMes.length+'</span></div>'
+     + '<div class="metric-card"><span class="metric-label">Lançamentos</span><span class="metric-value">'+lancsDoMes.length+'</span></div>'
+     + '<div class="metric-card"><span class="metric-label">Gasto total</span><span class="metric-value danger" style="font-size:1rem">R$\u00a0'+totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span></div>'
+     + '</div>';
+
+  /* Ocorrências */
+  h += '<div class="card" style="margin-bottom:.75rem">'
+     + '<div class="card-title"><i class="ti ti-clipboard-list"></i> Ocorrências — '+mesNome+'/'+ano+'</div>';
+  if (occsDoMes.length) {
+    occsDoMes.forEach(function(o){
+      var dc = o.status==='Urgente'?'danger':o.status==='Em breve'?'warn':'ok';
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border);font-size:.82rem">'
+         + '<span class="list-dot '+dc+'"></span>'
+         + '<div style="flex:1"><div style="font-weight:500">'+o.veiculo+' — '+o.servico+'</div>'
+         + '<div style="font-size:.75rem;color:var(--text3)">'+o.data+' · '+o.mec+'</div></div>'
+         + '<span class="badge '+dc+'">'+o.status+'</span>'
+         + (o.custo&&o.custo!=='—'?'<span style="font-weight:600;color:var(--text);font-size:.78rem">'+o.custo+'</span>':'')
+         + '</div>';
+    });
+  } else {
+    h += '<p style="color:var(--text3);font-size:.82rem;padding:.5rem">Nenhuma ocorrência neste mês.</p>';
+  }
+  h += '</div>';
+
+  /* Lançamentos financeiros */
+  h += '<div class="card" style="margin-bottom:.75rem">'
+     + '<div class="card-title"><i class="ti ti-receipt"></i> Lançamentos financeiros — '+mesNome+'/'+ano+'</div>';
+  if (lancsDoMes.length) {
+    lancsDoMes.forEach(function(l){
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border);font-size:.78rem">'
+         + '<span style="color:var(--text3);min-width:80px">'+l.data_br+'</span>'
+         + '<div style="flex:1">'+l.desc+'<div style="font-size:.72rem;color:var(--text3)">'+l.fornecedor+'</div></div>'
+         + (l.placa?'<span class="lanc-plate">'+l.placa+'</span>':'')
+         + '<span style="font-weight:600">R$\u00a0'+l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+         + '</div>';
+    });
+    h += '<div style="text-align:right;font-weight:700;font-size:.85rem;padding-top:.5rem;border-top:.5px solid var(--border);color:var(--red)">Total: R$\u00a0'+totalLanc.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</div>';
+  } else {
+    h += '<p style="color:var(--text3);font-size:.82rem;padding:.5rem">Nenhum lançamento neste mês.</p>';
+  }
+  h += '</div>';
+
+  /* Pneus */
+  if (pneusDoMes.length) {
+    h += '<div class="card" style="margin-bottom:.75rem">'
+       + '<div class="card-title"><i class="ti ti-circle-dashed"></i> Compras de pneus — '+mesNome+'/'+ano+'</div>';
+    pneusDoMes.forEach(function(c){
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border);font-size:.78rem">'
+         + '<span style="color:var(--text3);min-width:80px">'+c.data+'</span>'
+         + '<div style="flex:1">'+c.marca+' ('+c.qtd+' un)<div style="font-size:.72rem;color:var(--text3)">'+c.fornecedor+'</div></div>'
+         + '<span style="font-weight:600">R$\u00a0'+c.valorTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+         + '</div>';
+    });
+    h += '<div style="text-align:right;font-weight:700;font-size:.85rem;padding-top:.5rem;border-top:.5px solid var(--border);color:var(--red)">Total pneus: R$\u00a0'+totalPneus.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</div></div>';
+  }
+
+  /* Total geral */
+  h += '<div class="card" style="border:1.5px solid var(--amber);background:var(--amber-bg)">'
+     + '<div style="display:flex;align-items:center;justify-content:space-between">'
+     + '<span style="font-size:.9rem;font-weight:600;color:var(--amber-text)">TOTAL GERAL — '+mesNome+'/'+ano+'</span>'
+     + '<span style="font-size:1.2rem;font-weight:700;color:var(--red)">R$\u00a0'+totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+     + '</div></div>';
+
+  el.innerHTML = h;
+}
+
+/* ── SYNC OCORRÊNCIAS → FINANCEIRO ── */
+function syncOcorrenciaToFinanceiro(occ) {
+  if (!occ.custo || occ.custo === '—' || occ.custo === '') return;
+  var valorStr = occ.custo.replace('R$','').replace(/\./g,'').replace(',','.').trim();
+  var valor = parseFloat(valorStr);
+  if (!valor || valor <= 0) return;
+
+  /* Evita duplicatas */
+  var jaExiste = LANCAMENTOS.find(function(l){return l.desc===occ.servico&&l.valor===valor&&l.data_br===occ.data;});
+  if (jaExiste) return;
+
+  var p = occ.data ? occ.data.split('/') : [];
+  var mes_num = p.length===3 ? parseInt(p[1]) : (new Date().getMonth()+1);
+  var mesNomes = {1:'January',2:'February',3:'March',4:'April',5:'May',6:'June',7:'July',8:'August',9:'September',10:'October',11:'November',12:'December'};
+
+  var vdata = FROTA.find(function(f){return f.placa===occ.veiculo;});
+  var motorista = vdata ? vdata.motorista : '—';
+
+  LANCAMENTOS.unshift({
+    n: LANCAMENTOS.length + 1,
+    data_br: occ.data || new Date().toLocaleDateString('pt-BR'),
+    fornecedor: occ.mec || 'Manutenção',
+    desc: occ.servico || 'Manutenção',
+    placa: occ.veiculo || '',
+    motorista: motorista,
+    modelo: vdata ? vdata.modelo : '—',
+    valor: valor,
+    pagto: '',
+    mes: mesNomes[mes_num]+'/2026',
+    mes_num: mes_num
+  });
+}
+
+/* ── PATCH salvarRegistro para sincronizar com Financeiro ── */
+var _origSalvarReg = salvarRegistro;
+salvarRegistro = function() {
+  var lenAntes = OCORRENCIAS.length;
+  _origSalvarReg();
+  /* Se nova ocorrência foi adicionada, sincroniza com Financeiro */
+  if (OCORRENCIAS.length > lenAntes) {
+    var novaOcc = OCORRENCIAS[0];
+    syncOcorrenciaToFinanceiro(novaOcc);
+  }
+  /* Sempre atualiza financeiro em tempo real */
+  setTimeout(function() {
+    var finEl = document.getElementById('financeiro');
+    if (finEl && finEl.classList.contains('active')) {
+      renderFinanceiro();
+    }
+    renderPainelRanking();
+  }, 150);
+  saveToSheets();
+};
+
+/* ── SHEETS ── */
+function saveDocsToSheets() {
+  if (typeof gsWrite !== 'function') return;
+  var rows = [['id','tipo','nome','placa','documento','numero','vencimento','obs']];
+  DOCUMENTOS.forEach(function(d){rows.push([d.id,d.tipo,d.nome,d.placa,d.documento,d.numero,d.vencimento,d.obs]);});
+  gsWrite('documentos', rows);
+}
+
+function loadDocsFromSheets() {
+  if (typeof gsRead !== 'function') return;
+  gsRead('documentos').then(function(data){
+    if (data && data.length > 1) {
+      DOCUMENTOS = data.slice(1).filter(function(r){return r[0];}).map(function(r){
+        return {id:+r[0]||Date.now(),tipo:r[1]||'motorista',nome:r[2]||'',placa:r[3]||'',documento:r[4]||'',numero:r[5]||'',vencimento:r[6]||'',obs:r[7]||''};
+      });
+    } else {
+      initDocumentos();
+    }
+  }).catch(function(){initDocumentos();});
+}
+
+/* ── HOOK showTab ── */
+var _origSTcad = showTab;
+showTab = function(id) {
+  _origSTcad(id);
+  if (id==='cadastros') {
+    setTimeout(function(){showCadTab('motoristas');},60);
+  }
+  if (id==='relatorios') {
+    var today = new Date().toISOString().split('T')[0];
+    var rdEl = document.getElementById('relData');
+    if (rdEl && !rdEl.value) rdEl.value = today;
+    setTimeout(function(){renderRelatorio('','');},80);
+    /* Populate mensal selects */
+    var msEl = document.getElementById('relMesSelect');
+    if (msEl && !msEl.value) msEl.value = String(new Date().getMonth()+1);
+    var ayEl = document.getElementById('relAnoSelect');
+    if (ayEl && !ayEl.value) ayEl.value = '2026';
+  }
+};
+
+/* Init documentos ao carregar */
+initDocumentos();
+
+</script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     if (location.hostname === 'frotacontrol.github.io') {
-      navigator.serviceWorker.register('sw.js', { scope: '/frotacontrol/' })
-        .then(function(reg) { console.log('SW ok'); })
-        .catch(function(err) { console.log('SW err:', err); });
+      navigator.serviceWorker.register('sw.js', {scope:'/frotacontrol/'})
+        .then(function(r){console.log('SW ok');})
+        .catch(function(e){console.log('SW err:',e);});
     }
   });
 }
+window.addEventListener('load',function(){
+  var em=document.getElementById('loginEmail');
+  var ps=document.getElementById('loginPass');
+  if(em)em.value=''; if(ps)ps.value='';
+});
 </script>
 </body>
 </html>
