@@ -1,0 +1,3158 @@
+<!-- VERSAO: v18051855 -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Expresso PB — Sistema de Gestão de Frota">
+<meta name="theme-color" content="#0C1F3D">
+<title>Expresso PB — Frota v18051855</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ── RESET ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:#F4F6F9;color:#0F1923;font-size:14px;line-height:1.5;min-height:100vh}
+input,select,textarea,button{font-family:inherit;font-size:14px}
+textarea{resize:vertical}
+
+/* ── BRAND TOKENS ── */
+:root{
+  --navy:#0C1F3D;
+  --navy2:#162D50;
+  --navy3:#1E3A5F;
+  --amber:#F59E0B;
+  --amber-d:#D97706;
+  --amber-t:#1C1400;
+  --bg:#F4F6F9;
+  --surface:#FFFFFF;
+  --surface2:#EEF1F5;
+  --border:#D5DAE2;
+  --text:#0F1923;
+  --text2:#3D4B5C;
+  --text3:#6B7A8D;
+  --blue:#1A5FA8;
+  --blue-bg:#E8F0FB;
+  --blue-text:#0C3D73;
+  --green:#2D7A3A;
+  --green-bg:#E6F4E8;
+  --green-text:#1A4A22;
+  --amber-bg:#FEF3C7;
+  --amber-text:#7A3C00;
+  --red:#C0392B;
+  --red-bg:#FDECEA;
+  --red-text:#7A1F18;
+  --radius:6px;
+  --radius-lg:10px;
+}
+
+/* ── SCREENS ── */
+.screen{display:none}.screen.active{display:block}
+
+/* ── LOGIN ── */
+.login-bg{min-height:100vh;background:var(--navy);display:flex;align-items:center;justify-content:center;padding:2rem 1rem}
+.login-card{background:#fff;border-radius:var(--radius-lg);padding:2rem 1.75rem;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.login-brand{text-align:center;margin-bottom:1.5rem}
+.login-brand-icon{width:52px;height:52px;border-radius:10px;background:var(--amber);display:flex;align-items:center;justify-content:center;margin:0 auto .75rem}
+.login-brand-icon i{font-size:26px;color:var(--amber-t)}
+.login-brand h1{font-size:1.4rem;font-weight:600;color:var(--navy)}
+.login-brand p{font-size:.8rem;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.profiles-label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:.5rem}
+.profile-btn{width:100%;display:flex;align-items:center;gap:.75rem;padding:.65rem .9rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);cursor:pointer;margin-bottom:.5rem;text-align:left;transition:border-color .15s,background .15s}
+.profile-btn:hover{border-color:var(--amber);background:var(--amber-bg)}
+.profile-icon{width:34px;height:34px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.profile-icon.admin{background:#DBEAFE;color:#1D4ED8}
+.profile-icon.gestor{background:#EDE9FE;color:#7C3AED}
+.profile-icon.mec{background:#DCFCE7;color:#15803D}
+.profile-info{flex:1}
+.profile-name{display:block;font-size:.85rem;font-weight:500;color:var(--text)}
+.profile-desc{display:block;font-size:.75rem;color:var(--text3)}
+.profile-tag{font-size:.7rem;padding:2px 8px;border-radius:999px;font-weight:500;flex-shrink:0}
+.login-divider{height:.5px;background:var(--border);margin:1rem 0}
+.login-field{margin-bottom:.75rem}
+.login-field label{display:block;font-size:.8rem;font-weight:500;color:var(--text2);margin-bottom:.3rem}
+.login-field input{width:100%;padding:.55rem .75rem;border:1px solid var(--border);border-radius:var(--radius);color:var(--text);transition:border-color .15s}
+.login-field input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+.login-error{font-size:.8rem;color:var(--red);background:var(--red-bg);padding:.5rem .75rem;border-radius:var(--radius);margin-bottom:.75rem;display:none}
+.btn-login{width:100%;padding:.65rem;border-radius:var(--radius);background:var(--amber);color:var(--amber-t);border:none;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:background .15s}
+.btn-login:hover{background:var(--amber-d)}
+.login-footer{text-align:center;font-size:.75rem;color:var(--text3);margin-top:1.25rem}
+
+/* ── APP LAYOUT ── */
+.app-layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:230px;flex-shrink:0;background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .25s ease}
+.sidebar-top{display:flex;align-items:center;justify-content:space-between;padding:1rem 1rem .75rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.sidebar-logo{display:flex;align-items:center;gap:.6rem}
+.sidebar-logo-icon{width:32px;height:32px;border-radius:7px;background:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-icon i{font-size:18px;color:var(--amber-t)}
+.sidebar-logo-text{line-height:1.2}
+.sidebar-logo-name{font-size:.9rem;font-weight:600;color:#fff}
+.sidebar-logo-sub{font-size:.65rem;color:#64748B;text-transform:uppercase;letter-spacing:.05em}
+.sidebar-close{display:none;background:none;border:none;color:#64748B;font-size:18px;cursor:pointer}
+.sidebar-nav{flex:1;padding:.75rem .5rem;overflow-y:auto}
+.nav-sep{height:1px;background:rgba(255,255,255,.06);margin:.5rem .5rem}
+.nav-item{display:flex;align-items:center;gap:.65rem;padding:.6rem .75rem;border-radius:var(--radius);color:#94A3B8;font-size:.875rem;cursor:pointer;text-decoration:none;margin-bottom:2px;transition:background .12s,color .12s;position:relative}
+.nav-item i{font-size:17px;flex-shrink:0}
+.nav-item:hover{background:var(--navy2);color:#fff}
+.nav-item.active{background:var(--navy3);color:var(--amber);font-weight:500}
+.nav-badge{margin-left:auto;font-size:.7rem;padding:1px 7px;border-radius:999px;font-weight:500;background:var(--red-bg);color:var(--red-text)}
+.sidebar-user{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-top:1px solid rgba(255,255,255,.07)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--amber);color:var(--amber-t);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
+.user-meta{flex:1;min-width:0}
+.user-name{display:block;font-size:.8rem;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-email{display:block;font-size:.68rem;color:#64748B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-logout{background:none;border:none;color:#64748B;font-size:17px;cursor:pointer;padding:4px;border-radius:var(--radius);flex-shrink:0}
+.btn-logout:hover{color:#F87171}
+
+/* MAIN */
+.main-content{flex:1;margin-left:230px;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;gap:.75rem;padding:.75rem 1.5rem;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;z-index:50}
+.menu-toggle{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:#94A3B8}
+.page-title{font-size:1rem;font-weight:600;flex:1;color:#fff}
+.topbar-right{display:flex;align-items:center;gap:.6rem}
+.role-chip{font-size:.75rem;padding:3px 10px;border-radius:999px;font-weight:500;background:var(--amber);color:var(--amber-t)}
+.topbar-avatar{width:30px;height:30px;border-radius:50%;background:var(--amber);color:var(--amber-t);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+
+.content-area{flex:1;padding:1.5rem;max-width:960px}
+.tab-section{display:none}.tab-section.active{display:block}
+
+/* ── COMPONENTS ── */
+.alert-bar{display:flex;align-items:center;gap:.6rem;background:var(--amber-bg);border:1px solid #FCD34D;border-radius:var(--radius);padding:.65rem .9rem;font-size:.85rem;color:var(--amber-text);margin-bottom:1rem}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:var(--radius);padding:.9rem 1rem}
+.metric-label{display:block;font-size:.75rem;color:var(--text3);margin-bottom:.3rem}
+.metric-value{display:block;font-size:1.6rem;font-weight:600;color:var(--text)}
+.metric-value.warn{color:#D97706}.metric-value.danger{color:var(--red)}.metric-value.ok{color:var(--green)}.metric-value.purple{color:#7C3AED}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.1rem;margin-bottom:.9rem}
+.card-title{font-size:.875rem;font-weight:600;color:var(--text);margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
+.card-title i{font-size:16px;color:var(--amber)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+
+.list-item{display:flex;align-items:flex-start;gap:.7rem;padding:.6rem 0;border-bottom:1px solid var(--border)}
+.list-item:last-child{border-bottom:none}
+.list-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.list-dot.danger{background:var(--red)}.list-dot.warn{background:#D97706}
+.list-dot.ok{background:var(--green)}.list-dot.blue{background:var(--blue)}
+.list-dot.purple{background:#7C3AED}.list-dot.teal{background:#0F6E56}
+.list-info{flex:1}
+.list-info strong{display:block;font-size:.85rem;font-weight:500;color:var(--text)}
+.list-info span{display:block;font-size:.78rem;color:var(--text3);margin-top:1px}
+
+.badge{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap}
+.badge.danger{background:var(--red-bg);color:var(--red-text)}.badge.warn{background:var(--amber-bg);color:var(--amber-text)}
+.badge.ok{background:var(--green-bg);color:var(--green-text)}.badge.blue{background:var(--blue-bg);color:var(--blue-text)}
+.badge.purple{background:#EDE9FE;color:#5B21B6}.badge.teal{background:#E0F4EF;color:#084D3C}.badge.gray{background:var(--surface2);color:var(--text2)}
+
+.btn-primary{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:var(--radius);background:var(--amber);color:var(--amber-t);border:none;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .12s}
+.btn-primary:hover{background:var(--amber-d)}
+.btn-primary.btn-full{width:100%;justify-content:center;padding:.7rem}
+.btn-secondary{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:var(--radius);background:var(--surface);color:var(--text);border:1px solid var(--border);font-family:inherit;cursor:pointer;transition:background .12s}
+.btn-secondary:hover{background:var(--surface2)}
+.btn-sm{padding:.35rem .75rem;font-size:.8rem}
+.btn-xs{padding:.25rem .6rem;font-size:.75rem}
+.btn-amber-sm{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .75rem;border-radius:var(--radius);background:var(--amber-bg);color:var(--amber-text);border:1px solid #FCD34D;font-size:.8rem;cursor:pointer}
+.btn-teal-sm{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .75rem;border-radius:var(--radius);background:#E0F4EF;color:#084D3C;border:1px solid #5DCAA5;font-size:.8rem;cursor:pointer}
+.btn-danger-sm{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .75rem;border-radius:var(--radius);background:var(--red-bg);color:var(--red-text);border:1px solid #F09595;font-size:.8rem;cursor:pointer}
+
+.section-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:.75rem;flex-wrap:wrap}
+.section-heading{font-size:.95rem;font-weight:600}
+.filter-chips{display:flex;gap:.4rem;flex-wrap:wrap}
+.chip{font-size:.8rem;padding:.3rem .75rem;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .12s}
+.chip:hover{border-color:var(--amber);color:var(--amber-text)}
+.chip.active{background:var(--amber-bg);color:var(--amber-text);border-color:#FCD34D;font-weight:500}
+.filter-select{padding:.35rem .6rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);cursor:pointer;font-size:.82rem}
+
+/* PNEUS */
+.pneu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.9rem}
+.pneu-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem}
+.pneu-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.pneu-ico{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:18px}
+.pneu-name{font-size:.875rem;font-weight:500;color:var(--text)}
+.pneu-sub{font-size:.78rem;color:var(--text3);margin-top:2px}
+.pneu-bar-wrap{margin:.6rem 0}
+.pneu-bar-labels{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text3);margin-bottom:4px}
+.pneu-bar-bg{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.pneu-bar-fill{height:100%;border-radius:3px}
+.pneu-meta{font-size:.75rem;color:var(--text3);margin-bottom:.6rem}
+.pneu-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+
+/* FROTA */
+.frota-list{display:flex;flex-direction:column;gap:.6rem}
+.frota-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.frota-hd{display:flex;align-items:center;gap:.75rem;padding:.8rem 1rem;cursor:pointer;transition:background .12s}
+.frota-hd:hover{background:var(--surface2)}
+.frota-hd-icon{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.frota-hd-info{flex:1}
+.frota-hd-name{font-size:.875rem;font-weight:500;color:var(--text)}
+.frota-hd-sub{font-size:.78rem;color:var(--text3);margin-top:1px}
+.frota-hd-chev{font-size:16px;color:var(--text3);transition:transform .2s;margin-left:6px}
+.frota-hd-chev.open{transform:rotate(180deg)}
+.frota-bd{border-top:1px solid var(--border);padding:.9rem 1rem;display:none}
+.frota-bd.open{display:block}
+.frota-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:.75rem}
+.fi-label{font-size:.75rem;color:var(--text3);margin-bottom:2px}
+.fi-val{font-size:.85rem;font-weight:500;color:var(--text)}
+.frota-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:.75rem;padding-bottom:.9rem;position:relative}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:10px;top:22px;bottom:0;width:1px;background:var(--border)}
+.tl-dot{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.tl-dot.blue{background:var(--blue-bg);color:var(--blue-text)}.tl-dot.purple{background:#EDE9FE;color:#5B21B6}.tl-dot.green{background:var(--green-bg);color:var(--green-text)}
+.tl-title{font-size:.85rem;font-weight:500;color:var(--text)}
+.tl-sub{font-size:.78rem;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+
+/* DATE INLINE */
+.date-edit-wrap{display:inline-flex;align-items:center;gap:.3rem}
+.date-val{font-size:.78rem;color:var(--text3)}
+.date-edit-btn{background:none;border:none;cursor:pointer;color:var(--amber);font-size:.75rem;padding:1px 4px;border-radius:4px}
+.date-edit-btn:hover{background:var(--amber-bg)}
+.date-input-inline{font-size:.78rem;padding:2px 6px;border-radius:4px;border:1px solid var(--amber);background:var(--surface);color:var(--text)}
+
+/* OCC CARDS */
+.occ-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.85rem 1rem;margin-bottom:.6rem}
+.occ-meta{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--text3);flex-wrap:wrap}
+.occ-desc{font-size:.8rem;color:var(--text2);background:var(--surface2);padding:.45rem .7rem;border-radius:var(--radius);margin-top:.5rem;line-height:1.5}
+
+/* REGISTER */
+.reg-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.5rem}
+.reg-type-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;padding:.9rem .5rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.82rem;font-weight:500;color:var(--text2);transition:all .12s}
+.reg-type-btn i{font-size:22px}
+.reg-type-btn:hover{border-color:var(--amber);color:var(--amber-text);background:var(--amber-bg)}
+.reg-type-btn.selected{border-color:var(--amber);background:var(--amber-bg);color:var(--amber-text)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.form-trio{grid-template-columns:1fr 1fr 1fr}
+.form-field{margin-bottom:.75rem}
+.form-field label{display:block;font-size:.8rem;font-weight:500;color:var(--text2);margin-bottom:.3rem}
+.form-field input,.form-field select,.form-field textarea{width:100%;padding:.55rem .75rem;border:1px solid var(--border);border-radius:var(--radius);color:var(--text);background:var(--surface)}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+.reg-form{margin-top:.75rem}
+
+/* PERM TABLE */
+.perm-table{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.perm-header,.perm-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr}
+.perm-header span,.perm-row span{padding:.5rem .75rem;font-size:.8rem;border-bottom:1px solid var(--border)}
+.perm-header span{font-weight:600;background:var(--surface2);color:var(--text2)}
+.perm-row:last-child span{border-bottom:none}
+.perm-row span:not(:first-child){text-align:center}
+.py{color:var(--green);font-weight:600}.pn{color:var(--text3)}
+
+/* IA */
+.ia-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.ia-input-row{display:flex;gap:.6rem;margin-bottom:1rem}
+.ia-input-row input{flex:1}
+.ia-response{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem}
+.ia-resp-header{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--text3);margin-bottom:.6rem}
+.ia-dot{width:7px;height:7px;border-radius:50%;background:var(--amber)}
+.ia-resp-body{font-size:.875rem;color:var(--text);line-height:1.65}
+
+/* FINANCEIRO */
+.fin-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1rem}
+.rank-item{display:flex;align-items:center;gap:.6rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
+.rank-item:last-child{border-bottom:none}
+.rank-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
+.rank-num.r1{background:#FFD700;color:#7A5C00}.rank-num.r2{background:#C0C0C0;color:#444}.rank-num.r3{background:#CD7F32;color:#fff}.rank-num.rn{background:var(--surface2);color:var(--text2)}
+.rank-bar-wrap{flex:1}
+.rank-name{font-size:.82rem;font-weight:500;color:var(--text)}
+.rank-bar-bg{height:5px;background:var(--surface2);border-radius:3px;margin-top:3px;overflow:hidden}
+.rank-bar-fill{height:100%;border-radius:3px}
+.rank-val{font-size:.8rem;font-weight:600;color:var(--text);white-space:nowrap}
+.lanc-row{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.lanc-row:last-child{border-bottom:none}
+.lanc-date{color:var(--text3);white-space:nowrap;min-width:82px;font-size:.75rem;margin-top:1px}
+.lanc-desc{flex:1;color:var(--text)}.lanc-desc .lanc-sub{font-size:.75rem;color:var(--text3);margin-top:1px}
+.lanc-val{font-weight:600;color:var(--text);white-space:nowrap}
+.lanc-plate{font-size:.72rem;padding:1px 6px;border-radius:4px;background:var(--blue-bg);color:var(--blue-text);font-weight:500;white-space:nowrap}
+
+/* SYNC BAR */
+.sync-bar{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);font-size:.82rem;padding:.5rem 1.1rem;border-radius:var(--radius);z-index:800;box-shadow:0 2px 12px rgba(0,0,0,.25);font-family:inherit;white-space:nowrap;transition:opacity .3s;display:none;color:#fff}
+
+/* ACCESS DENIED */
+.access-denied{text-align:center;padding:3rem 2rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.access-denied i{font-size:36px;color:var(--text3);display:block;margin-bottom:.75rem}
+.access-denied p{font-size:1rem;font-weight:600;margin-bottom:.35rem}
+.access-denied small{color:var(--text3);font-size:.82rem}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:3rem 1rem}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:500px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)}
+.modal-title-text{font-size:.95rem;font-weight:600}
+.modal-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3);padding:2px;border-radius:var(--radius)}
+.modal-close:hover{background:var(--surface2)}
+.modal-body{padding:1.1rem 1.25rem}
+.modal-footer{display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.25rem;border-top:1px solid var(--border)}
+
+/* TOAST */
+.toast{display:none;position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:.6rem 1rem;border-radius:var(--radius);font-size:.85rem;align-items:center;gap:.5rem;z-index:600}
+.toast.show{display:flex}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  .sidebar-close{display:block}.main-content{margin-left:0}.menu-toggle{display:block}
+  .two-col{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}
+  .form-trio{grid-template-columns:1fr 1fr}.metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .frota-info-grid{grid-template-columns:1fr 1fr}.reg-type-grid{grid-template-columns:1fr 1fr}
+  .content-area{padding:1rem}.pneu-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){.pneu-grid{grid-template-columns:1fr}.metrics-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-brand-icon"><i class="ti ti-truck" aria-hidden="true"></i></div>
+        <h1>Expresso PB</h1>
+        <p>Sistema de Gestão de Frota</p>
+      </div>
+
+      <p class="profiles-label">Entrar como:</p>
+      <button class="profile-btn" onclick="fillLogin('daphinin@frotaexpressopb.com','121909')">
+        <span class="profile-icon admin"><i class="ti ti-shield-check"></i></span>
+        <span class="profile-info"><span class="profile-name">Administrador</span><span class="profile-desc">Acesso total ao sistema</span></span>
+        <span class="profile-tag" style="background:#DBEAFE;color:#1E40AF">admin</span>
+      </button>
+      <button class="profile-btn" onclick="fillLogin('gestor@frota.com','gest123')">
+        <span class="profile-icon gestor"><i class="ti ti-chart-bar"></i></span>
+        <span class="profile-info"><span class="profile-name">Gestor</span><span class="profile-desc">Relatórios e financeiro</span></span>
+        <span class="profile-tag" style="background:#EDE9FE;color:#6D28D9">gestor</span>
+      </button>
+      <button class="profile-btn" onclick="fillLogin('mecanico@frota.com','mec123')">
+        <span class="profile-icon mec"><i class="ti ti-tool"></i></span>
+        <span class="profile-info"><span class="profile-name">Mecânico</span><span class="profile-desc">Registra e anexa arquivos</span></span>
+        <span class="profile-tag" style="background:#DCFCE7;color:#166534">mecânico</span>
+      </button>
+
+      <div class="login-divider"></div>
+
+      <div class="login-field"><label for="loginEmail">E-mail</label><input type="email" id="loginEmail" placeholder="seu@empresa.com.br" autocomplete="email"></div>
+      <div class="login-field"><label for="loginPass">Senha</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="login-error" id="loginError">E-mail ou senha incorretos.</div>
+      <button class="btn-login" onclick="doLogin()"><i class="ti ti-login" aria-hidden="true"></i> Entrar</button>
+      <p class="login-footer">Expresso PB Transportes Ltda &copy; 2026</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="appScreen" class="screen">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon"><i class="ti ti-truck" aria-hidden="true"></i></div>
+          <div class="sidebar-logo-text">
+            <div class="sidebar-logo-name">Expresso PB</div>
+            <div class="sidebar-logo-sub">Gestão de Frota</div>
+          </div>
+        </div>
+        <button class="sidebar-close" onclick="toggleSidebar()" aria-label="Fechar menu"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-tab="painel" onclick="showTab('painel')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><span>Painel</span></a>
+        <a class="nav-item" data-tab="pneus" onclick="showTab('pneus')"><i class="ti ti-circle-dashed" aria-hidden="true"></i><span>Pneus</span><span class="nav-badge" id="navBadgePneus">2</span></a>
+        <a class="nav-item" data-tab="frota" onclick="showTab('frota')"><i class="ti ti-truck" aria-hidden="true"></i><span>Frota</span></a>
+        <a class="nav-item" data-tab="ocorrencias" onclick="showTab('ocorrencias')"><i class="ti ti-clipboard-list" aria-hidden="true"></i><span>Ocorrências</span></a>
+        <a class="nav-item admin-only" data-tab="lembretes" onclick="showTab('lembretes')"><i class="ti ti-bell" aria-hidden="true"></i><span>Lembretes</span><span class="nav-badge" id="lembretesBadge" style="background:#F59E0B;color:#1C1400">3</span></a>
+        <a class="nav-item" data-tab="cadastros" onclick="showTab('cadastros')"><i class="ti ti-users" aria-hidden="true"></i><span>Cadastros</span></a>
+        <a class="nav-item" data-tab="relatorios" onclick="showTab('relatorios')"><i class="ti ti-file-report" aria-hidden="true"></i><span>Relatórios</span></a>
+        <a class="nav-item" data-tab="registrar" onclick="showTab('registrar')" id="navRegistrar"><i class="ti ti-plus" aria-hidden="true"></i><span>Registrar</span></a>
+        <div class="nav-sep"></div>
+        <a class="nav-item" data-tab="financeiro" onclick="showTab('financeiro')"><i class="ti ti-cash" aria-hidden="true"></i><span>Financeiro</span></a>
+        <a class="nav-item" data-tab="permissoes" onclick="showTab('permissoes')" id="navPermissoes"><i class="ti ti-shield" aria-hidden="true"></i><span>Permissões</span></a>
+        <a class="nav-item" data-tab="ia" onclick="showTab('ia')"><i class="ti ti-sparkles" aria-hidden="true"></i><span>Assistente IA</span></a>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="user-avatar" id="sidebarAvatar">DI</div>
+        <div class="user-meta">
+          <span class="user-name" id="sidebarName">Administrador</span>
+          <span class="user-email" id="sidebarEmail">DAPHININ</span>
+        </div>
+        <button class="btn-logout" onclick="doLogout()" aria-label="Sair"><i class="ti ti-logout" aria-hidden="true"></i></button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <header class="topbar">
+        <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu"><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+        <h2 class="page-title" id="pageTitle">Painel</h2>
+        <div class="topbar-right">
+          <span class="role-chip" id="roleChip">Admin</span>
+          <div class="topbar-avatar" id="topbarAvatar">DI</div>
+        </div>
+      </header>
+
+      <div class="content-area">
+
+        <!-- PAINEL -->
+        <section id="painel" class="tab-section active">
+          <div id="alertBar" class="alert-bar"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span>RLR-1H73 crítico (Sérgio) · QYA-6G28 imobilizado (Cícero) · QYA-3I45 balão furado (Marcos)</span></div>
+          <div class="metrics-grid">
+            <div class="metric-card"><span class="metric-label">Caminhões ativos</span><span class="metric-value">8</span></div>
+            <div class="metric-card"><span class="metric-label">Urgentes / críticos</span><span class="metric-value danger">3</span></div>
+            <div class="metric-card"><span class="metric-label">Pendentes</span><span class="metric-value warn">4</span></div>
+            <div class="metric-card"><span class="metric-label">Em dia</span><span class="metric-value ok">1</span></div>
+            <div class="metric-card financial-only"><span class="metric-label">Custo total 2026</span><span class="metric-value" style="font-size:1.1rem">R$&nbsp;79.460</span></div>
+          </div>
+          <div class="two-col" style="margin-bottom:.9rem">
+            <div class="card">
+              <div class="card-title"><i class="ti ti-bell" style="color:var(--amber)" aria-hidden="true"></i> Lembretes do dia
+                <button onclick="showTab('lembretes')" class="btn-amber-sm btn-xs admin-only" style="margin-left:auto;font-size:.68rem">Ver todos</button>
+              </div>
+              <div id="painelLembretes"><div style="font-size:.82rem;color:var(--text3);padding:.5rem 0">Carregando...</div></div>
+            </div>
+            <div class="card">
+              <div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Status da frota</div>
+              <div class="list-item"><span class="list-dot danger"></span><div class="list-info"><strong>RLR-1H73 — Sérgio Soares</strong><span>Força, elétrica, pneus tração, eixo truck</span></div><span class="badge danger">Crítico</span></div>
+              <div class="list-item"><span class="list-dot danger"></span><div class="list-info"><strong>QYA-6G28 — Cícero E.</strong><span>Imobilizado desde 30/04</span></div><span class="badge danger">Urgente</span></div>
+              <div class="list-item"><span class="list-dot warn"></span><div class="list-info"><strong>QYA-3I45 — Marcos Antônio</strong><span>Balão de ar grande furado</span></div><span class="badge warn">Pendente</span></div>
+              <div class="list-item"><span class="list-dot warn"></span><div class="list-info"><strong>RLU-7G93 — Joel</strong><span>Na oficina — molas e suspensão</span></div><span class="badge warn">Reparo</span></div>
+              <div class="list-item"><span class="list-dot ok"></span><div class="list-info"><strong>QSH-9C56 — Carlos A.</strong><span>Sem ocorrência</span></div><span class="badge ok">Em dia</span></div>
+            </div>
+            <div class="card">
+              <div class="card-title"><i class="ti ti-trophy" aria-hidden="true"></i> Maior custo — motoristas</div>
+              <div class="fin-rank" id="painelRanking"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PNEUS -->
+        <section id="pneus" class="tab-section">
+          <div class="section-toolbar">
+            <div class="filter-chips" id="pneuFilters">
+              <button class="chip active" onclick="filterPneus(this,'todos')">Todos</button>
+              <button class="chip" onclick="filterPneus(this,'novo')">Pneus novos</button>
+              <button class="chip" onclick="filterPneus(this,'recapado')">Recapados</button>
+              <button class="chip" onclick="filterPneus(this,'critico')">Críticos</button>
+            </div>
+            <button class="btn-primary" onclick="openRegister(1)"><i class="ti ti-plus" aria-hidden="true"></i> Registrar pneu</button>
+          </div>
+          <div class="pneu-grid" id="pneuGrid"></div>
+        </section>
+
+        <!-- FROTA -->
+        <section id="frota" class="tab-section">
+          <div class="section-toolbar">
+            <h3 class="section-heading">Gestão de frota</h3>
+            <button class="btn-primary" onclick="openRegister(3)"><i class="ti ti-plus" aria-hidden="true"></i> Novo veículo / troca</button>
+          </div>
+          <div id="frotaList" class="frota-list"></div>
+          <div class="card" style="margin-top:1rem">
+            <div class="card-title"><i class="ti ti-history" aria-hidden="true"></i> Histórico de trocas</div>
+            <div class="timeline" id="trocaTimeline"></div>
+          </div>
+        </section>
+
+        <!-- OCORRÊNCIAS -->
+        <section id="ocorrencias" class="tab-section">
+          <div class="section-toolbar filters-bar" style="justify-content:flex-start;gap:.5rem">
+            <select id="filtroStatus" onchange="renderOcorrencias()" class="filter-select"><option value="">Todos os status</option><option>Urgente</option><option>Em breve</option><option>Concluído</option></select>
+            <select id="filtroVei" onchange="renderOcorrencias()" class="filter-select"><option value="">Todos os veículos</option><option>RLR-1H73</option><option>QYA-3I45</option><option>QYA-6G28</option><option>QSK-2H66</option><option>QSH-9C56</option><option>RLU-7G93</option><option>OYM-4G46</option><option>QYB-2A80</option></select>
+            <select id="filtroTipo" onchange="renderOcorrencias()" class="filter-select"><option value="">Todos os tipos</option><option>Manutenção</option><option>Pneu novo</option><option>Recapagem</option><option>Troca de veículo</option></select>
+          </div>
+          <div id="occList"></div>
+        </section>
+
+
+
+        <!-- LEMBRETES (só admin) -->
+        <section id="lembretes" class="tab-section">
+          <div class="section-toolbar">
+            <h3 class="section-heading">Lembretes e alertas</h3>
+            <button class="btn-primary btn-sm" onclick="openLembreteModal(null)">
+              <i class="ti ti-plus" aria-hidden="true"></i> Novo lembrete
+            </button>
+          </div>
+
+          <div id="lembretesLista"></div>
+
+          <!-- MODAL LEMBRETE -->
+          <div id="modalLembrete" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
+            <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:460px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
+                <span style="font-size:.95rem;font-weight:600">Lembrete</span>
+                <button onclick="closeLembreteModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
+              </div>
+              <div style="padding:1rem 1.1rem">
+                <input type="hidden" id="lembId">
+                <div class="form-field"><label>Título</label><input type="text" id="lembTitulo" placeholder="Ex: Renovar CNH do motorista"></div>
+                <div class="form-field"><label>Descrição</label><textarea id="lembDesc" rows="2" placeholder="Detalhes..."></textarea></div>
+                <div class="form-row">
+                  <div class="form-field"><label>Prioridade</label>
+                    <select id="lembPrioridade">
+                      <option value="alta">🔴 Alta</option>
+                      <option value="media" selected>🟡 Média</option>
+                      <option value="baixa">🟢 Baixa</option>
+                    </select>
+                  </div>
+                  <div class="form-field"><label>Data limite</label><input type="date" id="lembData"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
+                <button class="btn-secondary" onclick="closeLembreteModal()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarLembrete()"><i class="ti ti-device-floppy"></i> Salvar</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CADASTROS -->
+        <section id="cadastros" class="tab-section">
+          <div style="display:flex;gap:.4rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.75rem;flex-wrap:wrap">
+            <button class="chip active" id="ctab-motoristas" onclick="showCadTab('motoristas')">👤 Motoristas</button>
+            <button class="chip" id="ctab-veiculos"   onclick="showCadTab('veiculos')">🚛 Veículos</button>
+            <button class="chip" id="ctab-documentos" onclick="showCadTab('documentos')">📋 Documentos</button>
+          </div>
+          <div id="cad-tab-motoristas">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+              <span style="font-size:.875rem;font-weight:600">Motoristas da frota</span>
+              <button class="btn-primary btn-sm" onclick="openDocModal('motorista','','')"><i class="ti ti-plus"></i> Adicionar documento</button>
+            </div>
+            <div id="cadMotoristasList"></div>
+          </div>
+          <div id="cad-tab-veiculos" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+              <span style="font-size:.875rem;font-weight:600">Veículos da frota</span>
+              <button class="btn-primary btn-sm" onclick="openDocModal('veiculo','','')"><i class="ti ti-plus"></i> Adicionar documento</button>
+            </div>
+            <div id="cadVeiculosList"></div>
+          </div>
+          <div id="cad-tab-documentos" style="display:none">
+            <div id="docsList"></div>
+          </div>
+
+          <!-- MODAL DOCUMENTO -->
+          <div id="modalDoc" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
+            <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:460px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
+                <span id="modalDocTitle" style="font-size:.95rem;font-weight:600">Adicionar documento</span>
+                <button onclick="closeDocModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
+              </div>
+              <div style="padding:1rem 1.1rem">
+                <input type="hidden" id="docTipo"><input type="hidden" id="docPlaca"><input type="hidden" id="docNome">
+                <div class="form-row">
+                  <div class="form-field"><label>Tipo de documento</label>
+                    <select id="docDocumento">
+                      <option>CNH</option><option>CRLV</option><option>Tacografo</option>
+                      <option>Seguro</option><option>Exame médico</option><option>Certificado RNTRC</option>
+                      <option>Vistoria</option><option>Licença</option><option>Outro</option>
+                    </select>
+                  </div>
+                  <div class="form-field"><label>Número / Protocolo</label><input type="text" id="docNumero" placeholder="Ex: 12345678"></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-field"><label>Vencimento</label><input type="date" id="docVencimento"></div>
+                  <div class="form-field"><label>Observações</label><input type="text" id="docObs" placeholder="Opcional"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
+                <button class="btn-secondary" onclick="closeDocModal()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarDoc()"><i class="ti ti-device-floppy"></i> Salvar</button>
+              </div>
+            </div>
+          </div>
+        
+          <!-- MODAL EDITAR OCORRÊNCIA -->
+          <div id="modalOcorrencia" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto">
+            <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;border-bottom:1px solid var(--border)">
+                <span style="font-size:.95rem;font-weight:600"><i class="ti ti-clipboard-list"></i> Editar ocorrência</span>
+                <button onclick="closeOcorrenciaModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3)"><i class="ti ti-x"></i></button>
+              </div>
+              <div style="padding:1rem 1.1rem">
+                <input type="hidden" id="occEditId">
+                <div class="form-row">
+                  <div class="form-field"><label>Veículo</label>
+                    <select id="occEditVeiculo">
+                      <option>RLR-1H73</option><option>QYA-3I45</option><option>QYA-6G28</option>
+                      <option>QSK-2H66</option><option>QSH-9C56</option><option>RLU-7G93</option>
+                      <option>OYM-4G46</option><option>QYB-2A80</option><option>FROTA</option>
+                    </select>
+                  </div>
+                  <div class="form-field"><label>Tipo</label>
+                    <select id="occEditTipo">
+                      <option>Manutencao</option><option>Pneu novo</option><option>Recapagem</option>
+                      <option>Troca de veiculo</option><option>Preventiva</option><option>Corretiva</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-field"><label>Serviço / Descrição curta</label>
+                  <input type="text" id="occEditServico" placeholder="Ex: Troca de freios">
+                </div>
+                <div class="form-row">
+                  <div class="form-field"><label>Data</label><input type="date" id="occEditData"></div>
+                  <div class="form-field"><label>Status</label>
+                    <select id="occEditStatus">
+                      <option>Urgente</option><option>Em breve</option><option>Concluido</option>
+                      <option>Em andamento</option><option>Aguardando peca</option><option>Cancelado</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-field"><label>Mecânico / Oficina</label>
+                    <input type="text" id="occEditMec" placeholder="Ex: Turbo Freio">
+                  </div>
+                  <div class="form-field financial-only"><label>Custo (R$)</label>
+                    <input type="number" id="occEditCusto" placeholder="0,00" step="0.01">
+                  </div>
+                </div>
+                <div class="form-field"><label>Descrição detalhada</label>
+                  <textarea id="occEditDesc" rows="3" placeholder="Detalhes da ocorrência..."></textarea>
+                </div>
+              </div>
+              <div style="display:flex;gap:.6rem;justify-content:flex-end;padding:.85rem 1.1rem;border-top:1px solid var(--border)">
+                <button class="btn-secondary" onclick="closeOcorrenciaModal()">Cancelar</button>
+                <button class="btn-primary" onclick="salvarEdicaoOcorrencia()"><i class="ti ti-device-floppy"></i> Salvar alterações</button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- RELATÓRIOS -->
+        <section id="relatorios" class="tab-section">
+          <div class="section-toolbar" style="flex-wrap:wrap;gap:.6rem">
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button class="btn-primary btn-sm" onclick="gerarRelatorioDiario()"><i class="ti ti-calendar-plus" aria-hidden="true"></i> Relatório do dia</button>
+              <button class="btn-secondary btn-sm" onclick="gerarRelatorioFrota()"><i class="ti ti-truck" aria-hidden="true"></i> Frota completa</button>
+            </div>
+            <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+              <input type="date" id="relData" style="font-size:.82rem;padding:.35rem .6rem;border:1px solid var(--border);border-radius:var(--radius)">
+              <select id="relVeiculo" class="filter-select">
+                <option value="">Todos os veículos</option>
+                <optgroup label="Cavalos">
+                  <option>RLR-1H73 — Sérgio Soares</option><option>QYA-3I45 — Marcos Antônio</option>
+                  <option>QYA-6G28 — Cícero E.</option><option>QSK-2H66 — Allan R.</option>
+                  <option>QSH-9C56 — Carlos A.</option><option>RLU-7G93 — Joel</option>
+                  <option>OYM-4G46 — Josenildo Vieira</option><option>QYB-2A80 — Petrônio José</option>
+                </optgroup>
+                <optgroup label="Carretas">
+                  <option>QFC-6A51</option><option>QFC-6A71</option><option>RLQ-4F74</option>
+                  <option>RZE-7B94</option><option>PGS-9402</option><option>RLT-2I85</option><option>SNN-5J37</option>
+                </optgroup>
+              </select>
+              <button class="btn-secondary btn-sm" onclick="filtrarRelatorio()"><i class="ti ti-filter" aria-hidden="true"></i> Filtrar</button>
+            </div>
+          </div>
+          <div id="relConteudo">
+            <div class="metrics-grid" id="relMetrics"></div>
+            <div id="relCards"></div>
+          </div>
+          <div id="relVeiculoDetalhe" style="display:none">
+            <button class="btn-secondary btn-sm" style="margin-bottom:1rem" onclick="voltarRelatorio()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+            <div id="relDetalheConteudo"></div>
+          </div>
+
+          <!-- RELATÓRIO MENSAL -->
+          <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem">
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap">
+              <span style="font-size:.875rem;font-weight:600;color:var(--text)">📆 Relatório mensal</span>
+              <select id="relMesSelect" class="filter-select" onchange="renderRelatorioMensal()">
+                <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+                <option value="4">Abril</option><option value="5" selected>Maio</option><option value="6">Junho</option>
+                <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+                <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+              </select>
+              <select id="relAnoSelect" class="filter-select" onchange="renderRelatorioMensal()">
+                <option value="2026" selected>2026</option><option value="2025">2025</option>
+              </select>
+              <button class="btn-primary btn-sm" onclick="renderRelatorioMensal()"><i class="ti ti-refresh"></i> Gerar</button>
+            </div>
+            <div id="relMensalConteudo"></div>
+          </div>
+
+        </section>
+
+        <!-- REGISTRAR -->
+        <section id="registrar" class="tab-section">
+          <div id="regContent">
+            <div class="card">
+              <div class="card-title"><i class="ti ti-clipboard-plus" aria-hidden="true"></i> Tipo de registro</div>
+              <div class="reg-type-grid">
+                <button class="reg-type-btn" id="rtBtn0" onclick="selectRegType(0)"><i class="ti ti-tool" aria-hidden="true"></i><span>Manutenção</span></button>
+                <button class="reg-type-btn" id="rtBtn1" onclick="selectRegType(1)"><i class="ti ti-circle-dashed" aria-hidden="true"></i><span>Pneu novo</span></button>
+                <button class="reg-type-btn" id="rtBtn2" onclick="selectRegType(2)"><i class="ti ti-refresh" aria-hidden="true"></i><span>Recapagem</span></button>
+                <button class="reg-type-btn" id="rtBtn3" onclick="selectRegType(3)"><i class="ti ti-arrows-exchange" aria-hidden="true"></i><span>Troca de veículo</span></button>
+              </div>
+            </div>
+            <!-- FORMS -->
+            <div id="formManutencao" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-tool" aria-hidden="true"></i> Manutenção</div>
+              <div class="form-row"><div class="form-field"><label>Placa</label><select id="mPlaca"><option value="">Selecione</option><optgroup label="Cavalos"><option>RLR-1H73 — Sérgio Soares</option><option>QYA-3I45 — Marcos Antônio</option><option>QYA-6G28 — Cícero E.</option><option>QSK-2H66 — Allan R.</option><option>QSH-9C56 — Carlos A.</option><option>RLU-7G93 — Joel</option><option>OYM-4G46 — Josenildo Vieira</option><option>QYB-2A80 — Petrônio José</option></optgroup><optgroup label="Carretas"><option>QFC-6A51</option><option>QFC-6A71</option><option>RLQ-4F74</option><option>RZE-7B94</option><option>PGS-9402</option><option>RLT-2I85</option><option>SNN-5J37</option></optgroup></select></div><div class="form-field"><label>Tipo de serviço</label><select id="mTipo"><option>Troca de óleo</option><option>Revisão de freios</option><option>Filtro de ar</option><option>Revisão geral</option><option>Correia dentada</option><option>Outro</option></select></div></div>
+              <div class="form-row form-trio"><div class="form-field"><label>Data</label><input type="date" id="mData"></div><div class="form-field"><label>Km atual</label><input type="number" id="mKm" placeholder="km"></div><div class="form-field"><label>Status</label><select id="mStatus"><option>Em andamento</option><option>Concluído</option><option>Urgente</option><option>Em breve</option></select></div></div>
+              <div class="form-row"><div class="form-field"><label>Mecânico / Oficina</label><input type="text" id="mMec" placeholder="Nome"></div><div class="form-field financial-only"><label>Custo (R$)</label><input type="number" id="mCusto" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Descrição</label><textarea id="mDesc" rows="3" placeholder="Detalhe o serviço..."></textarea></div>
+            </div>
+            <div id="formPneu" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-circle-dashed" aria-hidden="true"></i> Pneu novo</div>
+              <div class="form-row"><div class="form-field"><label>Placa</label><select id="pnPlaca"><option value="">Selecione</option><optgroup label="Cavalos"><option>RLR-1H73</option><option>QYA-3I45</option><option>QYA-6G28</option><option>QSK-2H66</option><option>QSH-9C56</option><option>RLU-7G93</option><option>OYM-4G46</option><option>QYB-2A80</option></optgroup><optgroup label="Carretas"><option>QFC-6A51</option><option>QFC-6A71</option><option>RLQ-4F74</option><option>RZE-7B94</option><option>PGS-9402</option><option>RLT-2I85</option><option>SNN-5J37</option></optgroup></select></div><div class="form-field"><label>Posição / Eixo</label><select id="pnEixo"><option>Dianteiro esquerdo</option><option>Dianteiro direito</option><option>Traseiro esquerdo externo</option><option>Traseiro esquerdo interno</option><option>Traseiro direito externo</option><option>Traseiro direito interno</option><option>Todos os eixos</option></select></div></div>
+              <div class="form-row form-trio"><div class="form-field"><label>Marca</label><input type="text" id="pnMarca" placeholder="Ex: Bridgestone"></div><div class="form-field"><label>Medida</label><input type="text" id="pnMedida" placeholder="295/80 R22.5"></div><div class="form-field"><label>Data</label><input type="date" id="pnData"></div></div>
+              <div class="form-row"><div class="form-field"><label>Km na instalação</label><input type="number" id="pnKm" placeholder="km"></div><div class="form-field financial-only"><label>Custo (R$)</label><input type="number" id="pnCusto" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Número de série / DOT</label><input type="text" id="pnDot" placeholder="Ex: DOT 1523"></div>
+            </div>
+            <div id="formRecapagem" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-refresh" aria-hidden="true"></i> Recapagem</div>
+              <div class="form-row"><div class="form-field"><label>Placa</label><select id="rcPlaca"><option value="">Selecione</option><optgroup label="Cavalos"><option>RLR-1H73</option><option>QYA-3I45</option><option>QYA-6G28</option><option>QSK-2H66</option><option>QSH-9C56</option><option>RLU-7G93</option><option>OYM-4G46</option><option>QYB-2A80</option></optgroup></select></div><div class="form-field"><label>Eixo / Posição</label><select id="rcEixo"><option>Traseiro duplo esquerdo</option><option>Traseiro duplo direito</option><option>Dianteiro esquerdo</option><option>Dianteiro direito</option><option>Todos os traseiros</option></select></div></div>
+              <div class="form-row form-trio"><div class="form-field"><label>Recapadora</label><input type="text" id="rcRecap" placeholder="Nome da empresa"></div><div class="form-field"><label>Data entrada</label><input type="date" id="rcEntrada"></div><div class="form-field"><label>Data saída</label><input type="date" id="rcSaida"></div></div>
+              <div class="form-row"><div class="form-field"><label>Km no envio</label><input type="number" id="rcKm" placeholder="km"></div><div class="form-field financial-only"><label>Custo (R$)</label><input type="number" id="rcCusto" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Banda / observações</label><input type="text" id="rcObs" placeholder="Ex: Banda 295 — 3ª vida do pneu"></div>
+            </div>
+            <div id="formVeiculo" class="reg-form card" style="display:none">
+              <div class="card-title"><i class="ti ti-arrows-exchange" aria-hidden="true"></i> Troca / entrada de veículo</div>
+              <div class="form-row"><div class="form-field"><label>Tipo de movimentação</label><select id="vTipo"><option>Incorporação (veículo novo)</option><option>Substituição (troca)</option><option>Baixa (venda / sucata)</option><option>Retorno de terceiros</option></select></div><div class="form-field"><label>Data</label><input type="date" id="vData"></div></div>
+              <div class="form-row"><div class="form-field"><label>Placa do veículo</label><input type="text" id="vPlaca" placeholder="Ex: RLR-1H73"></div><div class="form-field"><label>Modelo / Ano</label><input type="text" id="vModelo" placeholder="Ex: Volvo FH 460 2024"></div></div>
+              <div class="form-row"><div class="form-field"><label>Placa substituída (se troca)</label><input type="text" id="vPlacaAnt" placeholder="Ex: QYA-6G28"></div><div class="form-field"><label>Km inicial</label><input type="number" id="vKm" placeholder="km"></div></div>
+              <div class="form-row"><div class="form-field"><label>Motivo</label><input type="text" id="vMotivo" placeholder="Ex: Renovação de frota"></div><div class="form-field financial-only"><label>Valor (R$)</label><input type="number" id="vValor" placeholder="0,00"></div></div>
+              <div class="form-field"><label>Observações</label><textarea id="vObs" rows="2" placeholder="Condição, documentação, responsável..."></textarea></div>
+            </div>
+            <div id="btnSalvar" style="display:none;margin-top:.5rem">
+              <button class="btn-primary btn-full" onclick="salvarRegistro()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar registro</button>
+            </div>
+          </div>
+          <div id="regDenied" class="access-denied" style="display:none"><i class="ti ti-lock" aria-hidden="true"></i><p>Acesso restrito</p><small>Gestores não podem registrar.</small></div>
+        </section>
+
+        <!-- FINANCEIRO -->
+        <section id="financeiro" class="tab-section">
+          <div class="fin-metrics" id="finMetrics"></div>
+          <div class="two-col" style="margin-bottom:1rem">
+            <div class="card"><div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Gasto por motorista</div><div style="position:relative;height:220px"><canvas id="chartMotorista"></canvas></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-trending-up" aria-hidden="true"></i> Evolução mensal</div><div style="position:relative;height:220px"><canvas id="chartMes"></canvas></div></div>
+          </div>
+          <div class="two-col" style="margin-bottom:1rem">
+            <div class="card"><div class="card-title"><i class="ti ti-trophy" aria-hidden="true"></i> Maior gasto — motoristas <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankMotorista"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-truck" aria-hidden="true"></i> Maior gasto — veículos <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankVeiculo"></div></div>
+          </div>
+          <div class="two-col" style="margin-bottom:1rem">
+            <div class="card"><div class="card-title"><i class="ti ti-tool" aria-hidden="true"></i> Maior gasto — tipo de servico <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankServico"></div></div>
+            <div class="card"><div class="card-title"><i class="ti ti-building-store" aria-hidden="true"></i> Maior gasto — fornecedor <span style="font-size:.7rem;font-weight:400;color:var(--text3)">do maior para o menor</span></div><div id="rankFornecedor"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ti ti-list" aria-hidden="true"></i> Lançamentos
+              <div style="margin-left:auto;display:flex;gap:6px">
+                <select id="filtroFinMes" onchange="renderFinanceiro()" class="filter-select"><option value="">Todos os meses</option><option value="3">Março/2026</option><option value="4">Abril/2026</option><option value="5">Maio/2026</option></select>
+                <select id="filtroFinMot" onchange="renderFinanceiro()" class="filter-select"><option value="">Todos</option><option>Sérgio Soares</option><option>Marcos Antônio</option><option>Cícero E.</option><option>Allan R.</option><option>Carlos A.</option><option>Joel</option><option>Josenildo Vieira</option><option>Petrônio José</option></select>
+              </div>
+            </div>
+            <div id="lancamentosList"></div>
+          </div>
+        </section>
+
+        <!-- PERMISSÕES -->
+        <section id="permissoes" class="tab-section">
+          <div id="permContent">
+            <div class="card"><div class="card-title"><i class="ti ti-shield" aria-hidden="true"></i> Controle de acesso por perfil</div>
+              <div class="perm-table">
+                <div class="perm-header"><span>Funcionalidade</span><span>Admin</span><span>Gestor</span><span>Mecânico</span></div>
+                <div class="perm-row"><span>Painel geral</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Ver ocorrências</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Ver custos financeiros</span><span class="py">✓</span><span class="py">✓</span><span class="pn">✗</span></div>
+                <div class="perm-row"><span>Registrar ocorrência</span><span class="py">✓</span><span class="pn">✗</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Relatórios</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+                <div class="perm-row"><span>Troca de veículo</span><span class="py">✓</span><span class="pn">✗</span><span class="pn">✗</span></div>
+                <div class="perm-row"><span>Gerenciar permissões</span><span class="py">✓</span><span class="pn">✗</span><span class="pn">✗</span></div>
+                <div class="perm-row"><span>Assistente IA</span><span class="py">✓</span><span class="py">✓</span><span class="py">✓</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="permDenied" class="access-denied" style="display:none"><i class="ti ti-lock" aria-hidden="true"></i><p>Acesso restrito</p><small>Somente administradores.</small></div>
+        </section>
+
+        <!-- IA -->
+        <section id="ia" class="tab-section">
+          <div class="ia-chips">
+            <button class="chip" onclick="sendIA('Quais manutenções preventivas fazer na frota este mês?')">Manutenções do mês</button>
+            <button class="chip" onclick="sendIA('Quando recapar pneus de caminhão pesado — critérios técnicos?')">Critérios de recapagem</button>
+            <button class="chip" onclick="sendIA('Como reduzir custos de manutenção em frotas pesadas?')">Reduzir custos</button>
+            <button class="chip" onclick="sendIA('Monte um plano preventivo de 12 meses para frota de 8 caminhões')">Plano 12 meses</button>
+          </div>
+          <div class="ia-input-row">
+            <input type="text" id="iaInput" placeholder="Pergunte sobre pneus, manutenções, veículos..." onkeydown="if(event.key==='Enter')sendIA()">
+            <button class="btn-primary" onclick="sendIA()"><i class="ti ti-sparkles" aria-hidden="true"></i> Perguntar</button>
+          </div>
+          <div id="iaResp" style="display:none" class="ia-response">
+            <div class="ia-resp-header"><div class="ia-dot"></div> Assistente IA — Expresso PB</div>
+            <div id="iaText" class="ia-resp-body"></div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div id="modalOverlay" class="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal-box" id="modalBox">
+      <div class="modal-header"><span id="modalTitle" class="modal-title-text">Editar</span><button class="modal-close" onclick="closeModal()" aria-label="Fechar"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-footer"><button class="btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn-primary" onclick="saveModal()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar</button></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"><i class="ti ti-check" aria-hidden="true"></i><span id="toastMsg"></span></div>
+  <div id="syncBar" class="sync-bar"></div>
+</div>
+
+
+
+
+
+
+
+<script>
+/* ── DADOS EXPRESSO PB ── */
+var USERS = {
+  'daphinin@frotaexpressopb.com':           { pass:'121909',  role:'Administrador', initials:'DI', perms:{ registrar:true,  financeiro:true,  permissoes:true,  trocaVeiculo:true  } },
+  'natanael@transportadoraexpressopb.com':  { pass:'nat2026', role:'Gestor',        initials:'NL', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'financeiro@transportadoraexpressopb.com':{ pass:'fin2026', role:'Gestor',        initials:'FN', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'gestor@frota.com':                       { pass:'gest123', role:'Gestor',        initials:'GS', perms:{ registrar:false, financeiro:true,  permissoes:false, trocaVeiculo:false } },
+  'mecanico@frota.com':                     { pass:'mec123',  role:'Mecanico',      initials:'MC', perms:{ registrar:true,  financeiro:false, permissoes:false, trocaVeiculo:false } }
+};
+var PNEUS = [
+  { id:1, veiculo:'RLR-1H73', eixo:'Tracao 4 pneus necessarios', marca:'Meridional Torino', medida:'295/80R22.5', tipo:'novo',     desgaste:95, km:421117, data:'28/04/2026', custo:1927,  dot:'GS853' },
+  { id:2, veiculo:'QYA-3I45', eixo:'Tracao',                     marca:'Casumina GS851',   medida:'295/80R22.5', tipo:'novo',     desgaste:15, km:0,      data:'03/04/2026', custo:1740,  dot:'GS851' },
+  { id:3, veiculo:'QSH-9C56', eixo:'Dianteiro esquerdo',         marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo',     desgaste:10, km:0,      data:'29/04/2026', custo:1930,  dot:'GHA20' },
+  { id:4, veiculo:'QSH-9C56', eixo:'Dianteiro direito',          marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo',     desgaste:10, km:0,      data:'29/04/2026', custo:1930,  dot:'GHA20' },
+  { id:5, veiculo:'OYM-4G46', eixo:'Traseiro rodizio realizado', marca:'',                 medida:'295/80R22.5', tipo:'recapado', desgaste:65, km:0,      data:'22/04/2026', custo:30,    dot:'' },
+  { id:6, veiculo:'QYB-2A80', eixo:'Pneu consertado',            marca:'',                 medida:'295/80R22.5', tipo:'novo',     desgaste:50, km:0,      data:'04/05/2026', custo:200,   dot:'' },
+  { id:7, veiculo:'QSK-2H66', eixo:'Dianteiro',                  marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'novo',     desgaste:20, km:0,      data:'17/04/2026', custo:1930,  dot:'GHA20' }
+];
+var FROTA = [
+  { id:1, placa:'RLR-1H73', modelo:'DAF',                  motorista:'Sergio Soares',    carreta:'QFC-6A51', ano:2019, km:421117, status:'danger', statusLabel:'Critico',     tipo:'ativo' },
+  { id:2, placa:'QYA-3I45', modelo:'Mercedes-Benz Actros', motorista:'Marcos Antonio',   carreta:'QFC-6A71', ano:2019, km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:3, placa:'QYA-6G28', modelo:'Mercedes-Benz',        motorista:'Cicero E.',        carreta:'RLQ-4F74', ano:0,    km:0,      status:'danger', statusLabel:'Imobilizado', tipo:'ativo' },
+  { id:4, placa:'QSK-2H66', modelo:'Volkswagen VW 25360',  motorista:'Allan R.',         carreta:'RZE-7B94', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:5, placa:'QSH-9C56', modelo:'Volkswagen VW',        motorista:'Carlos A.',        carreta:'PGS-9402', ano:0,    km:0,      status:'ok',     statusLabel:'Em dia',      tipo:'ativo' },
+  { id:6, placa:'RLU-7G93', modelo:'Volkswagen VW',        motorista:'Joel',             carreta:'',         ano:0,    km:0,      status:'warn',   statusLabel:'Em reparo',   tipo:'ativo' },
+  { id:7, placa:'OYM-4G46', modelo:'Volvo',                motorista:'Josenildo Vieira', carreta:'RLT-2I85', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' },
+  { id:8, placa:'QYB-2A80', modelo:'Volkswagen VW',        motorista:'Petronio Jose',    carreta:'SNN-5J37', ano:0,    km:0,      status:'warn',   statusLabel:'Pendente',    tipo:'ativo' }
+];
+var TROCAS = [
+  { id:1, tipo:'+', cor:'blue',  titulo:'QSK-2H66 Freios e filtros OS 73465', sub:'Turbo Freio R$ 5.287,40', data:'29/04/2026' },
+  { id:2, tipo:'+', cor:'green', titulo:'QYA-3I45 Turbo freio OS 73378',      sub:'Turbo Freio R$ 1.550,00', data:'17/04/2026' },
+  { id:3, tipo:'+', cor:'blue',  titulo:'QYA-3I45 Mangueiras reparadas',      sub:'Turbo Freio',             data:'20/04/2026' },
+  { id:4, tipo:'+', cor:'green', titulo:'QYB-2A80 Tacografo e pneu',          sub:'Posto Espacial R$ 200,00',data:'04/05/2026' }
+];
+var OCORRENCIAS = [
+  { id:1,  veiculo:'RLR-1H73', tipo:'Manutencao', servico:'Situacao critica forca eletrica pneus eixo', data:'05/05/2026', status:'Urgente',   mec:'Aguardando oficina',     custo:'',            desc:'Forca eletrica 4 pneus tracao danificados eixo truck nao suspende' },
+  { id:2,  veiculo:'QYA-3I45', tipo:'Manutencao', servico:'Balao de ar grande furado',                  data:'05/05/2026', status:'Urgente',   mec:'Aguardando reparo',      custo:'',            desc:'Balao de ar grande furado pendente desde 29/04' },
+  { id:3,  veiculo:'QYA-6G28', tipo:'Manutencao', servico:'Imobilizado aguardando oficina',             data:'05/05/2026', status:'Urgente',   mec:'Reboque Sao Jose',       custo:'',            desc:'Imobilizado desde 30/04' },
+  { id:4,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'Vazamento no retentor',                      data:'05/05/2026', status:'Em breve',  mec:'Joel',                   custo:'',            desc:'Retentor com vazamento' },
+  { id:5,  veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Farois com problema',                        data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Farois nao clareiam' },
+  { id:6,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Step para-lama roda tracao pneu',            data:'05/05/2026', status:'Em breve',  mec:'Aguardando reparo',      custo:'',            desc:'Step ausente' },
+  { id:7,  veiculo:'RLU-7G93', tipo:'Manutencao', servico:'Na oficina molas eixos tanque suspensao',    data:'04/05/2026', status:'Em breve',  mec:'Oficina',                custo:'',            desc:'Em reparo' },
+  { id:8,  veiculo:'QSK-2H66', tipo:'Manutencao', servico:'OS 73465 Freios filtros suspensao',          data:'29/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 5.287,40', desc:'OS 73465' },
+  { id:9,  veiculo:'QYB-2A80', tipo:'Manutencao', servico:'Tacografo vulcanizacao pito pneu',           data:'04/05/2026', status:'Concluido', mec:'Posto Espacial II Tete', custo:'R$ 200,00',   desc:'Conserto pneu' },
+  { id:10, veiculo:'QSH-9C56', tipo:'Pneu novo',  servico:'Troca 2 pneus dianteiros balanceamento',     data:'29/04/2026', status:'Concluido', mec:'',                       custo:'R$ 60,00',    desc:'Troca pneus' },
+  { id:11, veiculo:'QYA-3I45', tipo:'Manutencao', servico:'OS 73378 Filtros mangueiras diagnostico',    data:'17/04/2026', status:'Concluido', mec:'Turbo Freio Santa Rita', custo:'R$ 1.550,00', desc:'OS 73378' },
+  { id:12, veiculo:'OYM-4G46', tipo:'Manutencao', servico:'Rodizio de pneus',                           data:'22/04/2026', status:'Concluido', mec:'',                       custo:'R$ 30,00',    desc:'Rodizio' },
+  { id:13, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'8 pneus tracao Meridional Kropneus',         data:'28/04/2026', status:'Concluido', mec:'Kropneus',               custo:'R$ 15.416,00',desc:'8 pneus tracao' },
+  { id:14, veiculo:'FROTA',    tipo:'Pneu novo',  servico:'6 pneus direcionais Goodtrip Patrimonial',   data:'17/04/2026', status:'Concluido', mec:'Patrimonial Pneus',      custo:'R$ 11.580,00',desc:'6 pneus direcionais' }
+];
+
+var LANCAMENTOS = [
+  {n:1,data_br:'01/03/2026',fornecedor:"EDSON LONA",desc:"VULCANIZACAO E MAO DE OBRA",placa:"",motorista:"—",modelo:"—",valor:500.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:2,data_br:'02/03/2026',fornecedor:"JOAO WICTOR MEC.",desc:"SOCORRO DAF ARUERA PE",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:5700.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:3,data_br:'04/03/2026',fornecedor:"POSTO ALIANCA DO ARARIPE",desc:"OLEO HIDRAULICO",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:24.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:4,data_br:'04/03/2026',fornecedor:"FACHINI",desc:"CATRACA LONA SIDER",placa:"QSK-2H66",motorista:"Allan R.",modelo:"—",valor:350.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:5,data_br:'04/03/2026',fornecedor:"POSTO ALIANCA DO ARARIPE",desc:"ADITIVO",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:22.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:6,data_br:'05/03/2026',fornecedor:"COISAS DE CAMINHONEIRO LTDA",desc:"CONES DE SINALIZACAO E RELE",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:92.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:7,data_br:'06/03/2026',fornecedor:"SERTAO REBOQUE",desc:"SERV. REBOQUE DAF",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:3300.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:8,data_br:'09/03/2026',fornecedor:"GOTEMBURGO VEICULOS LTDA PB",desc:"CORPO DA VALVULA",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:3182.04,pagto:"CARTAO - 6X",mes:"March/2026",mes_num:3},
+  {n:9,data_br:'05/03/2026',fornecedor:"CADIESEL",desc:"RECUPERACAO DO CHICOTE",placa:"RLU-7G93",motorista:"Joel",modelo:"—",valor:500.0,pagto:"CARTAO - 2X",mes:"March/2026",mes_num:3},
+  {n:10,data_br:'10/03/2026',fornecedor:"MOTOTAXI PECA",desc:"LEVAR PECA EM POCINHOS",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:50.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:11,data_br:'10/03/2026',fornecedor:"BORRACHARIA",desc:"VULCANIZACAO",placa:"QYA-6G28",motorista:"Cicero E.",modelo:"—",valor:100.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:12,data_br:'12/03/2026',fornecedor:"BORRACHARIA",desc:"TROCA DE PNEUS",placa:"QSK-2H66",motorista:"Allan R.",modelo:"—",valor:80.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:13,data_br:'13/03/2026',fornecedor:"GAMA",desc:"VALVULA RACOR",placa:"RLU-7G93",motorista:"Joel",modelo:"—",valor:276.0,pagto:"CARTAO",mes:"March/2026",mes_num:3},
+  {n:14,data_br:'16/03/2026',fornecedor:"OFICINA LEAO",desc:"SERVICO DE SOLDA",placa:"QSH-9C56",motorista:"Carlos A.",modelo:"—",valor:100.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:15,data_br:'16/03/2026',fornecedor:"BORRACHARIA",desc:"TROCA DE PNEU E CALIBRAGEM",placa:"QYB-2A80",motorista:"Petronio Jose",modelo:"—",valor:100.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:16,data_br:'17/03/2026',fornecedor:"PAIZAO",desc:"MANGUEIRA E UNIAO",placa:"QYB-2A80",motorista:"Petronio Jose",modelo:"—",valor:13.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:17,data_br:'17/03/2026',fornecedor:"VOLDIESEL",desc:"SERVICO VOLVO",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:8800.0,pagto:"CC6X",mes:"March/2026",mes_num:3},
+  {n:18,data_br:'17/03/2026',fornecedor:"FRETE DO MODULO",desc:"FRETE DO MODULO DAF",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:192.92,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:19,data_br:'23/03/2026',fornecedor:"BORRACHARIA",desc:"TROCA DE PNEU",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:50.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:20,data_br:'23/03/2026',fornecedor:"HIDRAU DIESEL",desc:"MAO DE OBRA + BOLSA DE AR CABINE",placa:"QYA-6G28",motorista:"Cicero E.",modelo:"—",valor:848.0,pagto:"BL 2X",mes:"March/2026",mes_num:3},
+  {n:21,data_br:'23/03/2026',fornecedor:"HIDRAU DIESEL",desc:"TROCA DE OLEO + OLEO DE MOTOR",placa:"QSH-9C56",motorista:"Carlos A.",modelo:"—",valor:1230.0,pagto:"BL1X",mes:"March/2026",mes_num:3},
+  {n:22,data_br:'25/03/2026',fornecedor:"VIACAO",desc:"PASSAGEM DE ONIBUS PARA PETROLINA",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:302.15,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:23,data_br:'26/03/2026',fornecedor:"SOCORRO MECANICO",desc:"TROCA DE TENSOR MERCEDES",placa:"QYA-6G28",motorista:"Cicero E.",modelo:"—",valor:970.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:24,data_br:'26/03/2026',fornecedor:"DAF NOVA PETROLINA",desc:"MAO DE OBRA DO MODULO",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:1400.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:25,data_br:'27/03/2026',fornecedor:"BORRACHARIA",desc:"RODIZIO DE PNEUS",placa:"RLU-7G93",motorista:"Joel",modelo:"—",valor:80.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:26,data_br:'27/03/2026',fornecedor:"SERVICO DE SEGURANCA",desc:"SEGURANCA CARRETA DAF",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:300.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:27,data_br:'27/03/2026',fornecedor:"BORRACHARIA",desc:"RODIZIO E UM PITU",placa:"RLR-1H73",motorista:"Sergio Soares",modelo:"—",valor:150.0,pagto:"PIX",mes:"March/2026",mes_num:3},
+  {n:28,data_br:'02/04/2026',fornecedor:"MEC LEANDRO",desc:"TROCA DE SENSOR DO MANECO",placa:"QYB-2A80",motorista:"Petronio Jose",modelo:"—",valor:350.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:29,data_br:'06/04/2026',fornecedor:"VITOR CHAVEIRO",desc:"CONFECCAO DE CHAVE RESERVA",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:130.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:30,data_br:'07/04/2026',fornecedor:"Acessorios 101",desc:"MAO DE OBRA E MACANETA",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:535.8,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:31,data_br:'13/04/2026',fornecedor:"Sta Caminhoes",desc:"JOGO DE FILTROS DO MOTOR",placa:"QYA-3I45",motorista:"Marcos Antonio",modelo:"—",valor:474.83,pagto:"CARTAO 2X",mes:"April/2026",mes_num:4},
+  {n:32,data_br:'14/04/2026',fornecedor:"BORRACHARIA DO ZE",desc:"SERVICO DE REMENDO NO PNEU",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:110.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:33,data_br:'17/04/2026',fornecedor:"PATRIMONIAL",desc:"COMPRA DE PNEU DIRECIONAL 6UNI",placa:"",motorista:"—",modelo:"—",valor:11580.0,pagto:"CARTAO 10X",mes:"April/2026",mes_num:4},
+  {n:34,data_br:'17/04/2026',fornecedor:"TURBO FREIO",desc:"SERVICO DE TROCA DE FILTROS LIMPA PC E MANGUEIRAS",placa:"QYA-3I45",motorista:"Marcos Antonio",modelo:"—",valor:1550.0,pagto:"CARTAO 3X",mes:"April/2026",mes_num:4},
+  {n:35,data_br:'20/04/2026',fornecedor:"LG BORRACHARIA",desc:"SERVICO DE REAPERTO DO PITO",placa:"QSK-2H66",motorista:"Allan R.",modelo:"—",valor:40.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:36,data_br:'22/04/2026',fornecedor:"BORRACHARIA",desc:"SERVICO DE RODIZIO DE PNEU",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:30.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:37,data_br:'22/04/2026',fornecedor:"INMETRO",desc:"SERVICO DE AFERICA DE PNEU E CONFIGURACAO DE PLACA",placa:"QYA-3I45",motorista:"Marcos Antonio",modelo:"—",valor:480.0,pagto:"CARTAO 1X",mes:"April/2026",mes_num:4},
+  {n:38,data_br:'22/04/2026',fornecedor:"BORRACHARIA JACARAUNA",desc:"REMENDO DE PNEU",placa:"QSK-2H66",motorista:"Allan R.",modelo:"—",valor:90.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:39,data_br:'23/04/2026',fornecedor:"CADIESEL",desc:"SERVICO ELETRICO",placa:"RLU-7G93",motorista:"Joel",modelo:"—",valor:740.0,pagto:"CARTAO 2X",mes:"April/2026",mes_num:4},
+  {n:40,data_br:'23/04/2026',fornecedor:"TURBO FREIO",desc:"SERVICO DE SOCORRO REALIZADO DIA 22/04",placa:"QSK-2H66",motorista:"Allan R.",modelo:"—",valor:90.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:41,data_br:'25/04/2026',fornecedor:"BORRACHARIA PAI E FILHO",desc:"SERVICO DE TROCA DE PNEU",placa:"QSK-2H66",motorista:"Allan R.",modelo:"—",valor:50.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:42,data_br:'27/04/2026',fornecedor:"PG POSTOS",desc:"SERVICO DE TROCA DE PNEU",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:40.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:43,data_br:'27/04/2026',fornecedor:"BRTRUCK",desc:"TROCA DE FUSIVEL",placa:"QYB-2A80",motorista:"Petronio Jose",modelo:"—",valor:5.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:44,data_br:'28/04/2026',fornecedor:"Borracharia do Ze",desc:"SERVICO DO PNEU",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:30.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:45,data_br:'29/04/2026',fornecedor:"Borracharia do Ze",desc:"SERVICO NO PNEU FOLGA DO EIXO DIANTEIRO",placa:"QSH-9C56",motorista:"Carlos A.",modelo:"—",valor:100.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:46,data_br:'29/04/2026',fornecedor:"PATRIMONIAL",desc:"BALANCEAMENTO",placa:"QSH-9C56",motorista:"Carlos A.",modelo:"—",valor:60.0,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:47,data_br:'30/04/2026',fornecedor:"TURBO FREIO",desc:"Servico Marcos - Mangueiras rasgadas",placa:"QYA-3I45",motorista:"Marcos Antonio",modelo:"—",valor:365.0,pagto:"CARTAO 2X",mes:"April/2026",mes_num:4},
+  {n:48,data_br:'29/04/2026',fornecedor:"Acessorios 101",desc:"servico lanterna sirenes e eletrica de re",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:538.65,pagto:"PIX",mes:"April/2026",mes_num:4},
+  {n:49,data_br:'04/05/2026',fornecedor:"POSTO ESPACIAL II",desc:"Servico no pneu e pino",placa:"QYB-2A80",motorista:"Petronio Jose",modelo:"—",valor:200.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:50,data_br:'04/05/2026',fornecedor:"Borracharia do Ze",desc:"Servico de pneu",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:60.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:51,data_br:'05/05/2026',fornecedor:"Kropneus",desc:"COMPRA DE PNEU TRACAO 8UND",placa:"",motorista:"—",modelo:"—",valor:15416.0,pagto:"CARTAO 10X",mes:"May/2026",mes_num:5},
+  {n:52,data_br:'06/05/2026',fornecedor:"Borracharia Amaro",desc:"Rodizio de pneu - reembolso motorista",placa:"RLU-7G93",motorista:"Joel",modelo:"—",valor:80.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:53,data_br:'07/05/2026',fornecedor:"Reboque Sao Jose",desc:"Reboque feito dia 29/04",placa:"QYA-6G28",motorista:"Cicero E.",modelo:"—",valor:2000.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:54,data_br:'07/05/2026',fornecedor:"HIDRAU DIESEL",desc:"Servico solda tanque + molas + embuchamentos",placa:"RLU-7G93",motorista:"Joel",modelo:"—",valor:6702.0,pagto:"Cartao 4x",mes:"May/2026",mes_num:5},
+  {n:55,data_br:'12/05/2026',fornecedor:"Borracharia",desc:"Conserto de pneu",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:80.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:56,data_br:'13/05/2026',fornecedor:"Borracharia",desc:"Conserto de pneu e folga no pneu",placa:"QSH-9C56",motorista:"Carlos A.",modelo:"—",valor:60.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:57,data_br:'14/05/2026',fornecedor:"Pesao Bau",desc:"Conserto Bau terceirizado",placa:"",motorista:"—",modelo:"—",valor:500.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:58,data_br:'14/05/2026',fornecedor:"Eletricista William",desc:"Conserto dos fios roidos",placa:"QYA-3I45",motorista:"Marcos Antonio",modelo:"—",valor:680.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:59,data_br:'14/05/2026',fornecedor:"Mercado Livre",desc:"Compra de farol volvo e bolsa de ar mercedes",placa:"",motorista:"—",modelo:"—",valor:1470.0,pagto:"Cartao 8x",mes:"May/2026",mes_num:5},
+  {n:60,data_br:'14/05/2026',fornecedor:"TURBO FREIO",desc:"Servico de molas filtros retentores",placa:"QSK-2H66",motorista:"Allan R.",modelo:"—",valor:5287.4,pagto:"Cartao 4x",mes:"May/2026",mes_num:5},
+  {n:61,data_br:'14/05/2026',fornecedor:"Eletricista",desc:"Conserto nos fios da mercedes",placa:"QYA-3I45",motorista:"Marcos Antonio",modelo:"—",valor:680.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:62,data_br:'14/05/2026',fornecedor:"Reembolso uber",desc:"Uber - ida as oficinas",placa:"",motorista:"—",modelo:"—",valor:45.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:63,data_br:'16/05/2026',fornecedor:"Borracharia - Posto Espacial II",desc:"Servico de pneu",placa:"OYM-4G46",motorista:"Josenildo Vieira",modelo:"—",valor:80.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+  {n:64,data_br:'18/05/2026',fornecedor:"Comercio de Produtos Ind",desc:"Reembolso compra da uniao do freio da carreta",placa:"QSH-9C56",motorista:"Carlos A.",modelo:"—",valor:18.0,pagto:"PIX",mes:"May/2026",mes_num:5},
+];
+
+</script>
+<script>
+/* ── STATE ── */
+let CU = null;
+let sidebarOpen = false;
+let modalCb = null;
+let regTypeSel = -1;
+
+/* ── AUTH ── */
+function fillLogin(email, pass) {
+  document.getElementById('loginEmail').value = email;
+  document.getElementById('loginPass').value = pass;
+  document.getElementById('loginError').style.display = 'none';
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const user  = USERS[email];
+  const err   = document.getElementById('loginError');
+  if (!user || user.pass !== pass) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  CU = user;
+
+  /* topbar */
+  document.getElementById('roleChip').textContent = user.role;
+  document.getElementById('topbarAvatar').textContent = user.initials;
+
+  /* sidebar */
+  document.getElementById('sidebarAvatar').textContent = user.initials;
+  document.getElementById('sidebarName').textContent = user.role;
+  document.getElementById('sidebarEmail').textContent = email;
+
+  /* screens */
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+
+  applyPermissions();
+  renderPneus('todos');
+  renderFrota();
+  renderTrocas();
+  renderOcorrencias();
+}
+
+function doLogout() {
+  CU = null;
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+  showTab('painel');
+}
+
+/* ── PERMISSIONS ── */
+function applyPermissions() {
+  if (!CU) return;
+  const p = CU.perms;
+
+  /* financial fields */
+  document.querySelectorAll('.financial-only').forEach(el => {
+    el.style.display = p.financeiro ? '' : 'none';
+  });
+
+  /* registrar tab */
+  document.getElementById('regContent').style.display  = p.registrar ? '' : 'none';
+  document.getElementById('regDenied').style.display   = p.registrar ? 'none' : 'block';
+  const navReg = document.getElementById('navRegistrar');
+  if (!p.registrar) navReg.classList.add('locked');
+
+  /* permissões tab */
+  document.getElementById('permContent').style.display = p.permissoes ? '' : 'none';
+  document.getElementById('permDenied').style.display  = p.permissoes ? 'none' : 'block';
+  const navPerm = document.getElementById('navPermissoes');
+  if (!p.permissoes) {
+    navPerm.classList.add('locked');
+    navPerm.onclick = (e) => { e.preventDefault(); showToast('Acesso restrito — apenas administradores', '#C0392B'); };
+  }
+}
+
+/* ── NAVIGATION ── */
+function showTab(id) {
+  if (!CU) return;
+  if (id === 'permissoes' && !CU.perms.permissoes) { showToast('Acesso restrito', '#C0392B'); return; }
+
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const sec = document.getElementById(id);
+  if (sec) sec.classList.add('active');
+
+  const nav = document.querySelector(`.nav-item[data-tab="${id}"]`);
+  if (nav) nav.classList.add('active');
+
+  const titles = { painel:'Painel', pneus:'Pneus', frota:'Frota', ocorrencias:'Ocorrências', registrar:'Registrar', permissoes:'Permissões', ia:'Assistente IA' };
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+
+  if (window.innerWidth < 769 && sidebarOpen) toggleSidebar();
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  sidebarOpen = !sidebarOpen;
+  sb.classList.toggle('open', sidebarOpen);
+}
+
+/* ── PNEUS ── */
+function filterPneus(btn, tipo) {
+  document.querySelectorAll('#pneuFilters .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderPneus(tipo);
+}
+
+function renderPneus(tipo) {
+  const list = tipo === 'todos' ? PNEUS :
+               tipo === 'critico' ? PNEUS.filter(p => p.desgaste >= 80) :
+               PNEUS.filter(p => p.tipo === tipo);
+
+  const g = document.getElementById('pneuGrid');
+  g.innerHTML = '';
+
+  if (!list.length) {
+    g.innerHTML = '<p style="color:var(--text3);font-size:.85rem;padding:.5rem">Nenhum pneu encontrado.</p>';
+    return;
+  }
+
+  list.forEach(p => {
+    const barColor = p.desgaste >= 80 ? 'var(--red)' : p.desgaste >= 55 ? 'var(--amber)' : 'var(--green)';
+    const icoColor = p.tipo === 'novo' ? 'var(--blue)' : 'var(--teal)';
+    const icoBg    = p.tipo === 'novo' ? 'var(--blue-bg)' : 'var(--teal-bg)';
+    const icoName  = p.tipo === 'novo' ? 'ti-circle-dashed' : 'ti-refresh';
+    const badgeCls = p.tipo === 'novo' ? 'blue' : 'teal';
+    const badgeLabel = p.tipo === 'novo' ? 'Novo' : 'Recapado';
+    const custo = CU && CU.perms.financeiro ? ` · R$ ${p.custo.toLocaleString('pt-BR')}` : '';
+
+    const card = document.createElement('div');
+    card.className = 'pneu-card';
+    card.innerHTML = `
+      <div class="pneu-card-top">
+        <div class="pneu-ico" style="background:${icoBg};color:${icoColor}">
+          <i class="ti ${icoName}" aria-hidden="true"></i>
+        </div>
+        <span class="badge ${badgeCls}">${badgeLabel}</span>
+      </div>
+      <div class="pneu-name">${p.veiculo} · ${p.eixo}</div>
+      <div class="pneu-sub">${p.marca} · ${p.medida}</div>
+      <div class="pneu-bar-wrap">
+        <div class="pneu-bar-labels">
+          <span>Desgaste</span>
+          <span style="color:${barColor};font-weight:600">${p.desgaste}%</span>
+        </div>
+        <div class="pneu-bar-bg">
+          <div class="pneu-bar-fill" style="width:${p.desgaste}%;background:${barColor}"></div>
+        </div>
+      </div>
+      <div class="pneu-meta">${p.data} · ${p.km.toLocaleString('pt-BR')} km${custo}</div>
+      <div class="pneu-actions">
+        <button class="btn-amber btn-xs" onclick="editarPneu(${p.id})">
+          <i class="ti ti-edit" aria-hidden="true"></i> Editar
+        </button>
+        ${p.tipo === 'novo' && p.desgaste > 50
+          ? `<button class="btn-teal btn-xs" onclick="openRecapagem(${p.id})">
+               <i class="ti ti-refresh" aria-hidden="true"></i> Recapar
+             </button>` : ''}
+      </div>`;
+    g.appendChild(card);
+  });
+}
+
+/* ── FROTA ── */
+function renderFrota() {
+  const g = document.getElementById('frotaList');
+  g.innerHTML = '';
+  FROTA.filter(v => v.tipo === 'ativo').forEach(v => {
+    const icoBg    = v.status === 'ok' ? 'var(--blue-bg)' : 'var(--amber-bg)';
+    const icoColor = v.status === 'ok' ? 'var(--blue)' : 'var(--amber)';
+    const card = document.createElement('div');
+    card.className = 'frota-card';
+    card.innerHTML = `
+      <div class="frota-hd" onclick="toggleFrota(this)">
+        <div class="frota-hd-icon" style="background:${icoBg};color:${icoColor}">
+          <i class="ti ti-truck" aria-hidden="true"></i>
+        </div>
+        <div class="frota-hd-info">
+          <div class="frota-hd-name">${v.placa} · ${v.modelo}</div>
+          <div class="frota-hd-sub">${v.km.toLocaleString('pt-BR')} km · ${v.ano}</div>
+        </div>
+        <span class="badge ${v.status}">${v.statusLabel}</span>
+        <i class="ti ti-chevron-down frota-hd-chev" aria-hidden="true"></i>
+      </div>
+      <div class="frota-bd">
+        <div class="frota-info-grid">
+          <div><div class="fi-label">Quilometragem</div><div class="fi-val">${v.km.toLocaleString('pt-BR')} km</div></div>
+          <div><div class="fi-label">Ano</div><div class="fi-val">${v.ano}</div></div>
+          <div><div class="fi-label">Status</div><div class="fi-val"><span class="badge ${v.status}">${v.statusLabel}</span></div></div>
+        </div>
+        <div class="frota-actions">
+          <button class="btn-amber btn-xs" onclick="editarVeiculo(${v.id})">
+            <i class="ti ti-edit" aria-hidden="true"></i> Editar
+          </button>
+          <button class="btn-secondary btn-xs" onclick="showTab('pneus')">
+            <i class="ti ti-circle-dashed" aria-hidden="true"></i> Ver pneus
+          </button>
+          ${CU && CU.perms.trocaVeiculo
+            ? `<button class="btn-danger-sm btn-xs" onclick="baixarVeiculo(${v.id})">
+                 <i class="ti ti-arrow-down" aria-hidden="true"></i> Dar baixa
+               </button>` : ''}
+        </div>
+      </div>`;
+    g.appendChild(card);
+  });
+}
+
+function toggleFrota(hd) {
+  const bd   = hd.nextElementSibling;
+  const chev = hd.querySelector('.frota-hd-chev');
+  const open = bd.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+/* ── TROCAS ── */
+function renderTrocas() {
+  const g = document.getElementById('trocaTimeline');
+  g.innerHTML = '';
+  TROCAS.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    item.innerHTML = `
+      <div class="tl-dot ${t.cor}">${t.tipo}</div>
+      <div class="tl-content">
+        <div class="tl-title">${t.titulo}</div>
+        <div class="tl-sub">
+          ${t.sub} ·
+          <span class="date-edit-wrap">
+            <span class="date-val" id="td_${t.id}">${t.data}</span>
+            <button class="date-edit-btn" onclick="inlineEditDate('td_${t.id}')" aria-label="Editar data">
+              <i class="ti ti-edit" aria-hidden="true"></i>
+            </button>
+          </span>
+        </div>
+      </div>`;
+    g.appendChild(item);
+  });
+}
+
+/* ── OCORRÊNCIAS ── */
+function renderOcorrencias() {
+  const fs = (document.getElementById('filtroStatus')?.value || '');
+  const fv = (document.getElementById('filtroVei')?.value    || '');
+  const ft = (document.getElementById('filtroTipo')?.value   || '');
+
+  const list = OCORRENCIAS.filter(o =>
+    (!fs || o.status === fs) &&
+    (!fv || o.veiculo === fv) &&
+    (!ft || o.tipo === ft)
+  );
+
+  const g = document.getElementById('occList');
+  g.innerHTML = '';
+
+  if (!list.length) {
+    g.innerHTML = '<p style="color:var(--text3);font-size:.85rem;padding:.5rem">Nenhuma ocorrência encontrada.</p>';
+    return;
+  }
+
+  list.forEach(o => {
+    const sc = o.status === 'Urgente' ? 'danger' : o.status === 'Em breve' ? 'warn' : o.status === 'Concluído' ? 'ok' : 'blue';
+    const tc = o.tipo === 'Pneu novo' ? 'purple' : o.tipo === 'Recapagem' ? 'teal' : o.tipo === 'Troca de veículo' ? 'blue' : '';
+    const custo = CU && CU.perms.financeiro && o.custo !== '—' ? ` · <strong>${o.custo}</strong>` : '';
+
+    const card = document.createElement('div');
+    card.className = 'occ-card';
+    card.innerHTML = `
+      <div class="occ-header">
+        <span class="list-dot ${sc}" style="margin-top:4px;flex-shrink:0"></span>
+        <div class="occ-title">
+          ${o.servico} — ${o.veiculo}
+          ${tc ? `<span class="badge ${tc}" style="font-size:.7rem;margin-left:.4rem">${o.tipo}</span>` : ''}
+        </div>
+        <span class="badge ${sc}">${o.status}</span>
+      </div>
+      <div class="occ-meta">
+        <span class="date-edit-wrap">
+          <span class="date-val" id="od_${o.id}">${o.data}</span>
+          <button class="date-edit-btn" onclick="inlineEditDate('od_${o.id}')" aria-label="Editar data">
+            <i class="ti ti-edit" aria-hidden="true"></i>
+          </button>
+        </span>
+        · ${o.mec}${custo}
+      </div>
+      ${o.desc ? `<div class="occ-desc">${o.desc}</div>` : ''}`;
+    g.appendChild(card);
+  });
+}
+
+/* ── INLINE DATE EDIT ── */
+function inlineEditDate(spanId) {
+  const span = document.getElementById(spanId);
+  if (!span) return;
+  const current = span.textContent.trim();
+  const parts   = current.split('/');
+  const isoVal  = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+  const inp = document.createElement('input');
+  inp.type = 'date';
+  inp.className = 'date-input-inline';
+  inp.value = isoVal;
+  inp.onblur = () => {
+    if (inp.value) {
+      const [y,m,d] = inp.value.split('-');
+      span.textContent = `${d}/${m}/${y}`;
+    }
+    inp.replaceWith(span);
+    showToast('Data atualizada');
+  };
+  inp.onkeydown = e => {
+    if (e.key === 'Enter') inp.blur();
+    if (e.key === 'Escape') inp.replaceWith(span);
+  };
+  span.replaceWith(inp);
+  setTimeout(() => inp.focus(), 0);
+}
+
+/* ── MODALS ── */
+function openModal(title, html, cb) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+  modalCb = cb;
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); modalCb = null; }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+function saveModal() { if (modalCb) modalCb(); closeModal(); }
+
+function fieldHtml(label, id, type, value, placeholder = '') {
+  if (type === 'select') return '';
+  return `<div class="form-field">
+    <label>${label}</label>
+    <input type="${type}" id="${id}" value="${value}" placeholder="${placeholder}"
+      style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;font-family:inherit">
+  </div>`;
+}
+
+/* Edit pneu */
+function editarPneu(id) {
+  const p = PNEUS.find(x => x.id === id);
+  if (!p) return;
+  const isoData = brToIso(p.data);
+  openModal(`Editar pneu — ${p.veiculo}`, `
+    <div class="form-row">
+      ${fieldHtml('Marca', 'ep_marca', 'text', p.marca)}
+      ${fieldHtml('Medida', 'ep_medida', 'text', p.medida)}
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Data instalação</label>
+        <input type="date" id="ep_data" value="${isoData}" style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+      </div>
+      ${fieldHtml('Desgaste (%)', 'ep_desgaste', 'number', p.desgaste)}
+    </div>
+    <div class="form-row">
+      ${fieldHtml('Km na instalação', 'ep_km', 'number', p.km)}
+      ${fieldHtml('DOT', 'ep_dot', 'text', p.dot)}
+    </div>`, () => {
+    p.marca    = v('ep_marca')    || p.marca;
+    p.medida   = v('ep_medida')   || p.medida;
+    p.desgaste = parseInt(v('ep_desgaste')) || p.desgaste;
+    p.km       = parseInt(v('ep_km'))       || p.km;
+    p.dot      = v('ep_dot')      || p.dot;
+    const dv   = v('ep_data');
+    if (dv) { const [y,m,d] = dv.split('-'); p.data = `${d}/${m}/${y}`; }
+    renderPneus('todos');
+    showToast('Pneu atualizado com sucesso');
+  });
+}
+
+/* Edit veiculo */
+function editarVeiculo(id) {
+  const vei = FROTA.find(x => x.id === id);
+  if (!vei) return;
+  openModal(`Editar veículo — ${vei.placa}`, `
+    <div class="form-row">
+      ${fieldHtml('Modelo', 'ev_modelo', 'text', vei.modelo)}
+      ${fieldHtml('Ano', 'ev_ano', 'number', vei.ano)}
+    </div>
+    <div class="form-row">
+      ${fieldHtml('Km atual', 'ev_km', 'number', vei.km)}
+      <div class="form-field"><label>Status</label>
+        <select id="ev_status" style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+          <option value="ok"     ${vei.status==='ok'?'selected':''}>Em dia</option>
+          <option value="warn"   ${vei.status==='warn'?'selected':''}>Próximo</option>
+          <option value="danger" ${vei.status==='danger'?'selected':''}>Atrasado</option>
+        </select>
+      </div>
+    </div>`, () => {
+    vei.modelo = v('ev_modelo') || vei.modelo;
+    vei.ano    = parseInt(v('ev_ano')) || vei.ano;
+    vei.km     = parseInt(v('ev_km'))  || vei.km;
+    vei.status = v('ev_status');
+    vei.statusLabel = { ok:'Em dia', warn:'Próximo', danger:'Atrasado' }[vei.status];
+    renderFrota();
+    showToast('Veículo atualizado com sucesso');
+  });
+}
+
+/* Baixar veículo */
+function baixarVeiculo(id) {
+  const vei = FROTA.find(x => x.id === id);
+  if (!vei) return;
+  openModal(`Baixar veículo — ${vei.placa}`, `
+    <p style="font-size:.875rem;color:var(--text);margin-bottom:.9rem">
+      Confirma a baixa do veículo <strong>${vei.placa} (${vei.modelo})</strong>?
+    </p>
+    <div class="form-field"><label>Motivo</label>
+      <input type="text" id="bx_motivo" placeholder="Ex: Venda, sucateamento..."
+        style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Data da baixa</label>
+        <input type="date" id="bx_data"
+          style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+      </div>
+      <div class="form-field financial-only"><label>Valor (R$)</label>
+        <input type="number" id="bx_valor" placeholder="0,00"
+          style="width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem">
+      </div>
+    </div>`, () => {
+    vei.tipo = 'baixado';
+    const dv = v('bx_data');
+    const motivo = v('bx_motivo') || 'Baixa';
+    let dataStr = new Date().toLocaleDateString('pt-BR');
+    if (dv) { const [y,m,d] = dv.split('-'); dataStr = `${d}/${m}/${y}`; }
+    const cv = v('bx_valor');
+    const custo = cv ? 'R$ ' + parseFloat(cv).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—';
+    OCORRENCIAS.unshift({ id: OCORRENCIAS.length + 1, veiculo: vei.placa, tipo: 'Troca de veículo', servico: 'Baixa', data: dataStr, status: 'Concluído', mec: 'Setor admin', custo, desc: motivo });
+    TROCAS.unshift({ id: TROCAS.length + 1, tipo: '−', cor: 'purple', titulo: `${vei.placa} baixado — ${vei.modelo}`, sub: motivo, data: dataStr });
+    renderFrota(); renderTrocas(); renderOcorrencias();
+    showToast(`${vei.placa} baixado da frota`, '#C0392B');
+  });
+}
+
+/* ── REGISTER ── */
+function openRegister(type) {
+  if (!CU || !CU.perms.registrar) { showToast('Sem permissão para registrar', '#C0392B'); return; }
+  showTab('registrar');
+  setTimeout(() => selectRegType(type), 80);
+}
+
+function openRecapagem(pneuId) {
+  const p = PNEUS.find(x => x.id === pneuId);
+  if (!p) return;
+  openRegister(2);
+  setTimeout(() => {
+    const el = document.getElementById('rcPlaca');
+    if (el) el.value = p.veiculo;
+  }, 150);
+  showToast('Pneu pré-selecionado para recapagem');
+}
+
+function selectRegType(i) {
+  regTypeSel = i;
+  [0,1,2,3].forEach(j => {
+    const b = document.getElementById(`rtBtn${j}`);
+    if (b) b.classList.toggle('selected', j === i);
+  });
+  const ids = ['formManutencao','formPneu','formRecapagem','formVeiculo'];
+  ids.forEach((id, j) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = j === i ? 'block' : 'none';
+  });
+  const btn = document.getElementById('btnSalvar');
+  if (btn) btn.style.display = 'block';
+
+  const el = document.getElementById(ids[i]);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function salvarRegistro() {
+  const tipos = ['Manutenção','Pneu novo','Recapagem','Troca de veículo'];
+  const tipo = tipos[regTypeSel] || 'Manutenção';
+  let veiculo = '—', servico = '—', mec = '—', custo = '—', desc = '';
+  let data = new Date().toLocaleDateString('pt-BR');
+
+  if (regTypeSel === 0) {
+    veiculo = v('mPlaca'); servico = v('mTipo');
+    data = isoToBr(v('mData')) || data;
+    mec = v('mMec') || '—';
+    custo = formatCusto(v('mCusto'));
+    desc = v('mDesc');
+  } else if (regTypeSel === 1) {
+    veiculo = v('pnPlaca'); servico = v('pnEixo');
+    data = isoToBr(v('pnData')) || data;
+    mec = v('pnMarca') || '—';
+    custo = formatCusto(v('pnCusto'));
+    const kmN = parseInt(v('pnKm')) || 0;
+    if (veiculo && servico) {
+      PNEUS.push({ id: PNEUS.length + 1, veiculo, eixo: servico, marca: mec, medida: v('pnMedida') || '—', tipo: 'novo', desgaste: 0, km: kmN, data, custo: parseFloat(v('pnCusto')) || 0, dot: v('pnDot') || '—' });
+    }
+    desc = `${v('pnMedida')} DOT ${v('pnDot')}`;
+  } else if (regTypeSel === 2) {
+    veiculo = v('rcPlaca'); servico = v('rcEixo');
+    data = isoToBr(v('rcSaida')) || data;
+    mec = v('rcRecap') || '—';
+    custo = formatCusto(v('rcCusto'));
+    desc = v('rcObs');
+    const existing = PNEUS.find(p => p.veiculo === veiculo);
+    if (existing) { existing.tipo = 'recapado'; existing.desgaste = 15; }
+  } else if (regTypeSel === 3) {
+    veiculo = v('vPlaca') || '—'; servico = v('vTipo');
+    data = isoToBr(v('vData')) || data;
+    mec = 'Setor admin'; custo = formatCusto(v('vValor'));
+    desc = v('vObs');
+    const modelo = v('vModelo');
+    if (veiculo !== '—' && modelo && servico.includes('Incorp')) {
+      const kmN = parseInt(v('vKm')) || 0;
+      FROTA.push({ id: FROTA.length + 1, placa: veiculo, modelo, ano: new Date().getFullYear(), km: kmN, status: 'ok', statusLabel: 'Em dia', tipo: 'ativo' });
+      TROCAS.unshift({ id: TROCAS.length + 1, tipo: '+', cor: 'blue', titulo: `${veiculo} incorporado — ${modelo}`, sub: v('vMotivo') || 'Incorporação', data });
+    }
+  }
+
+  OCORRENCIAS.unshift({ id: OCORRENCIAS.length + 1, veiculo, tipo, servico, data, status: 'Concluído', mec, custo, desc });
+  renderFrota(); renderTrocas(); renderOcorrencias(); renderPneus('todos');
+  showToast('Registro salvo com sucesso!');
+  showTab('ocorrencias');
+}
+
+/* ── IA ── */
+async function sendIA(prompt) {
+  const input = document.getElementById('iaInput');
+  const q = prompt || input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  const resp = document.getElementById('iaResp');
+  const txt  = document.getElementById('iaText');
+  resp.style.display = 'block';
+  txt.innerHTML = '<span style="color:var(--text3);font-style:italic">Consultando IA...</span>';
+
+  const ctx = FROTA.filter(f => f.tipo === 'ativo').map(f => `${f.placa} ${f.modelo} ${f.km.toLocaleString('pt-BR')}km`).join(', ');
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Você é especialista em manutenção de frotas de caminhões pesados, pneus e recapagens. Responda em português de forma prática e objetiva. Frota atual: ${ctx}.`,
+        messages: [{ role: 'user', content: q }]
+      })
+    });
+    const d = await r.json();
+    const ans = d.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    txt.innerHTML = ans.replace(/\n/g, '<br>');
+  } catch(e) {
+    txt.innerHTML = 'Erro ao conectar com a IA. Verifique sua conexão.';
+  }
+}
+
+/* ── HELPERS ── */
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+function brToIso(br) {
+  const p = br.split('/');
+  return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : '';
+}
+function isoToBr(iso) {
+  if (!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function formatCusto(val) {
+  if (!val) return '—';
+  return 'R$ ' + parseFloat(val).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+
+function showToast(msg, bg) {
+  const t   = document.getElementById('toast');
+  const msg_el = document.getElementById('toastMsg');
+  msg_el.textContent = msg;
+  t.style.background = bg || 'var(--text)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+</script>
+<script>
+/* ── EXPRESSO PB — EXTRA JS ── */
+/* Sem template literals, sem aspas misturadas */
+
+var ADMIN_EMAIL = 'daphinin@frotaexpressopb.com';
+var GS_URL = 'https://script.google.com/macros/s/AKfycbwqkJbzc9RMh1TxD-QfvR-mVu1sy47dzfuAheCIQW0luhHA21DQMlM4qfvE8daXaw8/exec';
+
+/* ── GOOGLE SHEETS ── */
+function showSync(msg, tipo) {
+  var b = document.getElementById('syncBar');
+  if (!b) return;
+  b.style.background = tipo==='ok' ? '#1A4A22' : tipo==='warn' ? '#7A3C00' : '#0C1F3D';
+  b.style.display = 'block'; b.style.opacity = '1'; b.textContent = msg;
+  if (tipo==='ok'||tipo==='warn') setTimeout(function(){b.style.opacity='0';setTimeout(function(){b.style.display='none';},300);},3000);
+}
+function gsRead(sheet) {
+  return fetch(GS_URL+'?action=read&sheet='+encodeURIComponent(sheet))
+    .then(function(r){return r.json();}).then(function(d){return d.ok?d.data:[];}).catch(function(){return[];});
+}
+function gsWrite(sheet,rows) {
+  return fetch(GS_URL+'?action=write&sheet='+encodeURIComponent(sheet)+'&rows='+encodeURIComponent(JSON.stringify(rows)))
+    .then(function(r){return r.json();}).then(function(d){return d.ok;}).catch(function(){return false;});
+}
+function saveToSheets() {
+  showSync('Salvando na planilha...','saving');
+  var fr=[['id','placa','modelo','motorista','carreta','ano','km','status','statusLabel','tipo']];
+  FROTA.forEach(function(v){fr.push([v.id,v.placa,v.modelo,v.motorista||'',v.carreta||'',v.ano,v.km,v.status,v.statusLabel,v.tipo]);});
+  var pr=[['id','veiculo','eixo','marca','medida','tipo','desgaste','km','data','custo','dot']];
+  PNEUS.forEach(function(p){pr.push([p.id,p.veiculo,p.eixo,p.marca,p.medida,p.tipo,p.desgaste,p.km,p.data,p.custo,p.dot]);});
+  var or=[['id','veiculo','tipo','servico','data','status','mec','custo','desc']];
+  OCORRENCIAS.forEach(function(o){or.push([o.id,o.veiculo,o.tipo,o.servico,o.data,o.status,o.mec,o.custo,o.desc]);});
+  var lr=[['n','data_br','fornecedor','desc','placa','motorista','modelo','valor','pagto','mes','mes_num']];
+  LANCAMENTOS.forEach(function(l){lr.push([l.n,l.data_br,l.fornecedor,l.desc,l.placa||'',l.motorista,l.modelo,l.valor,l.pagto,l.mes||'',l.mes_num||0]);});
+  Promise.all([gsWrite('frota',fr),gsWrite('pneus',pr),gsWrite('ocorrencias',or),gsWrite('lancamentos',lr)])
+    .then(function(){showSync('Salvo!','ok');});
+}
+function loadFromSheets() {
+  showSync('Carregando...','saving');
+  Promise.all([gsRead('frota'),gsRead('pneus'),gsRead('ocorrencias'),gsRead('lancamentos')])
+    .then(function(res) {
+      var fD=res[0],pD=res[1],oD=res[2],lD=res[3],n=0;
+      if(fD.length>1){FROTA=fD.slice(1).filter(function(r){return r[1];}).map(function(r){return{id:+r[0]||Date.now(),placa:r[1],modelo:r[2],motorista:r[3]||'',carreta:r[4]||'',ano:+r[5]||0,km:+r[6]||0,status:r[7]||'ok',statusLabel:r[8]||'Em dia',tipo:r[9]||'ativo'};});n++;}
+      if(pD.length>1){PNEUS=pD.slice(1).filter(function(r){return r[1];}).map(function(r){return{id:+r[0]||Date.now(),veiculo:r[1],eixo:r[2],marca:r[3],medida:r[4],tipo:r[5]||'novo',desgaste:+r[6]||0,km:+r[7]||0,data:r[8],custo:+r[9]||0,dot:r[10]||''};});n++;}
+      if(oD.length>1){OCORRENCIAS=oD.slice(1).filter(function(r){return r[1];}).map(function(r){return{id:+r[0]||Date.now(),veiculo:r[1],tipo:r[2],servico:r[3],data:r[4],status:r[5],mec:r[6],custo:r[7]||'',desc:r[8]||''};});n++;}
+      if(lD.length>1){LANCAMENTOS=lD.slice(1).filter(function(r){return r[0];}).map(function(r){return{n:+r[0],data_br:r[1],fornecedor:r[2],desc:r[3],placa:r[4]||'',motorista:r[5]||'',modelo:r[6]||'',valor:+r[7]||0,pagto:r[8]||'',mes:r[9]||'',mes_num:+r[10]||0};});n++;}
+      if(n===0){saveToSheets();}else{showSync('Sincronizado!','ok');}
+      renderAll();
+    }).catch(function(){showSync('Offline','warn');renderAll();});
+}
+function renderAll() {
+  renderPneus('todos'); renderFrota(); renderTrocas(); renderOcorrencias(); renderPainelRanking();
+  /* Sempre atualiza o financeiro se estiver visível */
+  setTimeout(function() {
+    var finSection = document.getElementById('financeiro');
+    if (finSection && finSection.classList.contains('active')) renderFinanceiro();
+  }, 200);
+}
+
+/* ── PAINEL RANKING ── */
+function renderPainelRanking() {
+  var byMot={};
+  LANCAMENTOS.forEach(function(l){if(l.motorista==='—'||!l.motorista)return;byMot[l.motorista]=(byMot[l.motorista]||0)+l.valor;});
+  var sorted=Object.entries(byMot).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  if(!sorted.length)return;
+  var max=sorted[0][1];
+  var el=document.getElementById('painelRanking');
+  if(!el)return;
+  var cls=['r1','r2','r3','rn','rn'];
+  var col=['#C0392B','#D97706','#1A5FA8','#1A5FA8','#1A5FA8'];
+  var h='';
+  sorted.forEach(function(pair,i){
+    var pct=(pair[1]/max*100).toFixed(1);
+    var money='R$\u00a0'+pair[1].toLocaleString('pt-BR',{minimumFractionDigits:2});
+    h+='<div class="rank-item">'
+      +'<div class="rank-num '+cls[i]+'">'+(i+1)+'</div>'
+      +'<div class="rank-bar-wrap">'
+      +'<div class="rank-name">'+pair[0]+'</div>'
+      +'<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+col[i]+'"></div></div>'
+      +'</div>'
+      +'<div class="rank-val">'+money+'</div>'
+      +'</div>';
+  });
+  el.innerHTML=h;
+}
+
+/* ── RELATÓRIOS ── */
+function gerarRelatorioDiario() {
+  var el=document.getElementById('relData');
+  var val=el?el.value:'';
+  var hoje='';
+  if(val){var p=val.split('-');hoje=p[2]+'/'+p[1]+'/'+p[0];}
+  else{hoje=new Date().toLocaleDateString('pt-BR');}
+  showTab('relatorios');
+  renderRelatorio(hoje,'');
+}
+function gerarRelatorioFrota(){showTab('relatorios');renderRelatorio('','');}
+function filtrarRelatorio(){
+  var dEl=document.getElementById('relData');
+  var vEl=document.getElementById('relVeiculo');
+  var val=dEl?dEl.value:'';
+  var vei=vEl?vEl.value:'';
+  var dataBr='';
+  if(val){var p=val.split('-');dataBr=p[2]+'/'+p[1]+'/'+p[0];}
+  var placa=vei?vei.split(' — ')[0].trim():'';
+  if(placa){mostrarDetalheVeiculo(placa,dataBr);}else{renderRelatorio(dataBr,'');}
+}
+function voltarRelatorio(){
+  document.getElementById('relVeiculoDetalhe').style.display='none';
+  document.getElementById('relConteudo').style.display='block';
+}
+
+function renderRelatorio(dataFiltro, placa) {
+  document.getElementById('relConteudo').style.display='block';
+  document.getElementById('relVeiculoDetalhe').style.display='none';
+  var occs=dataFiltro?OCORRENCIAS.filter(function(o){return o.data===dataFiltro;}):OCORRENCIAS;
+  var urg=occs.filter(function(o){return o.status==='Urgente';}).length;
+  var pend=occs.filter(function(o){return o.status==='Em breve';}).length;
+  var conc=occs.filter(function(o){return o.status==='Concluido';}).length;
+  var title=dataFiltro?'Dia '+dataFiltro:'Frota completa';
+  document.getElementById('relMetrics').innerHTML=
+    '<div class="metric-card"><span class="metric-label">'+title+'</span><span class="metric-value">'+occs.length+'</span></div>'
+    +'<div class="metric-card"><span class="metric-label">Urgentes</span><span class="metric-value danger">'+urg+'</span></div>'
+    +'<div class="metric-card"><span class="metric-label">Pendentes</span><span class="metric-value warn">'+pend+'</span></div>'
+    +'<div class="metric-card"><span class="metric-label">Concluidos</span><span class="metric-value ok">'+conc+'</span></div>';
+
+  var byVei={};
+  occs.forEach(function(o){if(!byVei[o.veiculo])byVei[o.veiculo]=[];byVei[o.veiculo].push(o);});
+  var ordem=['Urgente','Em breve','Concluido'];
+  var veicSort=Object.entries(byVei).sort(function(a,b){
+    var sa=Math.min.apply(null,a[1].map(function(x){return(ordem.indexOf(x.status)+1)||9;}));
+    var sb=Math.min.apply(null,b[1].map(function(x){return(ordem.indexOf(x.status)+1)||9;}));
+    return sa-sb;
+  });
+  if(!veicSort.length){document.getElementById('relCards').innerHTML='<div class="card" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma ocorrencia encontrada.</div>';return;}
+
+  var h='';
+  veicSort.forEach(function(pair){
+    var veiculo=pair[0],items=pair[1];
+    var vdata=FROTA.find(function(f){return f.placa===veiculo;});
+    var motorista=vdata?vdata.motorista:(veiculo==='FROTA'?'Patrimonio':'');
+    var ws=items.find(function(i){return i.status==='Urgente';})?'danger':items.find(function(i){return i.status==='Em breve';})?'warn':'ok';
+    var wl=ws==='danger'?'Urgente':ws==='warn'?'Pendente':'OK';
+    var bColor=ws==='danger'?'var(--red)':ws==='warn'?'#D97706':'var(--green)';
+    var iColor=ws==='danger'?'var(--red)':ws==='warn'?'#D97706':'var(--green)';
+    var iBg=ws==='danger'?'var(--red-bg)':ws==='warn'?'var(--amber-bg)':'var(--green-bg)';
+    var rows='';
+    items.slice(0,2).forEach(function(o){
+      var dc=o.status==='Urgente'?'danger':o.status==='Em breve'?'warn':'ok';
+      var cs=(CU&&CU.perms.financeiro&&o.custo&&o.custo!=='—')?'<span style="margin-left:auto;color:var(--text3)">'+o.custo+'</span>':'';
+      rows+='<div style="display:flex;align-items:center;gap:.4rem;font-size:.78rem"><span class="list-dot '+dc+'"></span>'+o.servico+cs+'</div>';
+    });
+    var mais=items.length>2?'<span style="font-size:.75rem;color:var(--blue)">+ '+(items.length-2)+' mais</span>':'';
+    // Use data-placa attribute to avoid quote issues in onclick
+    h+='<div class="card" style="margin-bottom:.6rem;cursor:pointer;border-left:3px solid '+bColor+'" data-placa="'+veiculo+'" onclick="abrirVeiculo(this)">'
+      +'<div style="display:flex;align-items:flex-start;gap:.75rem">'
+      +'<div style="width:38px;height:38px;border-radius:var(--radius);background:'+iBg+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-truck" style="font-size:18px;color:'+iColor+'" aria-hidden="true"></i></div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:3px;flex-wrap:wrap"><span style="font-size:.875rem;font-weight:500">'+veiculo+'</span><span style="font-size:.75rem;color:var(--text3)">'+motorista+'</span><span class="badge '+ws+'" style="margin-left:auto">'+wl+'</span></div>'
+      +'<div style="font-size:.78rem;color:var(--text3);margin-bottom:5px">'+items.length+(items.length>1?' ocorrencias':' ocorrencia')+'</div>'
+      +rows+mais
+      +'</div></div></div>';
+  });
+  document.getElementById('relCards').innerHTML=h;
+}
+
+function abrirVeiculo(el) {
+  var placa=el.getAttribute('data-placa');
+  mostrarDetalheVeiculo(placa,'');
+}
+
+function mostrarDetalheVeiculo(placa, dataFiltro) {
+  document.getElementById('relConteudo').style.display='none';
+  document.getElementById('relVeiculoDetalhe').style.display='block';
+  var vdata=FROTA.find(function(f){return f.placa===placa;});
+  var motorista=vdata?vdata.motorista:'';
+  var modelo=vdata?vdata.modelo:'';
+  var carreta=vdata?vdata.carreta:'';
+  var occs=dataFiltro?OCORRENCIAS.filter(function(o){return o.veiculo===placa&&o.data===dataFiltro;}):OCORRENCIAS.filter(function(o){return o.veiculo===placa;});
+  var pneusList=PNEUS.filter(function(p){return p.veiculo===placa;});
+  var lancList=LANCAMENTOS.filter(function(l){return l.placa===placa;});
+  var totalGasto=lancList.reduce(function(a,b){return a+b.valor;},0);
+  var showFin=CU&&CU.perms.financeiro;
+  var finBox=showFin?'<div style="background:var(--red-bg);border-radius:var(--radius);padding:.5rem .75rem"><div style="color:var(--text3);margin-bottom:2px">Total gasto</div><div style="font-weight:600;color:var(--red)">R$ '+totalGasto.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</div></div>':'<div></div>';
+  var h='<div class="card" style="margin-bottom:.75rem">'
+    +'<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">'
+    +'<div style="width:48px;height:48px;border-radius:var(--radius);background:var(--amber-bg);display:flex;align-items:center;justify-content:center"><i class="ti ti-truck" style="font-size:24px;color:var(--amber-text)" aria-hidden="true"></i></div>'
+    +'<div><div style="font-size:1rem;font-weight:600">'+placa+'</div><div style="font-size:.82rem;color:var(--text3)">'+motorista+' · '+modelo+'</div></div>'
+    +'<span class="badge '+(vdata?vdata.status:'gray')+'" style="margin-left:auto">'+(vdata?vdata.statusLabel:'')+'</span></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;font-size:.78rem">'
+    +'<div style="background:var(--surface2);border-radius:var(--radius);padding:.5rem .75rem"><div style="color:var(--text3);margin-bottom:2px">Carreta</div><div style="font-weight:500">'+carreta+'</div></div>'
+    +'<div style="background:var(--surface2);border-radius:var(--radius);padding:.5rem .75rem"><div style="color:var(--text3);margin-bottom:2px">Km</div><div style="font-weight:500">'+(vdata&&vdata.km?vdata.km.toLocaleString('pt-BR')+' km':'')+'</div></div>'
+    +finBox
+    +'</div></div>';
+
+  h+='<div class="card" style="margin-bottom:.75rem"><div class="card-title"><i class="ti ti-clipboard-list" aria-hidden="true"></i> Ocorrencias ('+occs.length+')</div>';
+  if(occs.length){
+    occs.forEach(function(o){
+      var dc=o.status==='Urgente'?'danger':o.status==='Em breve'?'warn':'ok';
+      var cs=showFin&&o.custo&&o.custo!=='—'?' · '+o.custo:'';
+      h+='<div style="display:flex;align-items:flex-start;gap:.6rem;padding:.6rem 0;border-bottom:1px solid var(--border)">'
+        +'<span class="list-dot '+dc+'" style="margin-top:4px"></span>'
+        +'<div style="flex:1"><div style="font-size:.85rem;font-weight:500">'+o.servico+'</div>'
+        +'<div style="font-size:.75rem;color:var(--text3);margin-top:2px">'+o.data+' · '+o.mec+cs+'</div>'
+        +(o.desc?'<div style="font-size:.78rem;color:var(--text2);margin-top:4px;background:var(--surface2);padding:5px 8px;border-radius:5px">'+o.desc+'</div>':'')
+        +'</div><span class="badge '+dc+'">'+o.status+'</span></div>';
+    });
+  }else{h+='<div style="color:var(--text3);font-size:.85rem;padding:.5rem">Nenhuma ocorrencia.</div>';}
+  h+='</div>';
+
+  if(pneusList.length){
+    h+='<div class="card" style="margin-bottom:.75rem"><div class="card-title"><i class="ti ti-circle-dashed" aria-hidden="true"></i> Pneus ('+pneusList.length+')</div>';
+    pneusList.forEach(function(p){
+      var bc=p.desgaste>=80?'var(--red)':p.desgaste>=55?'#D97706':'var(--green)';
+      h+='<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">'
+        +'<div style="flex:1"><div style="font-size:.82rem;font-weight:500">'+p.eixo+'</div><div style="font-size:.75rem;color:var(--text3)">'+p.marca+' · '+p.medida+'</div></div>'
+        +'<div style="width:80px"><div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--text3);margin-bottom:2px"><span>Desgaste</span><span style="color:'+bc+';font-weight:600">'+p.desgaste+'%</span></div>'
+        +'<div style="height:4px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:'+p.desgaste+'%;height:100%;background:'+bc+';border-radius:2px"></div></div></div></div>';
+    });
+    h+='</div>';
+  }
+
+  if(showFin&&lancList.length){
+    h+='<div class="card"><div class="card-title"><i class="ti ti-receipt" aria-hidden="true"></i> Lancamentos ('+lancList.length+')</div>';
+    lancList.forEach(function(l){
+      h+='<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.78rem">'
+        +'<span style="color:var(--text3);min-width:80px">'+l.data_br+'</span>'
+        +'<div style="flex:1;color:var(--text)">'+l.desc+'<div style="font-size:.72rem;color:var(--text3)">'+l.fornecedor+'</div></div>'
+        +'<span style="font-weight:600;color:var(--text)">R$ '+l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span></div>';
+    });
+    h+='<div style="text-align:right;font-size:.82rem;font-weight:600;color:var(--red);margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border)">Total: R$ '+totalGasto.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</div></div>';
+  }
+  document.getElementById('relDetalheConteudo').innerHTML=h;
+}
+
+/* ── FINANCEIRO ── */
+function brMoney(v){return 'R$\u00a0'+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+var _cM=null,_cL=null;
+function renderFinanceiro(){
+  var fMes=(document.getElementById('filtroFinMes')||{value:''}).value||'';
+  var fMot=(document.getElementById('filtroFinMot')||{value:''}).value||'';
+  var fil=LANCAMENTOS.filter(function(l){return(!fMes||String(l.mes_num)===fMes)&&(!fMot||l.motorista===fMot);});
+  var tot=fil.reduce(function(a,b){return a+b.valor;},0);
+  var totG=LANCAMENTOS.reduce(function(a,b){return a+b.valor;},0);
+  var m=document.getElementById('finMetrics');
+  if(m)m.innerHTML='<div class="metric-card"><span class="metric-label">Total filtrado</span><span class="metric-value" style="font-size:1.1rem">'+brMoney(tot)+'</span></div>'
+    +'<div class="metric-card financial-only"><span class="metric-label">Total 2026</span><span class="metric-value" style="font-size:1.1rem">'+brMoney(totG)+'</span></div>'
+    +'<div class="metric-card"><span class="metric-label">Lancamentos</span><span class="metric-value">'+fil.length+'</span></div>'
+    +'<div class="metric-card"><span class="metric-label">Ticket medio</span><span class="metric-value" style="font-size:1rem">'+(fil.length?brMoney(tot/fil.length):brMoney(0))+'</span></div>';
+
+  var byM={};
+  LANCAMENTOS.forEach(function(l){if(!l.motorista||l.motorista==='—')return;byM[l.motorista]=(byM[l.motorista]||0)+l.valor;});
+  var mS=Object.entries(byM).sort(function(a,b){return b[1]-a[1];});
+  var mxM=mS.length?mS[0][1]:1;
+  var cls3=['r1','r2','r3','rn','rn','rn','rn','rn'];
+  var col3=['#C0392B','#D97706','#1A5FA8'];
+  var rm=document.getElementById('rankMotorista');
+  if(rm){var h='';mS.forEach(function(p,i){var pct=(p[1]/mxM*100).toFixed(1);h+='<div class="rank-item"><div class="rank-num '+cls3[i]+'">'+(i+1)+'</div><div class="rank-bar-wrap"><div class="rank-name">'+p[0]+'</div><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+(col3[i]||'#1A5FA8')+'"></div></div></div><div class="rank-val">'+brMoney(p[1])+'</div></div>';});rm.innerHTML=h;}
+
+  var byV={};
+  LANCAMENTOS.forEach(function(l){if(!l.placa)return;if(!byV[l.placa])byV[l.placa]={t:0,m:l.motorista};byV[l.placa].t+=l.valor;});
+  var vS=Object.entries(byV).sort(function(a,b){return b[1].t-a[1].t;});
+  var mxV=vS.length?vS[0][1].t:1;
+  var rv=document.getElementById('rankVeiculo');
+  if(rv){var h2='';vS.forEach(function(p,i){var pct=(p[1].t/mxV*100).toFixed(1);h2+='<div class="rank-item"><div class="rank-num '+cls3[i]+'">'+(i+1)+'</div><div class="rank-bar-wrap"><div class="rank-name">'+p[0]+' <span style="font-size:.75rem;color:var(--text3)">'+p[1].m+'</span></div><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+(col3[i]||'#1A5FA8')+'"></div></div></div><div class="rank-val">'+brMoney(p[1].t)+'</div></div>';});rv.innerHTML=h2;}
+
+  /* ── RANKING POR TIPO DE SERVIÇO ── */
+  var byServ = {};
+  LANCAMENTOS.forEach(function(l) {
+    if (!l.desc) return;
+    /* Categorize by keywords in description */
+    var desc = l.desc.toLowerCase();
+    var cat = 'Outros';
+    if (desc.indexOf('pneu') >= 0 || desc.indexOf('borracha') >= 0 || desc.indexOf('rodizio') >= 0 || desc.indexOf('vulcaniz') >= 0) cat = 'Pneus';
+    else if (desc.indexOf('socorro') >= 0 || desc.indexOf('reboque') >= 0) cat = 'Socorro / Reboque';
+    else if (desc.indexOf('filtro') >= 0 || desc.indexOf('oleo') >= 0 || desc.indexOf('motor') >= 0) cat = 'Filtros / Oleo';
+    else if (desc.indexOf('freio') >= 0 || desc.indexOf('lona') >= 0 || desc.indexOf('tambor') >= 0) cat = 'Freios';
+    else if (desc.indexOf('mangueira') >= 0 || desc.indexOf('valvula') >= 0 || desc.indexOf('arla') >= 0) cat = 'Mangueiras / Hidraulico';
+    else if (desc.indexOf('eletric') >= 0 || desc.indexOf('modulo') >= 0 || desc.indexOf('sensor') >= 0 || desc.indexOf('chicote') >= 0) cat = 'Eletrica';
+    else if (desc.indexOf('suspensao') >= 0 || desc.indexOf('mola') >= 0 || desc.indexOf('amortecedor') >= 0) cat = 'Suspensao';
+    else if (desc.indexOf('tacografo') >= 0 || desc.indexOf('aferica') >= 0) cat = 'Tacografo';
+    else if (desc.indexOf('compra') >= 0 && desc.indexOf('pneu') >= 0) cat = 'Pneus';
+    if (!byServ[cat]) byServ[cat] = 0;
+    byServ[cat] += l.valor;
+  });
+  var servSort = Object.entries(byServ).sort(function(a,b){return b[1]-a[1];});
+  var mxS = servSort.length ? servSort[0][1] : 1;
+  var rs = document.getElementById('rankServico');
+  if (rs) {
+    var hs = '';
+    var iconsServ = {'Pneus':'ti-circle-dashed','Socorro / Reboque':'ti-crane','Filtros / Oleo':'ti-droplet','Freios':'ti-hand-stop','Mangueiras / Hidraulico':'ti-pipe','Eletrica':'ti-bolt','Suspensao':'ti-car-crash','Tacografo':'ti-device-watch','Outros':'ti-tool'};
+    servSort.forEach(function(p,i) {
+      var pct = (p[1]/mxS*100).toFixed(1);
+      var ic = iconsServ[p[0]] || 'ti-tool';
+      hs += '<div class="rank-item">'
+          + '<div class="rank-num '+(cls3[i]||'rn')+'">'+(i+1)+'</div>'
+          + '<div class="rank-bar-wrap">'
+          + '<div class="rank-name"><i class="ti '+ic+'" style="font-size:12px;margin-right:4px"></i>'+p[0]+'</div>'
+          + '<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+(col3[i]||'#1A5FA8')+'"></div></div>'
+          + '</div>'
+          + '<div class="rank-val">'+brMoney(p[1])+'</div>'
+          + '</div>';
+    });
+    rs.innerHTML = hs || '<p style="color:var(--text3);font-size:.82rem">Sem dados</p>';
+  }
+
+  /* ── RANKING POR FORNECEDOR ── */
+  var byForn = {};
+  LANCAMENTOS.forEach(function(l) {
+    if (!l.fornecedor || l.fornecedor === '—') return;
+    if (!byForn[l.fornecedor]) byForn[l.fornecedor] = 0;
+    byForn[l.fornecedor] += l.valor;
+  });
+  var fornSort = Object.entries(byForn).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
+  var mxF = fornSort.length ? fornSort[0][1] : 1;
+  var rf = document.getElementById('rankFornecedor');
+  if (rf) {
+    var hf = '';
+    fornSort.forEach(function(p,i) {
+      var pct = (p[1]/mxF*100).toFixed(1);
+      hf += '<div class="rank-item">'
+          + '<div class="rank-num '+(cls3[i]||'rn')+'">'+(i+1)+'</div>'
+          + '<div class="rank-bar-wrap">'
+          + '<div class="rank-name">'+p[0]+'</div>'
+          + '<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+pct+'%;background:'+(col3[i]||'#1A5FA8')+'"></div></div>'
+          + '</div>'
+          + '<div class="rank-val">'+brMoney(p[1])+'</div>'
+          + '</div>';
+    });
+    rf.innerHTML = hf || '<p style="color:var(--text3);font-size:.82rem">Sem dados</p>';
+  }
+
+  
+
+  
+
+  var lEl=document.getElementById('lancamentosList');
+  if(lEl){
+    if(!fil.length){lEl.innerHTML='<p style="color:var(--text3);padding:.5rem">Nenhum lancamento.</p>';}
+    else{var lh='';fil.forEach(function(l){var plate=l.placa?'<span class="lanc-plate">'+l.placa+'</span>':'';lh+='<div class="lanc-row"><span class="lanc-date">'+l.data_br+'</span><div class="lanc-desc"><div>'+l.desc+'</div><div class="lanc-sub">'+l.fornecedor+'</div></div>'+plate+'<span class="lanc-val">'+brMoney(l.valor)+'</span></div>';});lEl.innerHTML=lh;}
+  }
+
+  if(typeof Chart!=='undefined'){
+    var cmEl=document.getElementById('chartMotorista');
+    if(cmEl){if(_cM)_cM.destroy();_cM=new Chart(cmEl,{type:'bar',data:{labels:mS.map(function(p){return p[0].split(' ')[0];}),datasets:[{data:mS.map(function(p){return p[1];}),backgroundColor:mS.map(function(_,i){return i===0?'#C0392B':i===1?'#D97706':'#1A5FA8';}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return 'R$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false}}}}});}
+    var cLEl=document.getElementById('chartMes');
+    if(cLEl){if(_cL)_cL.destroy();var bM={'Marco':0,'Abril':0,'Maio':0};LANCAMENTOS.forEach(function(l){if(l.mes_num===3)bM['Marco']+=l.valor;else if(l.mes_num===4)bM['Abril']+=l.valor;else if(l.mes_num===5)bM['Maio']+=l.valor;});_cL=new Chart(cLEl,{type:'line',data:{labels:Object.keys(bM),datasets:[{data:Object.values(bM),borderColor:'#F59E0B',backgroundColor:'rgba(245,158,11,.12)',tension:.35,fill:true,pointBackgroundColor:'#F59E0B',pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return 'R$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false}}}}});}
+  }
+}
+
+/* ── EXTENDS ── */
+var _origDoLogin=doLogin;
+doLogin=function(){
+  _origDoLogin();
+  var app=document.getElementById('appScreen');
+  if(app&&app.classList.contains('active')){
+    var emailEl=document.getElementById('loginEmail');
+    var em=emailEl?emailEl.value.trim():'';
+    var seName=document.getElementById('sidebarEmail');
+    if(seName)seName.textContent=em===ADMIN_EMAIL?'DAPHININ':em.split('@')[0];
+    renderAll();
+    loadFromSheets();
+  }
+};
+
+var _origSalvar=salvarRegistro;
+salvarRegistro=function(){_origSalvar();saveToSheets();};
+var _origSaveModal=saveModal;
+saveModal=function(){
+  _origSaveModal();
+  saveToSheets();
+  /* Atualiza financeiro em tempo real */
+  setTimeout(function(){
+    var finEl=document.getElementById('financeiro');
+    if(finEl&&finEl.classList.contains('active'))renderFinanceiro();
+    renderPainelRanking();
+  },150);
+};
+
+var _origST=showTab;
+showTab=function(id){
+  _origST(id);
+  var titles={painel:'Painel',pneus:'Pneus',frota:'Frota',ocorrencias:'Ocorrencias',relatorios:'Relatorios',registrar:'Registrar',financeiro:'Financeiro',permissoes:'Permissoes',ia:'Assistente IA'};
+  var pt=document.getElementById('pageTitle');
+  if(pt&&titles[id])pt.textContent=titles[id];
+  if(id==='financeiro'){
+    if(typeof Chart!=='undefined'){setTimeout(renderFinanceiro,80);}
+    else{var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';s.onload=function(){setTimeout(renderFinanceiro,100);};document.head.appendChild(s);}
+  }
+  if(id==='relatorios'){
+    var today=new Date().toISOString().split('T')[0];
+    var rdEl=document.getElementById('relData');
+    if(rdEl&&!rdEl.value)rdEl.value=today;
+    setTimeout(function(){renderRelatorio('','');},80);
+  }
+};
+
+</script>
+<script>
+/* ── MÓDULO COMPLETO DE PNEUS — EXPRESSO PB ── */
+
+/* Dados de compras e instalações */
+var COMPRAS_PNEU = [];
+var INSTALACOES_PNEU = [];
+
+/* Inicializa com dados históricos reais */
+function initPneusData() {
+  if (COMPRAS_PNEU.length === 0) {
+    COMPRAS_PNEU = [
+      { id:1, data:'28/04/2026', fornecedor:'Kropneus', marca:'Meridional Torino GS853', medida:'295/80R22.5', tipo:'tracao',    qtd:8, valorUnit:1927.00, valorTotal:15416.00, pagto:'Cartao 10x', obs:'NF Kropneus 28/04', mes:4, ano:2026 },
+      { id:2, data:'17/04/2026', fornecedor:'Patrimonial Pneus', marca:'Goodtrip GHA20', medida:'295/80R22.5', tipo:'direcional', qtd:6, valorUnit:1930.00, valorTotal:11580.00, pagto:'Cartao 10x', obs:'NF 243 Serie 1', mes:4, ano:2026 },
+      { id:3, data:'03/04/2026', fornecedor:'Kropneus', marca:'Casumina GS851',       medida:'295/80R22.5', tipo:'tracao',    qtd:4, valorUnit:1740.00, valorTotal:6960.00,  pagto:'A vista',    obs:'Orcamento Kropneus 03/04', mes:4, ano:2026 },
+    ];
+  }
+  if (INSTALACOES_PNEU.length === 0) {
+    INSTALACOES_PNEU = [
+      { id:1, placa:'QSH-9C56', motorista:'Carlos A.',        data:'29/04/2026', eixo:'Dianteiro esquerdo', marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'direcional', condicao:'novo',    km:0,      obs:'', desgaste:10, mes:4, ano:2026 },
+      { id:2, placa:'QSH-9C56', motorista:'Carlos A.',        data:'29/04/2026', eixo:'Dianteiro direito',  marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'direcional', condicao:'novo',    km:0,      obs:'', desgaste:10, mes:4, ano:2026 },
+      { id:3, placa:'QSK-2H66', motorista:'Allan R.',         data:'17/04/2026', eixo:'Dianteiro',          marca:'Goodtrip GHA20',   medida:'295/80R22.5', tipo:'direcional', condicao:'novo',    km:0,      obs:'', desgaste:20, mes:4, ano:2026 },
+      { id:4, placa:'QYA-3I45', motorista:'Marcos Antonio',   data:'03/04/2026', eixo:'Tracao',             marca:'Casumina GS851',   medida:'295/80R22.5', tipo:'tracao',     condicao:'novo',    km:0,      obs:'', desgaste:15, mes:4, ano:2026 },
+      { id:5, placa:'OYM-4G46', motorista:'Josenildo Vieira', data:'22/04/2026', eixo:'Traseiro rodizio',   marca:'',                 medida:'295/80R22.5', tipo:'tracao',     condicao:'recapado',km:0,      obs:'', desgaste:65, mes:4, ano:2026 },
+      { id:6, placa:'QYB-2A80', motorista:'Petronio Jose',    data:'04/05/2026', eixo:'Pneu consertado',    marca:'',                 medida:'295/80R22.5', tipo:'tracao',     condicao:'novo',    km:0,      obs:'Vulcanizacao R$150 + pito R$50', desgaste:50, mes:5, ano:2026 },
+      { id:7, placa:'RLR-1H73', motorista:'Sergio Soares',    data:'28/04/2026', eixo:'Tracao necessita 4', marca:'Meridional Torino',medida:'295/80R22.5', tipo:'tracao',     condicao:'novo',    km:421117, obs:'4 pneus necessarios', desgaste:95, mes:4, ano:2026 },
+    ];
+  }
+}
+
+/* ── MÉTRICAS DO TOPO ── */
+function renderPneuMetrics() {
+  initPneusData();
+  var totalComprado = COMPRAS_PNEU.reduce(function(a,b){return a+b.valorTotal;},0);
+  var totalQtd = COMPRAS_PNEU.reduce(function(a,b){return a+b.qtd;},0);
+  var instalados = INSTALACOES_PNEU.length;
+  var estoque = totalQtd - instalados;
+  if (estoque < 0) estoque = 0;
+  var criticos = INSTALACOES_PNEU.filter(function(p){return p.desgaste>=80;}).length;
+
+  var el = document.getElementById('pneuMetrics');
+  if (!el) return;
+  el.innerHTML =
+    '<div class="metric-card"><span class="metric-label">Total gasto em pneus</span><span class="metric-value" style="font-size:1.1rem">R$\u00a0'+totalComprado.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Pneus comprados</span><span class="metric-value">'+totalQtd+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Em estoque</span><span class="metric-value ok">'+estoque+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Instalados</span><span class="metric-value blue">'+instalados+'</span></div>'
+   +'<div class="metric-card"><span class="metric-label">Criticos (desgaste)</span><span class="metric-value '+(criticos>0?'danger':'ok')+'">'+criticos+'</span></div>';
+}
+
+/* ── ABAS INTERNAS ── */
+function showPneuTab(tab) {
+  var tabs = ['estoque','compras','instalados','mensal'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('pneu-tab-'+t);
+    var btn = document.getElementById('ptab-'+t);
+    if (el) el.style.display = t===tab ? 'block' : 'none';
+    if (btn) { btn.classList.toggle('active', t===tab); }
+  });
+  if (tab==='estoque')   renderEstoque();
+  if (tab==='compras')   renderCompras();
+  if (tab==='instalados') renderInstaladosList();
+  if (tab==='mensal')    renderMensal();
+}
+
+/* ── ESTOQUE ── */
+function renderEstoque() {
+  initPneusData();
+  var el = document.getElementById('estoqueList');
+  if (!el) return;
+
+  var totalQtd = COMPRAS_PNEU.reduce(function(a,b){return a+b.qtd;},0);
+  var instalados = INSTALACOES_PNEU.length;
+  var estoque = totalQtd - instalados;
+  if (estoque < 0) estoque = 0;
+
+  /* Agrupa compras por tipo */
+  var porTipo = {};
+  COMPRAS_PNEU.forEach(function(c) {
+    var key = c.tipo;
+    if (!porTipo[key]) porTipo[key] = {qtd:0, marcas:{}};
+    porTipo[key].qtd += c.qtd;
+    porTipo[key].marcas[c.marca] = (porTipo[key].marcas[c.marca]||0) + c.qtd;
+  });
+
+  var h = '';
+
+  /* Card de resumo do estoque */
+  h += '<div class="card" style="margin-bottom:.75rem;border-left:3px solid '+(estoque>0?'var(--green)':'var(--red)')+'">'
+     + '<div style="display:flex;align-items:center;gap:1rem">'
+     + '<div style="width:52px;height:52px;border-radius:var(--radius);background:'+(estoque>0?'var(--green-bg)':'var(--red-bg)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+     + '<i class="ti ti-package" style="font-size:26px;color:'+(estoque>0?'var(--green)':'var(--red)')+'" aria-hidden="true"></i></div>'
+     + '<div><div style="font-size:1.4rem;font-weight:700;color:'+(estoque>0?'var(--green)':'var(--red)')+'">'+estoque+' pneu'+(estoque!==1?'s':'')+' em estoque</div>'
+     + '<div style="font-size:.82rem;color:var(--text3)">'+totalQtd+' comprados — '+instalados+' instalados</div></div>'
+     + '<button class="btn-primary btn-sm" style="margin-left:auto" onclick="openInstalacaoModal()"><i class="ti ti-truck"></i> Instalar</button>'
+     + '</div></div>';
+
+  /* Cards por tipo */
+  Object.entries(porTipo).forEach(function(pair) {
+    var tipo = pair[0], d = pair[1];
+    var marcasStr = Object.entries(d.marcas).map(function(m){return m[1]+'x '+m[0];}).join(', ');
+    var icon = tipo==='tracao' ? 'ti-circle-dashed' : tipo==='direcional' ? 'ti-arrow-right' : 'ti-refresh';
+    var tipoLabel = tipo==='tracao' ? 'Tração' : tipo==='direcional' ? 'Direcional' : 'Livre';
+    h += '<div class="card" style="margin-bottom:.6rem">'
+       + '<div style="display:flex;align-items:center;gap:.75rem">'
+       + '<div style="width:36px;height:36px;border-radius:var(--radius);background:var(--amber-bg);display:flex;align-items:center;justify-content:center"><i class="ti '+icon+'" style="font-size:18px;color:var(--amber-text)"></i></div>'
+       + '<div style="flex:1"><div style="font-size:.875rem;font-weight:500">Pneus '+tipoLabel+'</div><div style="font-size:.78rem;color:var(--text3)">'+marcasStr+'</div></div>'
+       + '<div style="font-size:1.5rem;font-weight:700;color:var(--text)">'+d.qtd+'</div>'
+       + '</div></div>';
+  });
+
+  if (!COMPRAS_PNEU.length) {
+    h = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)"><i class="ti ti-package" style="font-size:36px;display:block;margin-bottom:.5rem"></i>Nenhuma compra registrada ainda.</div>';
+  }
+
+  el.innerHTML = h;
+}
+
+/* ── COMPRAS ── */
+function renderCompras() {
+  initPneusData();
+  var el = document.getElementById('comprasList');
+  if (!el) return;
+
+  if (!COMPRAS_PNEU.length) {
+    el.innerHTML = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma compra registrada.</div>';
+    return;
+  }
+
+  var sorted = COMPRAS_PNEU.slice().sort(function(a,b){return b.id-a.id;});
+  var h = '';
+  sorted.forEach(function(c) {
+    h += '<div class="card" style="margin-bottom:.6rem">'
+       + '<div style="display:flex;align-items:flex-start;gap:.75rem">'
+       + '<div style="width:38px;height:38px;border-radius:var(--radius);background:var(--blue-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-receipt" style="font-size:18px;color:var(--blue)"></i></div>'
+       + '<div style="flex:1">'
+       + '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:4px">'
+       + '<span style="font-size:.875rem;font-weight:500">'+c.fornecedor+'</span>'
+       + '<span class="badge blue">'+c.qtd+' pneus</span>'
+       + '<span style="font-size:.78rem;font-weight:600;color:var(--green);margin-left:auto">R$\u00a0'+c.valorTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+       + '</div>'
+       + '<div style="font-size:.8rem;color:var(--text2);margin-bottom:3px">'+c.marca+' · '+c.medida+' · '+(c.tipo==='tracao'?'Tração':c.tipo==='direcional'?'Direcional':'Livre')+'</div>'
+       + '<div style="font-size:.75rem;color:var(--text3)">'
+       + c.data+' · R$\u00a0'+c.valorUnit.toLocaleString('pt-BR',{minimumFractionDigits:2})+' un. · '+c.pagto
+       + (c.obs ? ' · '+c.obs : '')
+       + '</div>'
+       + '</div>'
+       + '<button onclick="deleteCompra('+c.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:2px 4px;border-radius:4px;flex-shrink:0" title="Remover"><i class="ti ti-trash"></i></button>'
+       + '</div></div>';
+  });
+  el.innerHTML = h;
+}
+
+function deleteCompra(id) {
+  if (!confirm('Remover esta compra?')) return;
+  COMPRAS_PNEU = COMPRAS_PNEU.filter(function(c){return c.id!==id;});
+  renderCompras();
+  renderEstoque();
+  renderPneuMetrics();
+  savePneusToSheets();
+}
+
+/* ── INSTALADOS ── */
+function renderInstaladosList() {
+  initPneusData();
+  var el = document.getElementById('instaladosList');
+  if (!el) return;
+
+  var filtro = (document.getElementById('filtroVeiculoPneu')||{value:''}).value || '';
+  var lista = filtro
+    ? INSTALACOES_PNEU.filter(function(p){return p.placa===filtro;})
+    : INSTALACOES_PNEU;
+
+  if (!lista.length) {
+    el.innerHTML = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma instalação registrada.</div>';
+    return;
+  }
+
+  /* Agrupa por veículo */
+  var byVei = {};
+  lista.forEach(function(p) {
+    if (!byVei[p.placa]) byVei[p.placa] = [];
+    byVei[p.placa].push(p);
+  });
+
+  var h = '';
+  Object.entries(byVei).forEach(function(pair) {
+    var placa = pair[0], items = pair[1];
+    var vdata = FROTA.find(function(f){return f.placa===placa;});
+    var motorista = vdata ? vdata.motorista : placa;
+    h += '<div class="card" style="margin-bottom:.75rem">'
+       + '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem">'
+       + '<div style="width:34px;height:34px;border-radius:var(--radius);background:var(--amber-bg);display:flex;align-items:center;justify-content:center"><i class="ti ti-truck" style="font-size:17px;color:var(--amber-text)"></i></div>'
+       + '<div><div style="font-size:.875rem;font-weight:600">'+placa+'</div><div style="font-size:.75rem;color:var(--text3)">'+motorista+'</div></div>'
+       + '<span class="badge blue" style="margin-left:auto">'+items.length+' pneu'+(items.length>1?'s':'')+'</span>'
+       + '</div>';
+
+    items.forEach(function(p) {
+      var bc = p.desgaste>=80?'var(--red)':p.desgaste>=55?'#D97706':'var(--green)';
+      var condLabel = p.condicao==='novo'?'Novo':p.condicao==='recapado'?'Recapado':'Usado';
+      h += '<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">'
+         + '<div style="flex:1">'
+         + '<div style="font-size:.82rem;font-weight:500">'+p.eixo+'</div>'
+         + '<div style="font-size:.75rem;color:var(--text3)">'+p.marca+' · '+p.medida+' · '+condLabel+' · '+p.data+'</div>'
+         + '</div>'
+         + '<div style="width:90px;text-align:right">'
+         + '<div style="font-size:.72rem;color:var(--text3);margin-bottom:2px">Desgaste</div>'
+         + '<div style="display:flex;align-items:center;gap:.4rem">'
+         + '<div style="flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:'+p.desgaste+'%;height:100%;background:'+bc+';border-radius:2px"></div></div>'
+         + '<span style="font-size:.72rem;font-weight:600;color:'+bc+';white-space:nowrap">'+p.desgaste+'%</span>'
+         + '</div></div>'
+         + '<button onclick="deleteInstalacao('+p.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px;border-radius:4px" title="Remover"><i class="ti ti-trash"></i></button>'
+         + '</div>';
+    });
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function deleteInstalacao(id) {
+  if (!confirm('Remover esta instalação?')) return;
+  INSTALACOES_PNEU = INSTALACOES_PNEU.filter(function(p){return p.id!==id;});
+  renderInstaladosList();
+  renderPneuMetrics();
+  savePneusToSheets();
+}
+
+/* ── GASTO MENSAL ── */
+var _chartPM = null, _chartPV = null;
+function renderMensal() {
+  initPneusData();
+  var el = document.getElementById('mensalList');
+  if (!el) return;
+
+  /* Total por mês */
+  var porMes = {};
+  COMPRAS_PNEU.forEach(function(c) {
+    var key = c.mes+'/'+c.ano;
+    if (!porMes[key]) porMes[key] = {total:0, qtd:0, label: c.mes+'/'+c.ano};
+    porMes[key].total += c.valorTotal;
+    porMes[key].qtd += c.qtd;
+  });
+
+  /* Total por veículo */
+  var porVei = {};
+  INSTALACOES_PNEU.forEach(function(p) {
+    if (!porVei[p.placa]) porVei[p.placa] = {qtd:0, placa:p.placa};
+    porVei[p.placa].qtd++;
+  });
+
+  /* Table de resumo mensal */
+  var meses = Object.values(porMes).sort(function(a,b){return a.label.localeCompare(b.label);});
+  var totalGeral = COMPRAS_PNEU.reduce(function(a,b){return a+b.valorTotal;},0);
+  var totalPneus = COMPRAS_PNEU.reduce(function(a,b){return a+b.qtd;},0);
+
+  var h = '<div class="card" style="margin-bottom:.75rem">'
+        + '<div class="card-title"><i class="ti ti-calendar" aria-hidden="true"></i> Resumo mensal</div>';
+
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.78rem;font-weight:500;color:var(--text3);padding:.4rem .5rem;background:var(--surface2);border-radius:var(--radius);margin-bottom:.5rem">'
+     + '<span>Mês</span><span style="text-align:center">Pneus</span><span style="text-align:right">Valor</span></div>';
+
+  meses.forEach(function(m) {
+    var mesNome = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m.label.split('/')[0])] || m.label;
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.82rem;padding:.45rem .5rem;border-bottom:1px solid var(--border)">'
+       + '<span style="font-weight:500">'+mesNome+'/'+m.label.split('/')[1]+'</span>'
+       + '<span style="text-align:center;color:var(--blue)">'+m.qtd+' un.</span>'
+       + '<span style="text-align:right;font-weight:600;color:var(--green)">R$\u00a0'+m.total.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+       + '</div>';
+  });
+
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;font-size:.85rem;padding:.5rem .5rem;font-weight:700">'
+     + '<span>Total</span><span style="text-align:center;color:var(--blue)">'+totalPneus+' un.</span>'
+     + '<span style="text-align:right;color:var(--red)">R$\u00a0'+totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+     + '</div></div>';
+
+  el.innerHTML = h;
+
+  /* Charts */
+  if (typeof Chart !== 'undefined') {
+    var cmEl = document.getElementById('chartPneuMes');
+    if (cmEl && meses.length) {
+      if (_chartPM) _chartPM.destroy();
+      var mLabels = meses.map(function(m){
+        return ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(m.label.split('/')[0])]||m.label;
+      });
+      _chartPM = new Chart(cmEl, {type:'bar',
+        data:{labels:mLabels, datasets:[{data:meses.map(function(m){return m.total;}),backgroundColor:'#F59E0B',borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{y:{ticks:{callback:function(v){return 'R$'+Math.round(v/1000)+'k';}},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false}}}}});
+    }
+    var cvEl = document.getElementById('chartPneuVei');
+    if (cvEl) {
+      if (_chartPV) _chartPV.destroy();
+      var veiEntries = Object.entries(porVei).sort(function(a,b){return b[1].qtd-a[1].qtd;});
+      _chartPV = new Chart(cvEl, {type:'bar',
+        data:{labels:veiEntries.map(function(p){return p[0];}),
+              datasets:[{data:veiEntries.map(function(p){return p[1].qtd;}),backgroundColor:'#1A5FA8',borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{y:{ticks:{stepSize:1},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{display:false}}}}});
+    }
+  }
+}
+
+/* ── MODAIS ── */
+function openCompraModal() {
+  var el = document.getElementById('modalCompra');
+  if (el) { el.style.display = 'flex'; }
+  var today = new Date().toISOString().split('T')[0];
+  var dpEl = document.getElementById('cpData');
+  if (dpEl && !dpEl.value) dpEl.value = today;
+  /* Auto-calc total */
+  var qtdEl = document.getElementById('cpQtd');
+  var unitEl = document.getElementById('cpValorUnit');
+  var totEl = document.getElementById('cpValorTotal');
+  function calcTotal() {
+    var q = parseFloat(qtdEl.value)||0;
+    var u = parseFloat(unitEl.value)||0;
+    totEl.value = 'R$\u00a0' + (q*u).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  }
+  if (qtdEl) qtdEl.oninput = calcTotal;
+  if (unitEl) unitEl.oninput = calcTotal;
+}
+
+function closeCompraModal() {
+  var el = document.getElementById('modalCompra');
+  if (el) el.style.display = 'none';
+}
+
+function salvarCompra() {
+  var data     = document.getElementById('cpData').value;
+  var forn     = document.getElementById('cpFornecedor').value.trim();
+  var marca    = document.getElementById('cpMarca').value.trim();
+  var medida   = document.getElementById('cpMedida').value.trim();
+  var tipo     = document.getElementById('cpTipo').value;
+  var qtd      = parseInt(document.getElementById('cpQtd').value)||0;
+  var unit     = parseFloat(document.getElementById('cpValorUnit').value)||0;
+  var pagto    = document.getElementById('cpPagto').value.trim();
+  var obs      = document.getElementById('cpObs').value.trim();
+
+  if (!data || !forn || !marca || qtd<=0 || unit<=0) {
+    alert('Preencha: data, fornecedor, marca, quantidade e valor unitário.');
+    return;
+  }
+
+  var parts = data.split('-');
+  var dataBr = parts[2]+'/'+parts[1]+'/'+parts[0];
+  var mes = parseInt(parts[1]);
+  var ano = parseInt(parts[0]);
+
+  COMPRAS_PNEU.push({
+    id: Date.now(), data:dataBr, fornecedor:forn, marca:marca,
+    medida:medida||'295/80R22.5', tipo:tipo, qtd:qtd,
+    valorUnit:unit, valorTotal:qtd*unit, pagto:pagto, obs:obs, mes:mes, ano:ano
+  });
+
+  /* Adiciona ao LANCAMENTOS para aparecer no Financeiro */
+  var mesAtual = mes;
+  var mesNomes = {1:'January',2:'February',3:'March',4:'April',5:'May',6:'June',7:'July',8:'August',9:'September',10:'October',11:'November',12:'December'};
+  LANCAMENTOS.unshift({
+    n: LANCAMENTOS.length + 1,
+    data_br: dataBr,
+    fornecedor: forn,
+    desc: 'Compra pneu: ' + marca + ' (' + qtd + ' un)',
+    placa: '',
+    motorista: '—',
+    modelo: '—',
+    valor: qtd * unit,
+    pagto: pagto,
+    mes: mesNomes[mes] + '/' + ano,
+    mes_num: mes
+  });
+
+  closeCompraModal();
+  renderEstoque(); renderCompras(); renderPneuMetrics();
+  showPneuTab('estoque');
+  savePneusToSheets();
+  saveToSheets();
+  /* Atualiza financeiro em tempo real */
+  setTimeout(function() {
+    var finEl = document.getElementById('financeiro');
+    if (finEl && finEl.classList.contains('active')) renderFinanceiro();
+    renderPainelRanking();
+  }, 150);
+  alert('Compra registrada! ' + qtd + ' pneus adicionados ao estoque.');
+}
+
+function openInstalacaoModal() {
+  var el = document.getElementById('modalInstalacao');
+  if (el) el.style.display = 'flex';
+  var today = new Date().toISOString().split('T')[0];
+  var dpEl = document.getElementById('instData');
+  if (dpEl && !dpEl.value) dpEl.value = today;
+}
+
+function closeInstalacaoModal() {
+  var el = document.getElementById('modalInstalacao');
+  if (el) el.style.display = 'none';
+}
+
+function salvarInstalacao() {
+  var placaVal = document.getElementById('instPlaca').value;
+  var data     = document.getElementById('instData').value;
+  var eixo     = document.getElementById('instEixo').value;
+  var km       = parseInt(document.getElementById('instKm').value)||0;
+  var marca    = document.getElementById('instMarca').value.trim();
+  var medida   = document.getElementById('instMedida').value.trim();
+  var tipo     = document.getElementById('instTipo').value;
+  var condicao = document.getElementById('instCondicao').value;
+  var obs      = document.getElementById('instObs').value.trim();
+
+  if (!placaVal || !data || !eixo) {
+    alert('Preencha veículo, data e posição/eixo.');
+    return;
+  }
+
+  var placa = placaVal.split(' — ')[0].trim();
+  var parts = data.split('-');
+  var dataBr = parts[2]+'/'+parts[1]+'/'+parts[0];
+  var mes = parseInt(parts[1]);
+  var ano = parseInt(parts[0]);
+
+  var vdata = FROTA.find(function(f){return f.placa===placa;});
+  var motorista = vdata ? vdata.motorista : '';
+
+  INSTALACOES_PNEU.push({
+    id:Date.now(), placa:placa, motorista:motorista, data:dataBr,
+    eixo:eixo, marca:marca, medida:medida||'295/80R22.5',
+    tipo:tipo, condicao:condicao, km:km, obs:obs, desgaste:0, mes:mes, ano:ano
+  });
+
+  closeInstalacaoModal();
+  renderInstaladosList(); renderPneuMetrics(); renderEstoque();
+  showPneuTab('instalados');
+  savePneusToSheets();
+  alert('Instalação registrada em ' + placa + '!');
+}
+
+/* ── SYNC COM SHEETS ── */
+function savePneusToSheets() {
+  if (typeof gsWrite !== 'function') return;
+  var cpRows = [['id','data','fornecedor','marca','medida','tipo','qtd','valorUnit','valorTotal','pagto','obs','mes','ano']];
+  COMPRAS_PNEU.forEach(function(c){cpRows.push([c.id,c.data,c.fornecedor,c.marca,c.medida,c.tipo,c.qtd,c.valorUnit,c.valorTotal,c.pagto,c.obs,c.mes,c.ano]);});
+  var ipRows = [['id','placa','motorista','data','eixo','marca','medida','tipo','condicao','km','obs','desgaste','mes','ano']];
+  INSTALACOES_PNEU.forEach(function(p){ipRows.push([p.id,p.placa,p.motorista,p.data,p.eixo,p.marca,p.medida,p.tipo,p.condicao,p.km,p.obs,p.desgaste,p.mes,p.ano]);});
+  gsWrite('compras_pneu', cpRows);
+  gsWrite('instalacoes_pneu', ipRows);
+}
+
+/* Inicializa ao abrir a aba */
+function initPneusTab() {
+  initPneusData();
+  renderPneuMetrics();
+  showPneuTab('estoque');
+}
+
+var _origSTpneus=showTab;showTab=function(id){_origSTpneus(id);if(id==='pneus')setTimeout(initPneusTab,60);};
+</script>
+<script>
+/* ═══════════════════════════════════════════════════
+   MÓDULO: CADASTROS + DOCUMENTOS + RELATÓRIO MENSAL
+   Expresso PB — FrotaControl
+═══════════════════════════════════════════════════ */
+
+/* ── DADOS ── */
+var DOCUMENTOS = [];
+var ADMIN_EMAIL_GLOBAL = 'daphinin@frotaexpressopb.com';
+
+function initDocumentos() {
+  if (DOCUMENTOS.length === 0) {
+    DOCUMENTOS = [
+      /* Motoristas */
+      { id:1, tipo:'motorista', nome:'Sergio Soares',    placa:'RLR-1H73', documento:'CNH',            numero:'123456789',  vencimento:'2027-03-15', obs:'' },
+      { id:2, tipo:'motorista', nome:'Marcos Antonio',   placa:'QYA-3I45', documento:'CNH',            numero:'987654321',  vencimento:'2026-08-20', obs:'' },
+      { id:3, tipo:'motorista', nome:'Cicero E.',         placa:'QYA-6G28', documento:'CNH',            numero:'456789123',  vencimento:'2026-06-10', obs:'' },
+      { id:4, tipo:'motorista', nome:'Allan R.',          placa:'QSK-2H66', documento:'CNH',            numero:'321654987',  vencimento:'2027-01-05', obs:'' },
+      { id:5, tipo:'motorista', nome:'Carlos A.',         placa:'QSH-9C56', documento:'CNH',            numero:'654987321',  vencimento:'2025-12-30', obs:'VENCIDO' },
+      { id:6, tipo:'motorista', nome:'Joel',              placa:'RLU-7G93', documento:'CNH',            numero:'789123456',  vencimento:'2026-09-18', obs:'' },
+      { id:7, tipo:'motorista', nome:'Josenildo Vieira',  placa:'OYM-4G46', documento:'CNH',            numero:'159357486',  vencimento:'2027-05-22', obs:'' },
+      { id:8, tipo:'motorista', nome:'Petronio Jose',     placa:'QYB-2A80', documento:'CNH',            numero:'357159264',  vencimento:'2026-11-14', obs:'' },
+      /* Veículos */
+      { id:9,  tipo:'veiculo', nome:'RLR-1H73', placa:'RLR-1H73', documento:'CRLV',        numero:'RLR1H73',    vencimento:'2026-12-31', obs:'' },
+      { id:10, tipo:'veiculo', nome:'QYA-3I45', placa:'QYA-3I45', documento:'CRLV',        numero:'QYA3I45',    vencimento:'2026-12-31', obs:'' },
+      { id:11, tipo:'veiculo', nome:'QYA-6G28', placa:'QYA-6G28', documento:'CRLV',        numero:'QYA6G28',    vencimento:'2026-12-31', obs:'' },
+      { id:12, tipo:'veiculo', nome:'QSK-2H66', placa:'QSK-2H66', documento:'Tacografo',   numero:'TAC2H66',    vencimento:'2026-07-15', obs:'' },
+      { id:13, tipo:'veiculo', nome:'QSH-9C56', placa:'QSH-9C56', documento:'Seguro',      numero:'SEG9C56',    vencimento:'2026-10-01', obs:'' },
+      { id:14, tipo:'veiculo', nome:'OYM-4G46', placa:'OYM-4G46', documento:'CRLV',        numero:'OYM4G46',    vencimento:'2026-12-31', obs:'' },
+      { id:15, tipo:'veiculo', nome:'QYB-2A80', placa:'QYB-2A80', documento:'Tacografo',   numero:'TAC2A80',    vencimento:'2026-08-20', obs:'' },
+    ];
+  }
+}
+
+/* ── HELPERS ── */
+function diasParaVencer(vencimento) {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var venc = new Date(vencimento + 'T00:00:00');
+  return Math.round((venc - hoje) / (1000*60*60*24));
+}
+
+function statusVencimento(dias) {
+  if (dias < 0)   return { label:'VENCIDO',       cls:'danger' };
+  if (dias <= 30) return { label:'Vence em '+dias+'d', cls:'danger' };
+  if (dias <= 90) return { label:'Vence em '+dias+'d', cls:'warn' };
+  return { label:'OK',              cls:'ok' };
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  var p = iso.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+/* ── ABA CADASTROS ── */
+function showCadTab(tab) {
+  var tabs = ['motoristas','veiculos','documentos'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('cad-tab-'+t);
+    var btn = document.getElementById('ctab-'+t);
+    if (el) el.style.display = t===tab ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', t===tab);
+  });
+  if (tab==='motoristas') renderCadMotoristas();
+  if (tab==='veiculos')   renderCadVeiculos();
+  if (tab==='documentos') renderDocumentos();
+}
+
+/* ── CADASTRO MOTORISTAS ── */
+function renderCadMotoristas() {
+  var el = document.getElementById('cadMotoristasList');
+  if (!el) return;
+  var h = '';
+  FROTA.forEach(function(v) {
+    var docsM = DOCUMENTOS.filter(function(d){return d.tipo==='motorista'&&d.placa===v.placa;});
+    var vencendo = docsM.filter(function(d){return diasParaVencer(d.vencimento)<=90;}).length;
+    h += '<div class="card" style="margin-bottom:.6rem">'
+       + '<div style="display:flex;align-items:center;gap:.75rem">'
+       + '<div style="width:40px;height:40px;border-radius:50%;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--amber-text);flex-shrink:0">'
+       + (v.motorista||'?').split(' ').map(function(n){return n[0];}).join('').slice(0,2).toUpperCase()
+       + '</div>'
+       + '<div style="flex:1">'
+       + '<div style="font-size:.875rem;font-weight:500">'+v.motorista+'</div>'
+       + '<div style="font-size:.78rem;color:var(--text3)">'+v.placa+' · '+v.modelo+' · Carreta: '+v.carreta+'</div>'
+       + '</div>'
+       + (vencendo>0?'<span class="badge danger">'+vencendo+' doc vencendo</span>':'<span class="badge ok">Docs OK</span>')
+       + '<button onclick="openDocModal(\'motorista\',\''+v.placa+'\',\''+v.motorista+'\')" class="btn-primary btn-sm" style="margin-left:8px"><i class="ti ti-plus"></i></button>'
+       + '</div>'
+       + (docsM.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'
+         + docsM.map(function(d){
+             var st=statusVencimento(diasParaVencer(d.vencimento));
+             return '<span style="font-size:.72rem;padding:2px 8px;border-radius:999px;border:.5px solid var(--border);background:var(--surface2)">'
+               +d.documento+' <span class="badge '+st.cls+'" style="font-size:.65rem">'+st.label+'</span>'
+               +'<button onclick="deleteDoc('+d.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0 2px">✕</button>'
+               +'</span>';
+           }).join('')
+         +'</div>':'')
+       + '</div>';
+  });
+  el.innerHTML = h || '<p style="color:var(--text3);padding:1rem">Nenhum motorista cadastrado.</p>';
+}
+
+/* ── CADASTRO VEÍCULOS ── */
+function renderCadVeiculos() {
+  var el = document.getElementById('cadVeiculosList');
+  if (!el) return;
+  var h = '';
+  FROTA.forEach(function(v) {
+    var docsV = DOCUMENTOS.filter(function(d){return d.tipo==='veiculo'&&d.placa===v.placa;});
+    var vencendo = docsV.filter(function(d){return diasParaVencer(d.vencimento)<=90;}).length;
+    var stColor = v.status==='danger'?'var(--red)':v.status==='warn'?'#D97706':'var(--green)';
+    h += '<div class="card" style="margin-bottom:.6rem;border-left:3px solid '+stColor+'">'
+       + '<div style="display:flex;align-items:center;gap:.75rem">'
+       + '<div style="width:40px;height:40px;border-radius:var(--radius);background:var(--blue-bg);display:flex;align-items:center;justify-content:center"><i class="ti ti-truck" style="font-size:20px;color:var(--blue)"></i></div>'
+       + '<div style="flex:1">'
+       + '<div style="font-size:.875rem;font-weight:500">'+v.placa+' <span style="font-size:.75rem;color:var(--text3)">'+v.modelo+'</span></div>'
+       + '<div style="font-size:.78rem;color:var(--text3)">'+v.motorista+' · Carreta: '+v.carreta+'</div>'
+       + '</div>'
+       + (vencendo>0?'<span class="badge danger">'+vencendo+' doc vencendo</span>':'<span class="badge ok">Docs OK</span>')
+       + '<button onclick="openDocModal(\'veiculo\',\''+v.placa+'\',\''+v.placa+'\')" class="btn-primary btn-sm" style="margin-left:8px"><i class="ti ti-plus"></i></button>'
+       + '</div>'
+       + (docsV.length?'<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'
+         + docsV.map(function(d){
+             var st=statusVencimento(diasParaVencer(d.vencimento));
+             return '<span style="font-size:.72rem;padding:2px 8px;border-radius:999px;border:.5px solid var(--border);background:var(--surface2)">'
+               +d.documento+' · '+d.numero+' <span class="badge '+st.cls+'" style="font-size:.65rem">'+st.label+'</span>'
+               +'<button onclick="deleteDoc('+d.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:0 2px">✕</button>'
+               +'</span>';
+           }).join('')
+         +'</div>':'')
+       + '</div>';
+  });
+  el.innerHTML = h;
+}
+
+/* ── DOCUMENTOS GERAL ── */
+function renderDocumentos() {
+  initDocumentos();
+  var el = document.getElementById('docsList');
+  if (!el) return;
+
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var alertas = DOCUMENTOS.filter(function(d){return diasParaVencer(d.vencimento)<=90;})
+                           .sort(function(a,b){return diasParaVencer(a.vencimento)-diasParaVencer(b.vencimento);});
+
+  var h = '';
+
+  /* Alertas no topo */
+  if (alertas.length) {
+    h += '<div class="card" style="margin-bottom:.75rem;border-left:3px solid var(--red)">'
+       + '<div class="card-title"><i class="ti ti-alert-triangle" style="color:var(--red)"></i> Documentos vencidos ou vencendo em 90 dias</div>';
+    alertas.forEach(function(d) {
+      var dias = diasParaVencer(d.vencimento);
+      var st = statusVencimento(dias);
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:.5px solid var(--border);font-size:.8rem">'
+         + '<span class="badge '+st.cls+'">'+st.label+'</span>'
+         + '<span style="font-weight:500">'+d.nome+'</span>'
+         + '<span style="color:var(--text3)">'+d.documento+'</span>'
+         + '<span style="color:var(--text3);margin-left:auto">Vence: '+formatDate(d.vencimento)+'</span>'
+         + '</div>';
+    });
+    h += '</div>';
+  }
+
+  /* Todos os docs agrupados por tipo */
+  ['motorista','veiculo'].forEach(function(tipo) {
+    var docs = DOCUMENTOS.filter(function(d){return d.tipo===tipo;})
+                          .sort(function(a,b){return diasParaVencer(a.vencimento)-diasParaVencer(b.vencimento);});
+    if (!docs.length) return;
+    h += '<div class="card" style="margin-bottom:.75rem">'
+       + '<div class="card-title"><i class="ti ti-'+(tipo==='motorista'?'user':'truck')+'" aria-hidden="true"></i> '
+       + (tipo==='motorista'?'Documentos dos motoristas':'Documentos dos veículos')+'</div>';
+    docs.forEach(function(d) {
+      var dias = diasParaVencer(d.vencimento);
+      var st = statusVencimento(dias);
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border)">'
+         + '<div style="flex:1">'
+         + '<div style="font-size:.82rem;font-weight:500">'+d.nome+' <span style="font-size:.72rem;color:var(--text3)">— '+d.documento+'</span></div>'
+         + '<div style="font-size:.72rem;color:var(--text3)">Nº '+d.numero+(d.obs?' · '+d.obs:'')+'</div>'
+         + '</div>'
+         + '<div style="text-align:right">'
+         + '<span class="badge '+st.cls+'">'+st.label+'</span>'
+         + '<div style="font-size:.72rem;color:var(--text3);margin-top:2px">'+formatDate(d.vencimento)+'</div>'
+         + '</div>'
+         + '<button onclick="deleteDoc('+d.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px;border-radius:4px"><i class="ti ti-trash"></i></button>'
+         + '</div>';
+    });
+    h += '</div>';
+  });
+
+  if (!DOCUMENTOS.length) h = '<div class="card" style="text-align:center;padding:2rem;color:var(--text3)">Nenhum documento cadastrado.</div>';
+  el.innerHTML = h;
+}
+
+/* ── MODAL DOCUMENTO ── */
+function openDocModal(tipo, placa, nome) {
+  var el = document.getElementById('modalDoc');
+  if (!el) return;
+  el.style.display = 'flex';
+  var title = document.getElementById('modalDocTitle');
+  if (title) title.textContent = 'Adicionar documento — ' + nome;
+  document.getElementById('docTipo').value = tipo;
+  document.getElementById('docPlaca').value = placa;
+  document.getElementById('docNome').value = nome;
+  document.getElementById('docDocumento').value = tipo==='motorista'?'CNH':'CRLV';
+  document.getElementById('docNumero').value = '';
+  document.getElementById('docVencimento').value = '';
+  document.getElementById('docObs').value = '';
+}
+
+function closeDocModal() {
+  var el = document.getElementById('modalDoc');
+  if (el) el.style.display = 'none';
+}
+
+function salvarDoc() {
+  var tipo       = document.getElementById('docTipo').value;
+  var placa      = document.getElementById('docPlaca').value;
+  var nome       = document.getElementById('docNome').value;
+  var documento  = document.getElementById('docDocumento').value.trim();
+  var numero     = document.getElementById('docNumero').value.trim();
+  var vencimento = document.getElementById('docVencimento').value;
+  var obs        = document.getElementById('docObs').value.trim();
+
+  if (!documento || !vencimento) { alert('Preencha o tipo de documento e a data de vencimento.'); return; }
+
+  DOCUMENTOS.push({ id:Date.now(), tipo:tipo, nome:nome, placa:placa, documento:documento, numero:numero||'—', vencimento:vencimento, obs:obs });
+  closeDocModal();
+  renderCadMotoristas(); renderCadVeiculos(); renderDocumentos();
+  saveDocsToSheets();
+  alert('Documento adicionado!');
+}
+
+function deleteDoc(id) {
+  if (!confirm('Remover este documento?')) return;
+  DOCUMENTOS = DOCUMENTOS.filter(function(d){return d.id!==id;});
+  renderCadMotoristas(); renderCadVeiculos(); renderDocumentos();
+  saveDocsToSheets();
+}
+
+/* ── RELATÓRIO MENSAL ── */
+function renderRelatorioMensal() {
+  var mesEl = document.getElementById('relMesSelect');
+  var anoEl = document.getElementById('relAnoSelect');
+  var mes = mesEl ? parseInt(mesEl.value) : (new Date().getMonth()+1);
+  var ano = anoEl ? parseInt(anoEl.value) : 2026;
+  var mesNome = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes];
+
+  var el = document.getElementById('relMensalConteudo');
+  if (!el) return;
+
+  /* Ocorrências do mês */
+  var occsDoMes = OCORRENCIAS.filter(function(o) {
+    if (!o.data) return false;
+    var p = o.data.split('/');
+    return parseInt(p[1])===mes && parseInt(p[2])===ano;
+  });
+
+  /* Lançamentos do mês */
+  var lancsDoMes = LANCAMENTOS.filter(function(l){return l.mes_num===mes;});
+  var totalLanc = lancsDoMes.reduce(function(a,b){return a+b.valor;},0);
+
+  /* Compras de pneu do mês */
+  var pneusDoMes = (typeof COMPRAS_PNEU!=='undefined') ? COMPRAS_PNEU.filter(function(c){return c.mes===mes&&c.ano===ano;}) : [];
+  var totalPneus = pneusDoMes.reduce(function(a,b){return a+b.valorTotal;},0);
+
+  var totalGeral = totalLanc + totalPneus;
+
+  var h = '';
+
+  /* Header */
+  h += '<div class="metrics-grid" style="margin-bottom:1rem">'
+     + '<div class="metric-card"><span class="metric-label">Mês</span><span class="metric-value" style="font-size:1rem">'+mesNome+'/'+ano+'</span></div>'
+     + '<div class="metric-card"><span class="metric-label">Ocorrências</span><span class="metric-value">'+occsDoMes.length+'</span></div>'
+     + '<div class="metric-card"><span class="metric-label">Lançamentos</span><span class="metric-value">'+lancsDoMes.length+'</span></div>'
+     + '<div class="metric-card"><span class="metric-label">Gasto total</span><span class="metric-value danger" style="font-size:1rem">R$\u00a0'+totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span></div>'
+     + '</div>';
+
+  /* Ocorrências */
+  h += '<div class="card" style="margin-bottom:.75rem">'
+     + '<div class="card-title"><i class="ti ti-clipboard-list"></i> Ocorrências — '+mesNome+'/'+ano+'</div>';
+  if (occsDoMes.length) {
+    occsDoMes.forEach(function(o){
+      var dc = o.status==='Urgente'?'danger':o.status==='Em breve'?'warn':'ok';
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border);font-size:.82rem">'
+         + '<span class="list-dot '+dc+'"></span>'
+         + '<div style="flex:1"><div style="font-weight:500">'+o.veiculo+' — '+o.servico+'</div>'
+         + '<div style="font-size:.75rem;color:var(--text3)">'+o.data+' · '+o.mec+'</div></div>'
+         + '<span class="badge '+dc+'">'+o.status+'</span>'
+         + (o.custo&&o.custo!=='—'?'<span style="font-weight:600;color:var(--text);font-size:.78rem">'+o.custo+'</span>':'')
+         + '</div>';
+    });
+  } else {
+    h += '<p style="color:var(--text3);font-size:.82rem;padding:.5rem">Nenhuma ocorrência neste mês.</p>';
+  }
+  h += '</div>';
+
+  /* Lançamentos financeiros */
+  h += '<div class="card" style="margin-bottom:.75rem">'
+     + '<div class="card-title"><i class="ti ti-receipt"></i> Lançamentos financeiros — '+mesNome+'/'+ano+'</div>';
+  if (lancsDoMes.length) {
+    lancsDoMes.forEach(function(l){
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border);font-size:.78rem">'
+         + '<span style="color:var(--text3);min-width:80px">'+l.data_br+'</span>'
+         + '<div style="flex:1">'+l.desc+'<div style="font-size:.72rem;color:var(--text3)">'+l.fornecedor+'</div></div>'
+         + (l.placa?'<span class="lanc-plate">'+l.placa+'</span>':'')
+         + '<span style="font-weight:600">R$\u00a0'+l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+         + '</div>';
+    });
+    h += '<div style="text-align:right;font-weight:700;font-size:.85rem;padding-top:.5rem;border-top:.5px solid var(--border);color:var(--red)">Total: R$\u00a0'+totalLanc.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</div>';
+  } else {
+    h += '<p style="color:var(--text3);font-size:.82rem;padding:.5rem">Nenhum lançamento neste mês.</p>';
+  }
+  h += '</div>';
+
+  /* Pneus */
+  if (pneusDoMes.length) {
+    h += '<div class="card" style="margin-bottom:.75rem">'
+       + '<div class="card-title"><i class="ti ti-circle-dashed"></i> Compras de pneus — '+mesNome+'/'+ano+'</div>';
+    pneusDoMes.forEach(function(c){
+      h += '<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:.5px solid var(--border);font-size:.78rem">'
+         + '<span style="color:var(--text3);min-width:80px">'+c.data+'</span>'
+         + '<div style="flex:1">'+c.marca+' ('+c.qtd+' un)<div style="font-size:.72rem;color:var(--text3)">'+c.fornecedor+'</div></div>'
+         + '<span style="font-weight:600">R$\u00a0'+c.valorTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+         + '</div>';
+    });
+    h += '<div style="text-align:right;font-weight:700;font-size:.85rem;padding-top:.5rem;border-top:.5px solid var(--border);color:var(--red)">Total pneus: R$\u00a0'+totalPneus.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</div></div>';
+  }
+
+  /* Total geral */
+  h += '<div class="card" style="border:1.5px solid var(--amber);background:var(--amber-bg)">'
+     + '<div style="display:flex;align-items:center;justify-content:space-between">'
+     + '<span style="font-size:.9rem;font-weight:600;color:var(--amber-text)">TOTAL GERAL — '+mesNome+'/'+ano+'</span>'
+     + '<span style="font-size:1.2rem;font-weight:700;color:var(--red)">R$\u00a0'+totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+     + '</div></div>';
+
+  el.innerHTML = h;
+}
+
+/* ── SYNC OCORRÊNCIAS → FINANCEIRO ── */
+function syncOcorrenciaToFinanceiro(occ) {
+  if (!occ.custo || occ.custo === '—' || occ.custo === '') return;
+  var valorStr = occ.custo.replace('R$','').replace(/\./g,'').replace(',','.').trim();
+  var valor = parseFloat(valorStr);
+  if (!valor || valor <= 0) return;
+
+  /* Evita duplicatas */
+  var jaExiste = LANCAMENTOS.find(function(l){return l.desc===occ.servico&&l.valor===valor&&l.data_br===occ.data;});
+  if (jaExiste) return;
+
+  var p = occ.data ? occ.data.split('/') : [];
+  var mes_num = p.length===3 ? parseInt(p[1]) : (new Date().getMonth()+1);
+  var mesNomes = {1:'January',2:'February',3:'March',4:'April',5:'May',6:'June',7:'July',8:'August',9:'September',10:'October',11:'November',12:'December'};
+
+  var vdata = FROTA.find(function(f){return f.placa===occ.veiculo;});
+  var motorista = vdata ? vdata.motorista : '—';
+
+  LANCAMENTOS.unshift({
+    n: LANCAMENTOS.length + 1,
+    data_br: occ.data || new Date().toLocaleDateString('pt-BR'),
+    fornecedor: occ.mec || 'Manutenção',
+    desc: occ.servico || 'Manutenção',
+    placa: occ.veiculo || '',
+    motorista: motorista,
+    modelo: vdata ? vdata.modelo : '—',
+    valor: valor,
+    pagto: '',
+    mes: mesNomes[mes_num]+'/2026',
+    mes_num: mes_num
+  });
+}
+
+/* ── PATCH salvarRegistro para sincronizar com Financeiro ── */
+var _origSalvarReg = salvarRegistro;
+salvarRegistro = function() {
+  var lenAntes = OCORRENCIAS.length;
+  _origSalvarReg();
+  /* Se nova ocorrência foi adicionada, sincroniza com Financeiro */
+  if (OCORRENCIAS.length > lenAntes) {
+    var novaOcc = OCORRENCIAS[0];
+    syncOcorrenciaToFinanceiro(novaOcc);
+  }
+  /* Sempre atualiza financeiro em tempo real */
+  setTimeout(function() {
+    var finEl = document.getElementById('financeiro');
+    if (finEl && finEl.classList.contains('active')) {
+      renderFinanceiro();
+    }
+    renderPainelRanking();
+  }, 150);
+  saveToSheets();
+};
+
+/* ── SHEETS ── */
+function saveDocsToSheets() {
+  if (typeof gsWrite !== 'function') return;
+  var rows = [['id','tipo','nome','placa','documento','numero','vencimento','obs']];
+  DOCUMENTOS.forEach(function(d){rows.push([d.id,d.tipo,d.nome,d.placa,d.documento,d.numero,d.vencimento,d.obs]);});
+  gsWrite('documentos', rows);
+}
+
+function loadDocsFromSheets() {
+  if (typeof gsRead !== 'function') return;
+  gsRead('documentos').then(function(data){
+    if (data && data.length > 1) {
+      DOCUMENTOS = data.slice(1).filter(function(r){return r[0];}).map(function(r){
+        return {id:+r[0]||Date.now(),tipo:r[1]||'motorista',nome:r[2]||'',placa:r[3]||'',documento:r[4]||'',numero:r[5]||'',vencimento:r[6]||'',obs:r[7]||''};
+      });
+    } else {
+      initDocumentos();
+    }
+  }).catch(function(){initDocumentos();});
+}
+
+/* ── HOOK showTab ── */
+var _origSTcad = showTab;
+showTab = function(id) {
+  _origSTcad(id);
+  if (id==='cadastros') {
+    setTimeout(function(){showCadTab('motoristas');},60);
+  }
+  if (id==='relatorios') {
+    var today = new Date().toISOString().split('T')[0];
+    var rdEl = document.getElementById('relData');
+    if (rdEl && !rdEl.value) rdEl.value = today;
+    setTimeout(function(){renderRelatorio('','');},80);
+    /* Populate mensal selects */
+    var msEl = document.getElementById('relMesSelect');
+    if (msEl && !msEl.value) msEl.value = String(new Date().getMonth()+1);
+    var ayEl = document.getElementById('relAnoSelect');
+    if (ayEl && !ayEl.value) ayEl.value = '2026';
+  }
+};
+
+/* Init documentos ao carregar */
+initDocumentos();
+
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    if (location.hostname === 'frotacontrol.github.io') {
+      navigator.serviceWorker.register('sw.js', {scope:'/frotacontrol/'})
+        .then(function(r){console.log('SW ok');})
+        .catch(function(e){console.log('SW err:',e);});
+    }
+  });
+}
+window.addEventListener('load',function(){
+  var em=document.getElementById('loginEmail');
+  var ps=document.getElementById('loginPass');
+  if(em)em.value=''; if(ps)ps.value='';
+});
+</script>
+<style>
+.admin-only { display: none !important; }
+</style>
+<script>
+/* ═══════════════════════════════════════════════
+   MELHORIAS: Ocorrências editáveis + Lembretes
+   Expresso PB — FrotaControl
+═══════════════════════════════════════════════ */
+
+/* ── 1. LEMBRETES ── */
+var LEMBRETES = [
+  { id:1, titulo:'Verificar vencimento CNH — Carlos A.', descricao:'CNH de Carlos A. vence em 30/12/2025. Providenciar renovação urgente.', prioridade:'alta', data:'30/12/2025', concluido:false },
+  { id:2, titulo:'Agendar tacógrafo QSK-2H66', descricao:'Tacógrafo da QSK-2H66 vence em 15/07/2026.', prioridade:'media', data:'15/07/2026', concluido:false },
+  { id:3, titulo:'Pneus RLR-1H73 — 4 pneus tração', descricao:'Sérgio Soares precisa de 4 pneus de tração urgente.', prioridade:'alta', data:'05/05/2026', concluido:false },
+];
+
+function renderLembretes() {
+  var el = document.getElementById('lembretesLista');
+  if (!el) return;
+
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var sorted = LEMBRETES.slice().sort(function(a,b){
+    if (a.concluido !== b.concluido) return a.concluido ? 1 : -1;
+    var pa = a.prioridade==='alta'?0:a.prioridade==='media'?1:2;
+    var pb = b.prioridade==='alta'?0:b.prioridade==='media'?1:2;
+    return pa - pb;
+  });
+
+  if (!sorted.length) {
+    el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)"><i class="ti ti-check" style="font-size:2rem;display:block;margin-bottom:.5rem;color:var(--green)"></i>Nenhum lembrete pendente!</div>';
+    return;
+  }
+
+  var h = '';
+  sorted.forEach(function(l) {
+    var cor = l.prioridade==='alta'?'var(--red)':l.prioridade==='media'?'#D97706':'var(--green)';
+    var corBg = l.prioridade==='alta'?'var(--red-bg)':l.prioridade==='media'?'var(--amber-bg)':'var(--green-bg)';
+    var prioLabel = l.prioridade==='alta'?'Alta':l.prioridade==='media'?'Média':'Baixa';
+
+    h += '<div style="display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 0;border-bottom:.5px solid var(--border);'+(l.concluido?'opacity:.5':'')+'">'+
+      '<div style="width:10px;height:10px;border-radius:50%;background:'+cor+';flex-shrink:0;margin-top:5px"></div>'+
+      '<div style="flex:1">'+
+        '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:3px">'+
+          '<span style="font-size:.875rem;font-weight:500;color:var(--text);'+(l.concluido?'text-decoration:line-through':'')+'">'+l.titulo+'</span>'+
+          '<span style="font-size:.7rem;padding:1px 7px;border-radius:999px;background:'+corBg+';color:'+cor+';font-weight:500">'+prioLabel+'</span>'+
+          (l.data?'<span style="font-size:.72rem;color:var(--text3);margin-left:auto">'+l.data+'</span>':'')+
+        '</div>'+
+        (l.descricao?'<div style="font-size:.78rem;color:var(--text2)">'+l.descricao+'</div>':'')+
+      '</div>'+
+      (CU&&CU.perms.permissoes?
+        '<div style="display:flex;gap:4px;flex-shrink:0">'+
+          (!l.concluido?'<button onclick="toggleLembrete('+l.id+')" style="background:var(--green-bg);border:.5px solid var(--green);border-radius:5px;padding:3px 8px;cursor:pointer;font-size:.72rem;color:var(--green-text)"><i class="ti ti-check"></i></button>':'<button onclick="toggleLembrete('+l.id+')" style="background:var(--surface2);border:.5px solid var(--border);border-radius:5px;padding:3px 8px;cursor:pointer;font-size:.72rem;color:var(--text3)"><i class="ti ti-refresh"></i></button>')+
+          '<button onclick="editLembrete('+l.id+')" style="background:var(--amber-bg);border:.5px solid var(--amber);border-radius:5px;padding:3px 8px;cursor:pointer;font-size:.72rem;color:var(--amber-text)"><i class="ti ti-pencil"></i></button>'+
+          '<button onclick="deleteLembrete('+l.id+')" style="background:var(--red-bg);border:.5px solid var(--red);border-radius:5px;padding:3px 8px;cursor:pointer;font-size:.72rem;color:var(--red-text)"><i class="ti ti-trash"></i></button>'+
+        '</div>':'')+
+      '</div>';
+  });
+  el.innerHTML = h;
+
+  // Update badge
+  var pending = LEMBRETES.filter(function(l){return !l.concluido;}).length;
+  var badge = document.getElementById('lembretesBadge');
+  if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'inline' : 'none'; }
+}
+
+function toggleLembrete(id) {
+  var l = LEMBRETES.find(function(x){return x.id===id;});
+  if (l) { l.concluido = !l.concluido; renderLembretes(); renderPainelLembretes(); }
+}
+
+function deleteLembrete(id) {
+  if (!confirm('Remover este lembrete?')) return;
+  LEMBRETES = LEMBRETES.filter(function(l){return l.id!==id;});
+  renderLembretes(); renderPainelLembretes();
+}
+
+function editLembrete(id) {
+  var l = LEMBRETES.find(function(x){return x.id===id;});
+  if (!l) return;
+  openLembreteModal(l);
+}
+
+function openLembreteModal(lembrete) {
+  var el = document.getElementById('modalLembrete');
+  if (!el) return;
+  el.style.display = 'flex';
+  document.getElementById('lembTitulo').value = lembrete ? lembrete.titulo : '';
+  document.getElementById('lembDesc').value = lembrete ? lembrete.descricao : '';
+  document.getElementById('lembPrioridade').value = lembrete ? lembrete.prioridade : 'media';
+  document.getElementById('lembData').value = lembrete ? (lembrete.data ? lembrete.data.split('/').reverse().join('-') : '') : '';
+  document.getElementById('lembId').value = lembrete ? lembrete.id : '';
+}
+
+function closeLembreteModal() {
+  var el = document.getElementById('modalLembrete');
+  if (el) el.style.display = 'none';
+}
+
+function salvarLembrete() {
+  var titulo = document.getElementById('lembTitulo').value.trim();
+  var desc = document.getElementById('lembDesc').value.trim();
+  var prio = document.getElementById('lembPrioridade').value;
+  var dataVal = document.getElementById('lembData').value;
+  var idVal = document.getElementById('lembId').value;
+
+  if (!titulo) { alert('Digite um título.'); return; }
+
+  var dataBr = '';
+  if (dataVal) { var p=dataVal.split('-'); dataBr=p[2]+'/'+p[1]+'/'+p[0]; }
+
+  if (idVal) {
+    var l = LEMBRETES.find(function(x){return x.id===parseInt(idVal);});
+    if (l) { l.titulo=titulo; l.descricao=desc; l.prioridade=prio; l.data=dataBr; }
+  } else {
+    LEMBRETES.push({ id:Date.now(), titulo:titulo, descricao:desc, prioridade:prio, data:dataBr, concluido:false });
+  }
+  closeLembreteModal();
+  renderLembretes(); renderPainelLembretes();
+}
+
+/* Lembretes do dia no painel */
+function renderPainelLembretes() {
+  var el = document.getElementById('painelLembretes');
+  if (!el) return;
+  var hoje = new Date().toLocaleDateString('pt-BR');
+  var urgentes = LEMBRETES.filter(function(l){return !l.concluido && (l.prioridade==='alta' || l.data===hoje);});
+  
+  if (!urgentes.length) {
+    el.innerHTML = '<div style="font-size:.82rem;color:var(--text3);padding:.5rem 0"><i class="ti ti-check" style="color:var(--green)"></i> Sem lembretes urgentes hoje</div>';
+    return;
+  }
+
+  var h = '';
+  urgentes.slice(0,4).forEach(function(l) {
+    var cor = l.prioridade==='alta'?'var(--red)':'#D97706';
+    h += '<div style="display:flex;align-items:flex-start;gap:.5rem;padding:.4rem 0;border-bottom:.5px solid var(--border)">' +
+      '<div style="width:7px;height:7px;border-radius:50%;background:'+cor+';flex-shrink:0;margin-top:5px"></div>' +
+      '<div style="font-size:.8rem;color:var(--text)">'+l.titulo+'</div>' +
+      '</div>';
+  });
+  if (urgentes.length > 4) h += '<div style="font-size:.75rem;color:var(--blue);padding-top:4px">+ '+(urgentes.length-4)+' lembretes pendentes</div>';
+  el.innerHTML = h;
+}
+
+/* ── 2. OCORRÊNCIAS EDITÁVEIS COMPLETO ── */
+function renderOcorrenciasNovo() {
+  var fs = (document.getElementById('filtroStatus')||{value:''}).value || '';
+  var fv = (document.getElementById('filtroVei')||{value:''}).value || '';
+  var ft = (document.getElementById('filtroTipo')||{value:''}).value || '';
+
+  var list = OCORRENCIAS.filter(function(o) {
+    return (!fs || o.status === fs) && (!fv || o.veiculo === fv) && (!ft || o.tipo === ft);
+  });
+
+  var g = document.getElementById('occList');
+  if (!g) return;
+
+  if (!list.length) {
+    g.innerHTML = '<p style="color:var(--text3);font-size:.875rem;padding:1rem">Nenhuma ocorrência encontrada.</p>';
+    return;
+  }
+
+  var statusOpts = ['Urgente','Em breve','Concluido','Em andamento','Aguardando peca','Cancelado'];
+  var tipoOpts = ['Manutencao','Pneu novo','Recapagem','Troca de veiculo','Preventiva','Corretiva'];
+
+  g.innerHTML = '';
+  list.forEach(function(o) {
+    var sc = o.status==='Urgente'?'danger':o.status==='Em breve'?'warn':o.status==='Concluido'?'ok':'blue';
+    var custoStr = (CU&&CU.perms.financeiro&&o.custo&&o.custo!=='—') ? ' · <strong>'+o.custo+'</strong>' : '';
+
+    var card = document.createElement('div');
+    card.className = 'occ-card';
+    card.style.borderLeft = '3px solid '+(sc==='danger'?'var(--red)':sc==='warn'?'#D97706':sc==='ok'?'var(--green)':'var(--blue)');
+
+    var statusSelect = '';
+    var canEdit = CU && (CU.perms.registrar || CU.perms.permissoes);
+    if (canEdit) {
+      statusSelect = '<select onchange="updateOccStatus('+o.id+',this.value)" style="font-size:.72rem;padding:2px 6px;border-radius:5px;border:.5px solid var(--border);background:var(--surface);color:var(--text);margin-left:4px">';
+      statusOpts.forEach(function(s){ statusSelect += '<option value="'+s+'"'+(o.status===s?' selected':'')+'>'+s+'</option>'; });
+      statusSelect += '</select>';
+    } else {
+      statusSelect = '<span class="badge '+sc+'" style="margin-left:4px">'+o.status+'</span>';
+    }
+
+    card.innerHTML =
+      '<div class="occ-top">'+
+        '<span class="list-dot '+sc+'" style="margin-top:3px;flex-shrink:0"></span>'+
+        '<div class="occ-title" style="flex:1">'+o.servico+' <span style="font-size:.75rem;color:var(--text3)">— '+o.veiculo+'</span></div>'+
+        statusSelect+
+        (canEdit ? '<button onclick="editOcorrencia('+o.id+')" style="background:none;border:none;cursor:pointer;color:var(--amber);font-size:15px;padding:2px 4px;border-radius:4px;margin-left:4px" title="Editar"><i class="ti ti-pencil"></i></button>' : '')+
+        (canEdit ? '<button onclick="deleteOcorrencia('+o.id+')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:2px 4px;border-radius:4px" title="Excluir"><i class="ti ti-trash"></i></button>' : '')+
+      '</div>'+
+      '<div class="occ-meta">'+
+        '<span>'+o.data+'</span>'+
+        (o.mec?' · '+o.mec:'')+
+        custoStr+
+      '</div>'+
+      (o.desc ? '<div class="occ-desc">'+o.desc+'</div>' : '');
+
+    g.appendChild(card);
+  });
+}
+
+function updateOccStatus(id, newStatus) {
+  var o = OCORRENCIAS.find(function(x){return x.id===id;});
+  if (!o) return;
+  o.status = newStatus;
+  renderOcorrenciasNovo();
+  renderAll();
+  saveToSheets();
+  showSync('Status atualizado!','ok');
+}
+
+function deleteOcorrencia(id) {
+  if (!confirm('Remover esta ocorrência?')) return;
+  OCORRENCIAS = OCORRENCIAS.filter(function(o){return o.id!==id;});
+  renderOcorrenciasNovo();
+  renderAll();
+  saveToSheets();
+}
+
+function editOcorrencia(id) {
+  var o = OCORRENCIAS.find(function(x){return x.id===id;});
+  if (!o) return;
+
+  var el = document.getElementById('modalOcorrencia');
+  if (!el) return;
+  el.style.display = 'flex';
+
+  document.getElementById('occEditId').value = o.id;
+  document.getElementById('occEditVeiculo').value = o.veiculo;
+  document.getElementById('occEditServico').value = o.servico;
+  document.getElementById('occEditTipo').value = o.tipo;
+  document.getElementById('occEditData').value = o.data ? o.data.split('/').reverse().join('-') : '';
+  document.getElementById('occEditStatus').value = o.status;
+  document.getElementById('occEditMec').value = o.mec || '';
+  document.getElementById('occEditCusto').value = o.custo && o.custo!=='—' ? o.custo.replace('R$','').replace(/\s/g,'').replace(',','.') : '';
+  document.getElementById('occEditDesc').value = o.desc || '';
+}
+
+function closeOcorrenciaModal() {
+  var el = document.getElementById('modalOcorrencia');
+  if (el) el.style.display = 'none';
+}
+
+function salvarEdicaoOcorrencia() {
+  var id = parseInt(document.getElementById('occEditId').value);
+  var o = OCORRENCIAS.find(function(x){return x.id===id;});
+  if (!o) return;
+
+  var dataVal = document.getElementById('occEditData').value;
+  var dataBr = '';
+  if (dataVal) { var p=dataVal.split('-'); dataBr=p[2]+'/'+p[1]+'/'+p[0]; }
+
+  var custoRaw = document.getElementById('occEditCusto').value.trim();
+  var custo = custoRaw ? 'R$ '+parseFloat(custoRaw.replace(',','.')).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '—';
+
+  o.veiculo  = document.getElementById('occEditVeiculo').value;
+  o.servico  = document.getElementById('occEditServico').value;
+  o.tipo     = document.getElementById('occEditTipo').value;
+  o.data     = dataBr;
+  o.status   = document.getElementById('occEditStatus').value;
+  o.mec      = document.getElementById('occEditMec').value;
+  o.custo    = custo;
+  o.desc     = document.getElementById('occEditDesc').value;
+
+  // Sync to financeiro if has cost
+  syncOcorrenciaToFinanceiro(o);
+
+  closeOcorrenciaModal();
+  renderOcorrenciasNovo();
+  renderAll();
+  saveToSheets();
+  showSync('Ocorrência atualizada!','ok');
+}
+
+/* Replace the original renderOcorrencias */
+renderOcorrencias = renderOcorrenciasNovo;
+
+/* ── 3. PAINEL: só lembretes do dia + status frota ── */
+function updatePainel() {
+  renderPainelLembretes();
+  renderPainelRanking();
+  /* Atualiza contadores dinamicamente */
+  var urgentes = OCORRENCIAS.filter(function(o){return o.status==='Urgente';}).length;
+  var pendentes = OCORRENCIAS.filter(function(o){return o.status==='Em breve';}).length;
+  var emdia = FROTA.filter(function(v){return v.status==='ok';}).length;
+  
+  /* Update alert bar */
+  var alertBar = document.getElementById('alertBar');
+  if (alertBar) {
+    var criticos = OCORRENCIAS.filter(function(o){return o.status==='Urgente';}).map(function(o){return o.veiculo;});
+    var uniq = criticos.filter(function(v,i,a){return a.indexOf(v)===i;}).slice(0,3);
+    alertBar.querySelector('span').textContent = uniq.length ? uniq.join(' · ') + ' — ocorrências urgentes' : 'Sem alertas críticos hoje';
+  }
+}
+
+/* Hook showTab */
+var _origSTmelh = showTab;
+showTab = function(id) {
+  _origSTmelh(id);
+  if (id === 'ocorrencias') setTimeout(renderOcorrenciasNovo, 60);
+  if (id === 'lembretes') setTimeout(renderLembretes, 60);
+  if (id === 'painel') setTimeout(updatePainel, 60);
+};
+
+/* Init */
+setTimeout(function(){
+  renderPainelLembretes();
+  renderOcorrenciasNovo();
+}, 500);
+
+
+/* Show admin items after login */
+var _origDoLoginMelh = doLogin;
+doLogin = function() {
+  _origDoLoginMelh();
+  var app = document.getElementById("appScreen");
+  if (app && app.classList.contains("active")) {
+    var isAdmin = CU && CU.perms.permissoes;
+    document.querySelectorAll(".admin-only").forEach(function(el){
+      el.style.display = isAdmin ? "" : "none";
+    });
+    setTimeout(updatePainel, 200);
+  }
+};
+</script>
+</body>
+</html>
